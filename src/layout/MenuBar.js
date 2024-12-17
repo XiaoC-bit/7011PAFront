@@ -1,68 +1,93 @@
 import React, { useState } from 'react';
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
-const items = [
-    {
-        label: 'Navigation One',
-        key: 'mail',
-        icon: <MailOutlined />,
-    },
-    {
-        label: 'Navigation Two',
-        key: 'app',
-        icon: <AppstoreOutlined />,
-        disabled: true,
-    },
-    {
-        label: 'Navigation Three - Submenu',
-        key: 'SubMenu',
-        icon: <SettingOutlined />,
-        children: [
-            {
-                type: 'group',
-                label: 'Item 1',
-                children: [
-                    {
-                        label: 'Option 1',
-                        key: 'setting:1',
-                    },
-                    {
-                        label: 'Option 2',
-                        key: 'setting:2',
-                    },
-                ],
-            },
-            {
-                type: 'group',
-                label: 'Item 2',
-                children: [
-                    {
-                        label: 'Option 3',
-                        key: 'setting:3',
-                    },
-                    {
-                        label: 'Option 4',
-                        key: 'setting:4',
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        key: 'alipay',
-        label: (
-            <a href="https://ant.design" target="_blank" rel="noopener noreferrer">
-                Navigation Four - Link
-            </a>
-        ),
-    },
-];
+import { useTranslation } from "react-i18next";
+
 const App = () => {
-    const [current, setCurrent] = useState('mail');
+    const { t } = useTranslation();
+    const [current, setCurrent] = useState("mail");
     const onClick = (e) => {
         console.log('click ', e);
         setCurrent(e.key);
     };
+
+
+    const items = [
+        {
+            label: t("file"),
+            key: 'file',
+            children: [
+                {
+                    label: t("open method"),
+                    key: 'open method',
+                },
+                {
+                    label: t("save method"),
+                    key: 'save method',
+                },
+                {
+                    label: t("export report"),
+                    key: 'export report',
+                },
+                {
+                    label: t("export data"),
+                    key: 'export data',
+                },
+                {
+                    label: t("print"),
+                    key: 'print',
+                },
+                {
+                    label: t("preview"),
+                    key: 'preview',
+                },
+                {
+                    label: t("exit"),
+                    key: 'exit',
+                }
+            ]
+        },
+        {
+            label: t("edit"),
+            key: 'edit',
+            children: [
+                {
+                    label: t("report setting"),
+                    key: 'report setting',
+                }
+            ]
+        },
+        {
+            label: t("advance"),
+            key: 'advance',
+            children: [
+                {
+                    label: t("adjust"),
+                    key: 'adjust',
+                },
+                {
+                    label: t("PID"),
+                    key: 'PID',
+                }
+            ]
+        },
+        {
+            label: t("help"),
+            key: 'help',
+            children: [
+                {
+                    label: t("lanuage"),
+                    key: 'lanuage',
+                },
+                {
+                    label: t("version"),
+                    key: 'version',
+                }
+            ]
+        },
+    ];
+
+
     return <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />;
 };
 export default App;
