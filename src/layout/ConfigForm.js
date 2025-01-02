@@ -78,14 +78,6 @@ const ConfigForm = () => {
                     </Form.Item>
                 </Col>
             </Row>
-
-            <Divider />
-            <Space>
-                <Button type="primary" htmlType="submit">
-                    {t("save")}
-                </Button>
-                <Button htmlType="reset">{t("reset")}</Button>
-            </Space>
         </Form>
     );
 };

@@ -18,8 +18,7 @@ const TestModeConfig = () => {
     ];
 
     return (
-        <div style={{ padding: "10px" }}>
-
+        <div >
             {/* 试件基本信息 */}
             <h3>{t("specimen_basic_info")}</h3>
             <Form layout="vertical">
@@ -70,13 +69,13 @@ const TestModeConfig = () => {
                     </Col>
                     <Col span={12}>
                         <Form.Item label={t("remarks")}>
-                            <TextArea rows={3} placeholder={t("input_remarks")} />
+                            <Input placeholder={t("input_remarks")} />
                         </Form.Item>
                     </Col>
                 </Row>
             </Form>
 
-            <Divider style={{ margin: 0, marginBottom: 10 }} />
+            <Divider style={{ margin: 20 }} />
             {/* 模式选择 */}
             <Radio.Group
                 options={modeOptions}
@@ -90,9 +89,16 @@ const TestModeConfig = () => {
             {mode === "destructive" && (
                 <>
                     <p>{t("input_project")}</p>
-                    <InputNumber style={{ width: "100%" }} placeholder={t("torsion_speed")} />
-                    <p>1. {t("degree_per_min")}</p>
-                    <p>2. {t("n_per_min")}</p>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: "center",
+                    }}>
+                        <InputNumber style={{ flex: 1 }} placeholder={t("torsion_speed")} />
+                        <Select defaultValue="degree_per_min" style={{ flex: '0 0 20%', marginLeft: '8px' }}>
+                            <Option value="degree_per_min">{t("degree_per_min")}</Option>
+                            <Option value="n_per_min">{t("n_per_min")}</Option>
+                        </Select>
+                    </div>
                 </>
             )}
 
@@ -104,12 +110,11 @@ const TestModeConfig = () => {
                         <Option value="angle">{t("constant_angle_mode")}</Option>
                         <Option value="torque">{t("constant_torque_mode")}</Option>
                     </Select>
-                    <Divider />
-                    <label>{t("constant_angle")}</label>
+                    <p>{t("constant_angle")}</p>
                     <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_angle")} />
-                    <label>{t("torsion_speed")}</label>
+                    <p>{t("torsion_speed")}</p>
                     <InputNumber style={{ width: "100%" }} placeholder={t("input_torsion_speed")} />
-                    <label>{t("cycle_count")}</label>
+                    <p>{t("cycle_count")}</p>
                     <InputNumber style={{ width: "100%" }} placeholder={t("input_cycle_count")} />
                 </>
             )}
@@ -122,10 +127,9 @@ const TestModeConfig = () => {
                         <Option value="sin">{t("sin_waveform")}</Option>
                         <Option value="triangle">{t("triangle_waveform")}</Option>
                     </Select>
-                    <Divider />
-                    <label>{t("torsion_frequency")}</label>
+                    <p>{t("torsion_frequency")}</p>
                     <InputNumber style={{ width: "100%" }} placeholder="HZ" />
-                    <label>{t("step_time")}</label>
+                    <p>{t("step_time")}</p>
                     <InputNumber style={{ width: "100%" }} placeholder="ms" />
                 </>
             )}

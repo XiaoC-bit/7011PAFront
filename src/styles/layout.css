@@ -8,3 +8,109 @@
 .info {
     padding: 16px;
 }
+
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    /* 防止滚动条 */
+}
+
+.flex-item {
+    flex: 1;
+    margin: 5px;
+    overflow: hidden;
+    /* 防止滚动条 */
+}
+
+.main-content {
+    flex-grow: 2;
+    /* 使MainContent占据更多的空间 */
+    overflow: hidden;
+    /* 防止滚动条 */
+}
+
+
+
+.tabs-panel {
+    max-height: calc(100vh - 100px);
+    /* 100px 是一个示例值，你可以根据实际情况调整 */
+
+    /* 设置最大高度 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* 使内容可以滚动 */
+    background-color: brown;
+    padding: 0px;
+    /* 减少内边距 */
+}
+
+
+.custom-tabs .ant-tabs-nav {
+    margin: 0;
+    /* 去除Tabs导航的外边距 */
+}
+
+.custom-tabs .ant-tabs-tab {
+    padding: 5px 0px;
+    padding-top: 0px;
+    /* 减少Tabs标签的内边距 */
+}
+
+.custom-tabs .ant-tabs-content {
+    padding: 5px;
+    /* 减少Tabs内容的内边距 */
+}
+
+
+.tabs-panel .ant-form-item {
+    margin-bottom: 5px;
+    /* 减少表单项之间的间距 */
+}
+
+.tabs-panel .ant-divider {
+    margin: 5px 0;
+    /* 减少Divider的上下间距 */
+}
+
+.tabs-panel .ant-input,
+.tabs-panel .ant-input-number,
+.tabs-panel .ant-select,
+.tabs-panel .ant-picker,
+.tabs-panel .ant-input-textarea,
+.tabs-panel .ant-btn {
+    height: 26px;
+    /* 缩小输入框、选择框和按钮的高度 */
+    font-size: 12px;
+    /* 缩小字体大小 */
+}
+
+
+.transfer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 90%;
+    /* 确保容器高度为100% */
+}
+
+.transfer-tree {
+    width: 40%;
+    border: 1px solid #d9d9d9;
+    padding: 8px;
+    border-radius: 4px;
+    overflow-y: auto;
+    height: 100%;
+    /* 确保树组件高度为100% */
+}
+
+.transfer-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+    /* 增加按钮之间的间距 */
+}

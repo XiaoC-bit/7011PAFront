@@ -5,6 +5,8 @@ import Info from "./Info";
 import MainContent from "./MainContent";
 import StatusBar from './StatusBar';
 
+import '../styles/layout.css';
+
 const Layout = () => {
 
     // 示例数据
@@ -24,12 +26,12 @@ const Layout = () => {
     });
 
     return (
-        <div >
-            <MenuBar />
-            <ToolBar />
-            <Info statusData={sampleData}></Info>
-            <MainContent />
-            <StatusBar hardwareInfo={hardwareInfo} />
+        <div className="layout-container">
+            <MenuBar className="flex-item" />
+            <ToolBar className="flex-item" />
+            <Info className="flex-item" statusData={sampleData}></Info>
+            <MainContent className="flex-item main-content" />
+            <StatusBar className="flex-item" hardwareInfo={hardwareInfo} />
         </div>
     );
 };

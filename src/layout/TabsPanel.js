@@ -4,13 +4,15 @@ import ConfigForm from "./ConfigForm";
 import TestModeConfig from "./TestModeConfig";
 import { useTranslation } from "react-i18next";
 
+import '../styles/layout.css';
+
 const { TabPane } = Tabs;
 
 const TabsPanel = () => {
   const { t } = useTranslation();
 
   return (
-    <Tabs defaultActiveKey="1" >
+    <Tabs defaultActiveKey="1" className="custom-tabs">
       <TabPane tab={t("generalParams")} key="1">
         <ConfigForm />
       </TabPane>

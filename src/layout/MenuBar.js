@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
 import { useTranslation } from "react-i18next";
+import ReportSettingModal from './ReportSettingModal';
 
 const App = () => {
+
     const { t } = useTranslation();
-    const [current, setCurrent] = useState("mail");
+
+    const [isReportSettingModalVisible, setIsReportSettingModalVisible] = useState(false);
+
     const onClick = (e) => {
-        console.log('click ', e);
-        setCurrent(e.key);
+        if (e.key === 'report setting') {
+            setIsReportSettingModalVisible(true);
+        }
     };
 
 
@@ -28,10 +33,6 @@ const App = () => {
                 {
                     label: t("export report"),
                     key: 'export report',
-                },
-                {
-                    label: t("export data"),
-                    key: 'export data',
                 },
                 {
                     label: t("print"),
@@ -88,6 +89,15 @@ const App = () => {
     ];
 
 
-    return <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />;
+    return <>       <Menu onClick={onClick} mode="horizontal" items={items} />
+        <ReportSettingModal
+            visible={isReportSettingModalVisible}
+            onOk={() => {
+                setIsReportSettingModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsReportSettingModalVisible(false);
+            }}
+        /></>;
 };
 export default App;
