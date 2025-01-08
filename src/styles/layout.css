@@ -2,11 +2,19 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
-    margin: 16px;
+    align-items: center;
+    height: 100%;
+    /* 垂直方向居中对齐 */
 }
 
 .info {
+    width: 100%;
     padding: 16px;
+}
+
+.info .ant-statistic-content-value {
+    white-space: nowrap;
+    /* 防止文本换行 */
 }
 
 .layout-container {
@@ -15,6 +23,15 @@
     height: 100vh;
     overflow: hidden;
     /* 防止滚动条 */
+}
+
+
+.toolbar-info-container {
+    display: flex;
+    align-items: start;
+    /* 垂直居中对齐 */
+    justify-content: flex-start;
+    /* 从左到右排列 */
 }
 
 .flex-item {
@@ -113,4 +130,60 @@
     height: 100%;
     gap: 8px;
     /* 增加按钮之间的间距 */
+}
+
+
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .printableArea,
+    .printableArea * {
+        visibility: visible;
+    }
+
+    .printableArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+}
+
+
+.config-form {
+    max-height: 100vh;
+    /* 确保表单容器的最大高度 */
+    overflow-y: hidden;
+    /* 当内容超出容器高度时显示滚动条 */
+    overflow-x: hidden;
+}
+
+.config-form h3 {
+    margin-top: 0px;
+}
+
+.test-mode-config h3 {
+    margin-top: 0px;
+}
+
+
+.statistic-item {
+    display: flex;
+    align-items: center;
+}
+
+.statistic-title {
+    margin-right: 8px;
+    font-weight: bold;
+    color: darkgray;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.ant-statistic-content-value {
+    white-space: nowrap;
+    /* 防止文本换行 */
 }

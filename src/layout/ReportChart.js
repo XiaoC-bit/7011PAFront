@@ -12,9 +12,9 @@ const data = [
     { name: "Page G", uv: 3490, pv: 4300, amt: 2100 },
 ];
 
-const MyLineChart = () => {
+const MyLineChart = ({ width, height }) => {
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width={width} height={height}>
             <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />

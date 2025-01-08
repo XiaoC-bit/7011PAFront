@@ -28,8 +28,14 @@ const Layout = () => {
     return (
         <div className="layout-container">
             <MenuBar className="flex-item" />
-            <ToolBar className="flex-item" />
-            <Info className="flex-item" statusData={sampleData}></Info>
+
+            <div className="toolbar-info-container">
+                <ToolBar className="flex-item" />
+                <Info className="flex-item" statusData={sampleData} />
+            </div>
+            {/* <ToolBar className="flex-item" />
+            <Info className="flex-item" statusData={sampleData}></Info> */}
+
             <MainContent className="flex-item main-content" />
             <StatusBar className="flex-item" hardwareInfo={hardwareInfo} />
         </div>

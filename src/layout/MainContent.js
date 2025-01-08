@@ -1,7 +1,7 @@
 import React from "react";
 import { Layout } from "antd";
 import LeftPanel from "./LeftPanel";
-import MyLineChart from './ReportChart';
+import ReportContent from "./ReportContent";
 const { Content } = Layout;
 
 const App = () => {
@@ -11,8 +11,8 @@ const App = () => {
             <LeftPanel />
 
             {/* 右侧展示区域，预留 */}
-            <Content style={{ padding: "16px", background: "#f0f2f5" }}>
-                <MyLineChart />
+            <Content style={{ padding: "8px", background: "#f0f2f5", overflowY: "auto" }}>
+                <ReportContent />
             </Content>
         </Layout>
     );
