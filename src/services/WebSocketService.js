@@ -16,28 +16,32 @@ class WebSocketService {
 
     connect() {
         if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-            this.socket = new WebSocket(this.url);
+            try {
 
-            this.socket.onopen = () => {
-                console.log('WebSocket connection opened');
-            };
+                this.socket = new WebSocket(this.url);
+                this.socket.onopen = () => {
+                    console.log('WebSocket connection opened');
+                };
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                this.notifyListeners(message);
-            };
+                this.socket.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    this.notifyListeners(message);
+                };
 
-            this.socket.onclose = () => {
-                console.log('WebSocket connection closed, attempting to reconnect...');
-                setTimeout(() => {
-                    this.connect();
-                }, this.reconnectInterval);
-            };
+                this.socket.onclose = () => {
+                    setTimeout(() => {
+                        this.connect();
+                    }, this.reconnectInterval);
+                };
 
-            this.socket.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                this.socket.close(); // 触发onclose事件
-            };
+                this.socket.onerror = (error) => {
+                    //  console.error('WebSocket error:', error);
+                    this.socket.close(); // 触发onclose事件
+                };
+            }
+            catch (error) {
+            }
+
         }
     }
 
@@ -45,7 +49,7 @@ class WebSocketService {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
-            console.error('WebSocket is not open. Ready state:', this.socket.readyState);
+            // console.error('WebSocket is not open. Ready state:', this.socket.readyState);
         }
     }
 

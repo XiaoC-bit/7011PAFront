@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, InputNumber, Divider, Button, Space, Row, Col } from "antd";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
@@ -17,6 +17,11 @@ const ConfigForm = () => {
         }));
     };
 
+    useEffect(() => {
+        const test = form.getFieldsValue();
+        form.setFieldsValue(formData.configForm);
+    }, [formData, form]);
+
 
     return (
         <Form
@@ -28,7 +33,6 @@ const ConfigForm = () => {
             //     initialLoadAngle: 0,
             //     initialLoadDisplacement: 0,
             // }}
-            initialValues={formData.configForm}
             onValuesChange={handleValuesChange}
         >
             <h3>{t("initialLoad")}</h3>
@@ -55,15 +59,27 @@ const ConfigForm = () => {
                 </Col>
             </Row>
 
-            <h3>{t("startPoint")}</h3>
-            <Form.Item label={t("validTestStart")} name="startPoint">
-                <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <h3>{t("startPoint")}</h3></Col>
+                <Col span={12}>
+                    <h3>{t("endPoint")}</h3>
+                </Col>
+            </Row>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label={t("validTestStart")} name="startPoint">
+                        <InputNumber min={0} style={{ width: "100%" }} />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label={t("testEndCondition")} name="endCondition">
+                        <InputNumber min={0} style={{ width: "100%" }} />
+                    </Form.Item>
+                </Col>
+            </Row>
 
-            <h3>{t("endPoint")}</h3>
-            <Form.Item label={t("testEndCondition")} name="endCondition">
-                <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
+
 
             <h3>{t("otherParams")}</h3>
 

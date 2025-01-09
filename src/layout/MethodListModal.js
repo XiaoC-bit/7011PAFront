@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Table } from 'antd';
+import { Modal, Button, Table, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
+import { formState } from '../data/Data';
+import { useAtom } from 'jotai';
 
 const MethodListModal = ({ visible, onOk, onCancel }) => {
     const { t } = useTranslation();
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-    const data = [
-        { key: '1', name: t('method1'), remarks: t('remark1') },
-        { key: '2', name: t('method2'), remarks: t('remark2') },
-        { key: '3', name: t('method3'), remarks: t('remark3') },
-    ];
+
+    const [formData, setFormData] = useAtom(formState);
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+        total: 0,
+    });
+
+    useEffect(() => {
+        if (visible) {
+            fetchData(pagination.current, pagination.pageSize);
+        }
+
+    }, [visible]);
 
     const columns = [
         {
@@ -22,9 +35,9 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
             key: 'name',
         },
         {
-            title: t('remarks'),
-            dataIndex: 'remarks',
-            key: 'remarks',
+            title: t('remark'),
+            dataIndex: 'remark',
+            key: 'remark',
         },
     ];
 
@@ -35,25 +48,154 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
         },
     };
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         // 删除逻辑
+        try {
+            if (selectedRowKeys.length === 0) {
+                return;
+            }
+
+            const __channel = "config-method-message";
+            const __type = "deleteData";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                ids: selectedRowKeys,
+            };
+
+            wsService.sendMessage(data);
+
+
+            const response = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('deleteFailed')));
+                    }
+                });
+            });
+
+            message.success(t('deleteSuccess'));
+            setSelectedRowKeys([]);
+            fetchData(pagination.current, pagination.pageSize); // 刷新数据
+
+
+        } catch (error) {
+            message.error(error.message || t('deleteFailed'));
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleOpen = () => {
+
+    const snakeToCamel = (str) => {
+        return str.replace(/(_\w)/g, (matches) => matches[1].toUpperCase());
+    };
+
+    const transformDataKeys = (data) => {
+        const newItem = {};
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                newItem[snakeToCamel(key)] = data[key];
+            }
+        }
+        return newItem;
+    };
+
+    const handleOpen = async () => {
         // 打开逻辑
+        //
+        try {
+            if (selectedRowKeys.length !== 1) {
+                return;
+            }
+
+            const __channel = "config-method-message";
+            const __type = "fetchDetail";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                key: selectedRowKeys.at(0)
+            };
+
+            wsService.sendMessage(data);
+
+
+            const response = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('deleteFailed')));
+                    }
+                });
+            });
+
+
+            const transformedData = transformDataKeys(response.data[0]);
+
+            setFormData((prevState) => ({
+                ...prevState,
+                configForm: transformedData,
+                testModeConfig: transformedData
+            }));
+
+            onCancel();
+
+        } catch (error) {
+            message.error(error.message || t('deleteFailed'));
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => {
-        const handleMessage = (msg, data) => {
-            console.log('Received message:', data);
-        };
+    const fetchData = async (page, pageSize) => {
+        setLoading(true);
+        try {
+            const __channel = "config-method-message";
+            const __type = "fetchData";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                page,
+                pageSize,
+            };
 
-        const token = PubSub.subscribe('normal-message-real-data', handleMessage);
+            wsService.sendMessage(data);
 
-        return () => {
-            PubSub.unsubscribe(token);
-        };
-    }, []);
+            const response = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('fetchFailed')));
+                    }
+                });
+            });
+
+            setData(response.methods);
+            setPagination({
+                ...pagination,
+                current: page,
+                pageSize,
+                total: response.total,
+            });
+        } catch (error) {
+            message.error(error.message || t('fetchFailed'));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTableChange = (pagination) => {
+        fetchData(pagination.current, pagination.pageSize);
+    };
+
+
 
     return (
         <Modal
@@ -77,6 +219,9 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
                 rowSelection={rowSelection}
                 columns={columns}
                 dataSource={data}
+                loading={loading}
+                pagination={pagination}
+                onChange={handleTableChange}
             />
         </Modal>
     );

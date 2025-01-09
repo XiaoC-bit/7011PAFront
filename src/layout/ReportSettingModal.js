@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Tree, InputNumber, Space, message } from 'antd';
 import { UpOutlined, DownOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import PubSub from 'pubsub-js';
+import wsService from '../services/WebSocketService';
 import '../styles/layout.css';
 
-const ReportSettingModal = ({ visible, onOk, onCancel }) => {
+const ReportSettingModal = ({ visible, onCancel }) => {
     const { t } = useTranslation();
     const [targetKeys, setTargetKeys] = useState([]);
     const [selectedTreeKeys, setSelectedTreeKeys] = useState([]);
@@ -114,6 +116,94 @@ const ReportSettingModal = ({ visible, onOk, onCancel }) => {
         const item = basicInfoItems.find(item => item.key === key) || testDataItems.find(item => item.key === key) || customItems.find(item => item.key === key);
         return { title: item.title, key: item.key };
     });
+
+    const fetchData = async () => {
+        try {
+            const __channel = "config-report-message";
+            const __type = "fetchData";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+            };
+
+            wsService.sendMessage(data);
+
+            const response = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('fetchFailed')));
+                    }
+                });
+            });
+
+            let tmpCustomItems = [];
+            response.reportMetas.forEach(meta => {
+                if (meta.startsWith('angle-') || meta.startsWith('torque-')) {
+                    const [type, value] = meta.split('-');
+                    const title = type === 'torque' ? `扭力[${value}N]对应的角度值` : `角度[${value}]对应的扭矩值`;
+                    const key = `${type}-${value}`;
+                    const newCustomItem = { key, title };
+                    tmpCustomItems.push(newCustomItem);
+
+                }
+            });
+            setCustomItems(tmpCustomItems);
+            setTargetKeys(response.reportMetas);
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+
+        } catch (error) {
+            message.error(error.message || t('fetchFailed'));
+        } finally {
+        }
+    };
+
+    useEffect(() => {
+        if (visible) {
+            fetchData();
+        };
+    }, [visible]);
+
+    const onOk = async () => {
+
+        try {
+
+            const __channel = "config-report-message";
+            const __type = "addData";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                "reportMetas": targetKeys,
+            };
+
+            wsService.sendMessage(data);
+
+
+            const response = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('addFailed')));
+                    }
+                });
+            });
+
+            message.success(t('addSuccess'));
+
+
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+            onCancel();
+        }
+
+
+    };
 
     return (
         <Modal

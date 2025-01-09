@@ -1,32 +1,28 @@
-import React, { useState } from "react";
-import { Row, Col, Radio, Input, InputNumber, Select, DatePicker, Divider, Form } from "antd";
-import { useTranslation } from "react-i18next";
-import { useAtom } from "jotai";
+import React, { useEffect } from 'react';
+import { Form, Row, Col, Input, InputNumber, Select, Radio, DatePicker } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { useAtom } from 'jotai';
+import dayjs from 'dayjs';
 import { formState } from '../data/Data';
 
 const { Option } = Select;
 
 const TestModeConfig = () => {
-    const { Option } = Select;
-    const { TextArea } = Input;
     const { t } = useTranslation();
-
-
     const [form] = Form.useForm();
     const [formData, setFormData] = useAtom(formState);
+
+    useEffect(() => {
+        form.setFieldsValue(formData.testModeConfig);
+    }, [formData, form]);
+
     const handleValuesChange = (changedValues, allValues) => {
-        console.log("changedValues", changedValues);
-        console.log("allValues", allValues);
         setFormData((prevState) => ({
             ...prevState,
-            configForm: allValues,
+            testModeConfig: allValues,
         }));
     };
 
-    const [mode, setMode] = useState("destructive"); // 默认模式：破坏测试
-    const [staticMode, setStaticMode] = useState("angle"); // 默认静态测试模式：恒角度模式
-    const [dynamicMode, setDynamicMode] = useState("sin"); // 默认动态测试模式：正弦波形
-    // 测试模式选项
     const modeOptions = [
         { label: t("destructive_test"), value: "destructive" },
         { label: t("static_test"), value: "static" },
@@ -34,284 +30,249 @@ const TestModeConfig = () => {
     ];
 
     return (
-        <div className='test-mode-config'>
+        <Form
+            form={form}
+            layout="vertical"
+            onValuesChange={handleValuesChange}
+        >
             {/* 试件基本信息 */}
             <h3>{t("specimen_basic_info")}</h3>
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={formData.testModeConfig}
-                onValuesChange={handleValuesChange}
-            >
-                <Row gutter={24}>
-                    <Col span={12}>
-                        <Form.Item label={t("specimen_name")}>
-                            <Input placeholder={t("input_specimen_name")} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item label={t("specimen_number")}>
-                            <Input placeholder={t("input_specimen_number")} />
-                        </Form.Item>
-                    </Col>
-                </Row>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label={t("specimen_name")} name="specimenName">
+                        <Input placeholder={t("input_specimen_name")} />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label={t("batch_number")} name="batchNumber">
+                        <Input placeholder={t("input_batch_number")} />
+                    </Form.Item>
+                </Col>
+            </Row>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label={t("production_date")} name="productionDate" getValueFromEvent={(...[, dateString]) => dateString}
+                        getValueProps={(value) => ({ value: value ? dayjs(value, 'YYYY-MM-DD') : undefined })}  >
+                        <DatePicker style={{ width: "100%" }} placeholder={t("input_production_date")} format={"YYYY-MM-DD"} />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label={t("operator")} name="operator">
+                        <Input placeholder={t("input_operator")} />
+                    </Form.Item>
+                </Col>
+            </Row>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label={t("lab_temperature")} name="labTemperature">
+                        <InputNumber style={{ width: "100%" }} placeholder="℃" />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label={t("lab_humidity")} name="labHumidity">
+                        <InputNumber style={{ width: "100%" }} placeholder="%" />
+                    </Form.Item>
+                </Col>
+            </Row>
 
-                <Row gutter={24}>
-                    <Col span={12}>
-                        <Form.Item label={t("batch_number")}>
-                            <Input placeholder={t("input_batch_number")} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item label={t("production_date")}>
-                            <DatePicker style={{ width: "100%" }} />
-                        </Form.Item>
-                    </Col>
-                </Row>
+            {/* 测试模式选择 */}
+            <Form.Item name="mode" initialValue="destructive">
+                <Radio.Group options={modeOptions} optionType="button" buttonStyle="solid" />
+            </Form.Item>
 
-                <Row gutter={24}>
-                    <Col span={12}>
-                        <Form.Item label={t("operator")}>
-                            <Input placeholder={t("input_operator")} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item label={t("lab_temperature")}>
-                            <InputNumber style={{ width: "100%" }} placeholder="℃" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={24}>
-                    <Col span={12}>
-                        <Form.Item label={t("lab_humidity")}>
-                            <InputNumber style={{ width: "100%" }} placeholder="%" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item label={t("remarks")}>
-                            <Input placeholder={t("input_remarks")} />
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
-
-            <Divider style={{ marginBottom: 10 }} />
-            {/* 模式选择 */}
-            <Radio.Group
-                options={modeOptions}
-                onChange={(e) => setMode(e.target.value)}
-                value={mode}
-                optionType="button"
-                buttonStyle="solid"
-            />
-
-            {/* 破坏测试 */}
-            {mode === "destructive" && (
-                <>
-                    <p>{t("input_project")}</p>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: "center",
-                    }}>
-                        <InputNumber style={{ flex: 1 }} placeholder={t("torsion_speed")} />
-                        <Select defaultValue="degree_per_min" style={{ flex: '0 0 20%', marginLeft: '8px' }}>
-                            <Option value="degree_per_min">{t("degree_per_min")}</Option>
-                            <Option value="n_per_min">{t("n_per_min")}</Option>
-                        </Select>
-                    </div>
-                </>
-            )}
-
-            {/* 静态测试 */}
-            {mode === "static" && (
-                <>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <p>{t("mode_selection")}</p>
-                        </Col>
-                        <Col span={12}>
-                            {staticMode === "angle" && (
-                                <>
-                                    <p>{t("constant_angle")}</p>
-                                </>
-                            )}
-                            {staticMode === "torque" && (
-                                <>
-                                    <p>{t("constant_torque")}</p>
-                                </>
-                            )}
-
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-
-                        <Col span={12}>
-                            <Form.Item>
-                                <Select style={{ width: "100%" }} placeholder={t("select_mode")}
-                                    value={staticMode}
-                                    onChange={(value) => setStaticMode(value)}
-                                >
-                                    <Option value="angle">{t("constant_angle_mode")}</Option>
-                                    <Option value="torque">{t("constant_torque_mode")}</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            {staticMode === "angle" && (
-                                <>
-
-                                    <Form.Item>
-                                        <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_angle")} />
-                                    </Form.Item>
-                                </>
-                            )}
-                            {staticMode === "torque" && (
-                                <>
-                                    <Form.Item>
-                                        <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_torque")} />
-                                    </Form.Item>
-                                </>
-                            )}
-                        </Col>
-                    </Row>
-
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-
-                            <p>{t("torsion_speed")}</p>
-                        </Col>
-                        <Col span={12}>
-
-                            <p>{t("cycle_count")}</p>
-                        </Col>
-
-                    </Row>
-                    <Row gutter={16}>
-
-                        <Col span={6}>
-
-                            <Form.Item>
-                                <InputNumber style={{ width: "100%" }} placeholder={t("torsion_speed")} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item>
-                                <Select defaultValue="degree_per_min" style={{ width: "100%" }}>
-                                    <Option value="degree_per_min">{t("degree_per_min")}</Option>
-                                    <Option value="n_per_min">{t("n_per_min")}</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-
-                            <Form.Item>
-                                <InputNumber style={{ width: "100%" }} placeholder={t("input_cycle_count")} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                </>
-            )}
-            {/* 动态测试 */}
-            {mode === "dynamic" && (
-                <>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <p>{t("waveform_selection")}</p>
-                        </Col>
-                        <Col span={12}>
-
-                            <p>{t("mode_selection")}</p>
-                        </Col>
-                    </Row>
-
-
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Select style={{ width: "100%" }} placeholder={t("select_waveform")}
-                                vlaue={dynamicMode}
-                                defaultValue={dynamicMode}
-                                onChange={(value) => {
-                                    setDynamicMode(value);
-                                }}
-                            >
-                                <Option value="sin">{t("sin_waveform")}</Option>
-                                <Option value="triangle">{t("triangle_waveform")}</Option>
-                            </Select>
-                        </Col>
-                        <Col span={12}>
-                            <Select style={{ width: "100%" }} placeholder={t("select_mode")}
-                                value={staticMode}
-                                onChange={(value) => setStaticMode(value)}
-                            >
-                                <Option value="angle">{t("constant_angle_mode")}</Option>
-                                <Option value="torque">{t("constant_torque_mode")}</Option>
-                            </Select>
-                        </Col>
-                    </Row>
-
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            {staticMode === "angle" && (
-                                <>
-                                    <p>{t("constant_angle")}</p>
-                                </>
-                            )}
-                            {staticMode === "torque" && (
-                                <>
-                                    <p>{t("constant_torque")}</p>
-                                </>
-                            )}
-                        </Col>
-                        <Col span={12}>
-
-
-                            <p>{t("torsion_frequency")}</p>
-
-                        </Col>
-                    </Row>
-
-
-
-
-                    <Row gutter={16}>
-                        <Col span={12}>   {staticMode === "angle" && (
-                            <>
-                                <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_angle")} />
-                            </>
-                        )} {staticMode === "torque" && (
-                            <>
-                                <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_torque")} />
-                            </>
-                        )}
-
-                        </Col>
-                        <Col span={12}>
-
-
-                            <InputNumber style={{ width: "100%" }} placeholder="HZ" />
-                        </Col>
-                    </Row>
-
-
-
-
-                    {dynamicMode === "triangle" && (
+            <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.mode !== currentValues.mode}>
+                {({ getFieldValue }) => {
+                    const mode = getFieldValue('mode');
+                    return (
                         <>
-                            <p>{t("step_time")}</p>
-                            <InputNumber style={{ width: "100%" }} placeholder="ms" />
+                            {/* 破坏测试 */}
+                            {mode === "destructive" && (
+                                <>
+                                    <p>{t("input_project")}</p>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <Form.Item name="torsionSpeed">
+                                                <InputNumber style={{ width: "100%" }} placeholder={t("torsion_speed")} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item name="torsionUnit" initialValue="degree_per_min">
+                                                <Select defaultValue="degree_per_min" style={{ width: "100%" }}>
+                                                    <Option value="degree_per_min">{t("degree_per_min")}</Option>
+                                                    <Option value="n_per_min">{t("n_per_min")}</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            )}
+
+                            {/* 静态测试 */}
+                            {mode === "static" && (
+                                <>
+
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <p>{t("mode_selection")}</p>
+                                            <Form.Item name="staticMode" initialValue="angle">
+                                                <Select style={{ width: "100%" }} placeholder={t("select_mode")}>
+                                                    <Option value="angle">{t("constant_angle_mode")}</Option>
+                                                    <Option value="torque">{t("constant_torque_mode")}</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.staticMode !== currentValues.staticMode}>
+                                                {({ getFieldValue }) => {
+                                                    const staticMode = getFieldValue('staticMode');
+                                                    return (
+                                                        <>
+                                                            {staticMode === "angle" && (
+                                                                <>
+                                                                    <p>{t("constant_angle")}</p>
+                                                                    <Form.Item name="constantAngle">
+                                                                        <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_angle")} />
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                            {staticMode === "torque" && (
+                                                                <>
+                                                                    <p>{t("constant_torque")}</p>
+                                                                    <Form.Item name="constantTorque">
+                                                                        <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_torque")} />
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    );
+                                                }}
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <p>{t("torsion_speed")}</p>
+                                        </Col>
+                                        <Col span={12}>
+                                            <p>{t("cycle_count")}</p>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={6}>
+                                            <Form.Item name="torsionSpeed">
+                                                <InputNumber style={{ width: "100%" }} placeholder={t("torsion_speed")} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item name="torsionUnit">
+                                                <Select defaultValue="degree_per_min" style={{ width: "100%" }}>
+                                                    <Option value="degree_per_min">{t("degree_per_min")}</Option>
+                                                    <Option value="n_per_min">{t("n_per_min")}</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12} >
+                                            <Form.Item name="cycleCount">
+                                                <InputNumber style={{ width: "100%" }} placeholder={t("input_cycle_count")} />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            )}
+
+                            {/* 动态测试 */}
+                            {mode === "dynamic" && (
+                                <>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <p>{t("waveform_selection")}</p>
+                                        </Col>
+                                        <Col span={12}>
+                                            <p>{t("mode_selection")}</p>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <Form.Item name="dynamicMode" initialValue="sin">
+                                                <Select style={{ width: "100%" }} placeholder={t("select_waveform")}>
+                                                    <Option value="sin">{t("sin_waveform")}</Option>
+                                                    <Option value="triangle">{t("triangle_waveform")}</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>  <Form.Item name="staticMode" initialValue="angle">
+                                            <Select style={{ width: "100%" }} placeholder={t("select_mode")}>
+                                                <Option value="angle">{t("constant_angle_mode")}</Option>
+                                                <Option value="torque">{t("constant_torque_mode")}</Option>
+                                            </Select>
+                                        </Form.Item>
+                                        </Col>
+                                    </Row>
+
+
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.staticMode !== currentValues.staticMode}>
+                                                {({ getFieldValue }) => {
+                                                    const staticMode = getFieldValue('staticMode');
+                                                    return (
+                                                        <>
+                                                            {staticMode === "angle" && (
+                                                                <>
+                                                                    <p>{t("constant_angle")}</p>
+                                                                    <Form.Item name="constantAngle">
+                                                                        <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_angle")} />
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                            {staticMode === "torque" && (
+                                                                <>
+                                                                    <p>{t("constant_torque")}</p>
+                                                                    <Form.Item name="constantTorque">
+                                                                        <InputNumber style={{ width: "100%" }} placeholder={t("input_constant_torque")} />
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    );
+                                                }}
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <p>{t("torsion_frequency")}</p>
+                                            <Form.Item name="torsionFrequency">
+                                                <InputNumber style={{ width: "100%" }} placeholder="HZ" />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.dynamicMode !== currentValues.dynamicMode}>
+                                                {({ getFieldValue }) => {
+                                                    const dynamicMode = getFieldValue('dynamicMode');
+                                                    return (
+                                                        <>
+                                                            {dynamicMode === "triangle" && (
+                                                                <>
+                                                                    <p>{t("step_time")}</p>
+                                                                    <Form.Item name="stepTime">
+                                                                        <InputNumber style={{ width: "100%" }} placeholder="ms" />
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    );
+                                                }}
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            )}
                         </>
-                    )}
-                </>
-            )}
-        </div>
+                    );
+                }}
+            </Form.Item>
+        </Form>
     );
 };
 

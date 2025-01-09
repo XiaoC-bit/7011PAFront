@@ -23,9 +23,9 @@
     "lanuage": "语言",
     "version": "版本",
     "home": "HOME",
-    "spin": "启动",
+    "spin": "正转",
     "stop": "停止",
-    "re-spin": "重新启动",
+    "re-spin": "逆转",
     "generalParams": "通用参数",
     "testMode": "测试模式",
     "testModePlaceholder": "测试模式参数配置区域，待开发...",
@@ -106,5 +106,7 @@
     "methods": "方法",
     "saveMethod": "保存方法",
     "pleaseInputMethodName": "请输入方法名称!",
-    "remark": "备注"
+    "remark": "备注",
+    "duplicate method name": "方法名称重复",
+    "saveSuccess": "保存成功"
 }

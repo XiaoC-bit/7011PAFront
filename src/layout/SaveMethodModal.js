@@ -1,28 +1,86 @@
-import React from 'react';
-import { Modal, Form, Input } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, message } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { formState } from '../data/Data';
+import { useAtom } from 'jotai';
+import PubSub from 'pubsub-js';
+import wsService from '../services/WebSocketService';
 
 const SaveMethodModal = ({ visible, onSave, onCancel }) => {
     const [form] = Form.useForm();
     const { t } = useTranslation();
+    const [formData] = useAtom(formState);
+    const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        if (visible) {
+            console.log('formData', formData);
+            checkFormData();
+        }
+    }, [visible]);
 
     const handleOk = () => {
-        form.validateFields()
-            .then(values => {
-                onSave(values);
+        const formValues = form.getFieldsValue();
+        const { methodName, methodRemark } = formValues;
+
+        if (!methodName) {
+            message.warning(t('pleaseCompleteFormItems'));
+            return;
+        }
+
+        const { configForm, testModeConfig } = formData;
+        const data = {
+            "__channel": "config-method-message",
+            "__type": "addData",
+            configForm,
+            testModeConfig,
+            methodName,
+            methodRemark
+        };
+
+
+        wsService.sendMessage(data);
+
+        const token = PubSub.subscribe('config-method-message-addData', (_, data) => {
+            PubSub.unsubscribe(token);
+            if (data.status === 'success') {
+                message.success(t('saveSuccess'));
                 form.resetFields();
-            })
-            .catch(info => {
-                console.log('Validate Failed:', info);
-            });
+                setOpen(false);
+            }
+            else {
+                message.error(t(data.message));
+            }
+        });
+
+    };
+
+    const checkFormData = () => {
+        const { configForm, testModeConfig } = formData;
+        const isComplete = configForm && Object.keys(configForm).length > 0 && testModeConfig && Object.keys(testModeConfig).length > 0;
+
+        if (!isComplete) {
+            message.warning(t('pleaseCompleteForm'));
+            onCancel();
+        }
+        else {
+            setOpen(true);
+        }
     };
 
     return (
         <Modal
             title={t('saveMethod')}
-            visible={visible}
-            onOk={handleOk}
-            onCancel={onCancel}
+            open={open}
+            onOk={() => {
+                handleOk();
+                onCancel();
+            }}
+            onCancel={() => {
+                onCancel();
+                setOpen(false);
+                form.resetFields();
+            }}
             okText={t('save')}
             cancelText={t('cancel')}
         >

@@ -114,9 +114,6 @@ const App = () => {
         <Menu onClick={onClick} mode="horizontal" items={items} />
         <ReportSettingModal
             visible={isReportSettingModalVisible}
-            onOk={() => {
-                setIsReportSettingModalVisible(false);
-            }}
             onCancel={() => {
                 setIsReportSettingModalVisible(false);
             }}
