@@ -1,12 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Statistic, Card } from 'antd';
 import { useTranslation } from "react-i18next";
 
+import PubSub from 'pubsub-js';
 import "../styles/layout.css";
 
-const Info = ({ statusData }) => {
+const Info = () => {
 
     const { t } = useTranslation();
+    const sampleData = {
+        torque: 120,
+        angle: 45,
+        axialDisplacement: 10,
+        twistCount: 5,
+        testTime: '01:15:30', // 测试时间格式
+    };
+
+    const [statusData, setStatusData] = useState({
+        torque: 120,
+        angle: 45,
+        axialDisplacement: 10,
+        twistCount: 5,
+        testTime: '01:15:30', // 测试时间格式
+    });
+
+    const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
+        PubSub.unsubscribe(token);
+
+        if (data.connectErr === false) {
+            setStatusData({
+                torque: data.torque,
+                angle: data.angle,
+                axialDisplacement: data.axialDisplacement,
+                twistCount: data.twistCount,
+                testTime:
+                    String(Math.floor(data.testTimer / 3600)).padStart(2, "0") +
+                    ":" +
+                    String(Math.floor(data.testTimer / 60) % 60).padStart(2, "0") +
+                    ":" +
+                    String(Math.floor(data.testTimer % 60)).padStart(2, "0")
+
+
+            });
+        }
+        else {
+            //通讯失败
+        }
+    });
+
 
     return (
         <Row className='info' gutter={16} >

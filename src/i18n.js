@@ -1,10 +1,12 @@
 // src/i18n.js
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import PubSub from 'pubsub-js';
+import wsService from './services/WebSocketService';
 
 // 异步加载语言文件
 const loadLanguageResources = async () => {
-    const languages = ["en", "zh"]; // 语言列表
+    const languages = ["en", "zh", "zh-TW", "other"]; // 语言列表
     const resources = {};
 
     await Promise.all(
@@ -26,13 +28,47 @@ const loadLanguageResources = async () => {
     return resources;
 };
 
+
+const fetchData = async () => {
+    try {
+        const __channel = "config-system-message";
+        const __type = "fetchData";
+        const data = {
+            "__channel": __channel,
+            "__type": __type,
+        };
+
+        wsService.sendMessage(data);
+
+        const response = await new Promise((resolve, reject) => {
+            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                PubSub.unsubscribe(token);
+                if (data.status === 'success') {
+                    resolve(data.language);
+                } else {
+                    reject(new Error(('fetchFailed')));
+                }
+            });
+        });
+
+        return response;
+
+    } catch (error) {
+        // message.error(error.message);
+    } finally {
+    }
+};
+
+
+
 const initI18next = async () => {
     const resources = await loadLanguageResources(); // 加载语言资源
+    const response = await fetchData();
     i18n
         .use(initReactI18next) // 将 i18next 绑定到 React
         .init({
             resources, // 加载的翻译资源
-            lng: "zh", // 默认语言
+            lng: response, // 默认语言
             fallbackLng: "en", // 缺失翻译时的回退语言
             interpolation: {
                 escapeValue: false, // React 不需要转义

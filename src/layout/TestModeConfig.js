@@ -44,33 +44,45 @@ const TestModeConfig = () => {
                     </Form.Item>
                 </Col>
                 <Col span={12}>
-                    <Form.Item label={t("batch_number")} name="batchNumber">
-                        <Input placeholder={t("input_batch_number")} />
+                    <Form.Item label={t("specimen_number")} name="specimenNumber">
+                        <Input placeholder={t("input_specimen_number")} />
                     </Form.Item>
                 </Col>
             </Row>
             <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label={t("batch_number")} name="batchNumber">
+                        <Input placeholder={t("input_batch_number")} />
+                    </Form.Item>
+                </Col>
                 <Col span={12}>
                     <Form.Item label={t("production_date")} name="productionDate" getValueFromEvent={(...[, dateString]) => dateString}
                         getValueProps={(value) => ({ value: value ? dayjs(value, 'YYYY-MM-DD') : undefined })}  >
                         <DatePicker style={{ width: "100%" }} placeholder={t("input_production_date")} format={"YYYY-MM-DD"} />
                     </Form.Item>
                 </Col>
+            </Row>
+            <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item label={t("operator")} name="operator">
                         <Input placeholder={t("input_operator")} />
                     </Form.Item>
                 </Col>
-            </Row>
-            <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item label={t("lab_temperature")} name="labTemperature">
                         <InputNumber style={{ width: "100%" }} placeholder="℃" />
                     </Form.Item>
                 </Col>
+            </Row>
+            <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item label={t("lab_humidity")} name="labHumidity">
                         <InputNumber style={{ width: "100%" }} placeholder="%" />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label={t("remarks")} name="remarks">
+                        <Input placeholder={t("input_remarks")} />
                     </Form.Item>
                 </Col>
             </Row>

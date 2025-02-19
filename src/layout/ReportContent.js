@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import MyLineChart from './ReportChart';
-import ReactToPrint from 'react-to-print';
+import { SwapOutlined, PlayCircleOutlined } from '@ant-design/icons';
 
+import PubSub from 'pubsub-js';
+import wsService from '../services/WebSocketService';
 import '../styles/layout.css';
 
 const ReportContent = () => {
@@ -26,13 +28,40 @@ const ReportContent = () => {
         { key: '2', label: t('maxAngle'), value: '45°' },
         { key: '3', label: t('torsionalStiffness'), value: '200 Nm/°' },
     ];
-    const handlePrint = () => {
-        window.print();
+    const TransferDFSet = () => {
+
     };
+
+    const StartTest = () => {
+        try {
+            const __channel = "control-message";
+            const __type = "start-test";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+            };
+
+            wsService.sendMessage(data);
+
+            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                PubSub.unsubscribe(token);
+                if (data.status === 'success') {
+                    //message.success(t('spin success'));
+                } else {
+                    message.error(t('spin failed'));
+                }
+            });
+
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+        }
+    };
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
             <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', maxWidth: '1200px', marginBottom: '16px' }}>
-                <table style={{ width: '100%', fontSize: 15, borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', fontSize: 15, borderCollapse: 'collapse', display: "none" }}>
                     <tbody>
                         {basicInfoData.reduce((rows, item, index) => {
                             if (index % 3 === 0) rows.push([]);
@@ -75,11 +104,36 @@ const ReportContent = () => {
                     </tbody>
                 </table>
             </div>
-            <div style={{ textAlign: 'center', width: '100%', maxWidth: '1200px' }}>
-                <Button type="primary" style={{ marginBottom: '16px' }}>
+            <div style={{ textAlign: 'right', width: '100%', maxWidth: '1200px', padding: '16px' }}>
+                <Button
+                    onClick={TransferDFSet}
+                    icon={<SwapOutlined />}
+                    style={{
+                        marginRight: '16px',
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        backgroundColor: '#1890ff',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '4px'
+                    }}
+                >
+                    {t('transfer method')}
+                </Button>
+                <Button
+                    type="primary"
+                    icon={<PlayCircleOutlined />}
+                    style={{
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        backgroundColor: '#52c41a',
+                        border: 'none',
+                        borderRadius: '4px'
+                    }}
+                    onClick={StartTest}
+                >
                     {t('startTest')}
-                </Button> <Button onClick={handlePrint}>{t('printReport')}</Button>
-
+                </Button>
             </div>
         </div>
     );

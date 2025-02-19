@@ -14,6 +14,8 @@ const ReportSettingModal = ({ visible, onCancel }) => {
     const [customItems, setCustomItems] = useState([]);
     const [torqueValue, setTorqueValue] = useState(null);
     const [angleValue, setAngleValue] = useState(null);
+    const [angle1, setStiffnessValue1] = useState(null);
+    const [angle2, setStiffnessValue2] = useState(null);
 
     const basicInfoItems = [
         { key: 'specimenName', title: t('specimenName') },
@@ -29,7 +31,7 @@ const ReportSettingModal = ({ visible, onCancel }) => {
     const testDataItems = [
         { key: 'maxTorque', title: t('maxTorque') },
         { key: 'maxAngle', title: t('maxAngle') },
-        { key: 'torsionalStiffness', title: t('torsionalStiffness') },
+        // { key: 'torsionalStiffness', title: t('torsionalStiffness') },
     ];
 
     const handleLeftSelect = (keys) => {
@@ -80,21 +82,41 @@ const ReportSettingModal = ({ visible, onCancel }) => {
         setCustomItems(customItems.filter(item => !selectedTreeKeys.includes(item.key)));
     };
 
-    const addCustomItem = (type, value) => {
+
+    const addCustomItem = (type, value, value2 = null) => {
         if (value === null || value === undefined || value === '') {
             message.warning(t('valueCannotBeEmpty'));
             return;
         }
-        const key = `${type}-${value}`;
+        let title = "";
+        let key = `${type}-${value}`;
+        if (type === 'torque') {
+            title = `扭力[${value}N]对应的角度值`;
+        }
+        else if (type === 'angle') {
+            title = `角度[${value}]对应的扭矩值`;
+        }
+        else if (type === 'stiffness') {
+            title = `扭转刚度[${value}, ${value2}]`;
+            key = `${type}-${value}-${value2}`;
+
+
+            if (value2 === null || value2 === undefined || value2 === '') {
+                message.warning(t('valueCannotBeEmpty'));
+                return;
+            }
+
+        }
         if (targetKeys.includes(key)) {
             message.warning(t('itemAlreadyExists'));
             return;
         }
-        const title = type === 'torque' ? `扭力[${value}N]对应的角度值` : `角度[${value}]对应的扭矩值`;
+        //const title = type === 'torque' ? `扭力[${value}N]对应的角度值` : `角度[${value}]对应的扭矩值`;
         const newCustomItem = { key, title };
         setCustomItems([...customItems, newCustomItem]);
         setTargetKeys([...targetKeys, key]);
     };
+
 
     const isMoveUpDisabled = selectedTreeKeys.some(key => targetKeys.indexOf(key) === 0);
     const isMoveDownDisabled = selectedTreeKeys.some(key => targetKeys.indexOf(key) === targetKeys.length - 1);
@@ -147,7 +169,13 @@ const ReportSettingModal = ({ visible, onCancel }) => {
                     const key = `${type}-${value}`;
                     const newCustomItem = { key, title };
                     tmpCustomItems.push(newCustomItem);
-
+                }
+                else if (meta.startsWith('stiffness-')) {
+                    const [type, value1, value2] = meta.split('-');
+                    const title = `扭转刚度[${value1}, ${value2}]`;
+                    const key = `${type}-${value1}-${value2}`;
+                    const newCustomItem = { key, title };
+                    tmpCustomItems.push(newCustomItem);
                 }
             });
             setCustomItems(tmpCustomItems);
@@ -212,7 +240,6 @@ const ReportSettingModal = ({ visible, onCancel }) => {
             onOk={onOk}
             onCancel={onCancel}
             width={800} // 调整Modal的宽度
-            bodyStyle={{ height: '600px', overflowY: 'auto' }} // 设置内容区域高度
             footer={[
                 <Button key="cancel" onClick={onCancel}>{t('cancel')}</Button>,
                 <Button key="ok" type="primary" onClick={onOk}>{t('ok')}</Button>,
@@ -292,6 +319,41 @@ const ReportSettingModal = ({ visible, onCancel }) => {
                     </Button>
                 </Space>
             </Space>
+
+
+
+            <Space style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                <Space style={{ display: 'flex', gap: '8px' }}>
+                    <InputNumber
+                        placeholder={t('angle1')}
+                        value={angle1}
+                        onChange={setStiffnessValue1}
+                        style={{ width: '80px' }}
+                    />
+                    <InputNumber
+                        placeholder={t('angle2')}
+                        value={angle2}
+                        onChange={setStiffnessValue2}
+                        style={{ width: '80px' }}
+                    />
+                    <Button
+                        type="dashed"
+                        onClick={() => {
+                            if (angle1 < angle2) {
+                                message.warning(t(""));
+                                return;
+                            }
+                            addCustomItem('stiffness', angle1, angle2);
+                            setStiffnessValue1(null);
+                            setStiffnessValue2(null);
+                        }}
+                        style={{ width: '200px' }}
+                    >
+                        <PlusOutlined /> {t('addStiffnessPair')}
+                    </Button>
+                </Space>
+            </Space>
+
         </Modal>
     );
 };

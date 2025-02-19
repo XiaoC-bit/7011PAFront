@@ -6,6 +6,10 @@ import ReportSettingModal from './ReportSettingModal';
 import MethodListModal from './MethodListModal';
 import ReportHistoryModal from './ReportHistoryModal';
 import SaveMethodModal from './SaveMethodModal';
+import PIDModal from './PIDModal';
+import About from './About';
+import LanguageModal from './LanguageModal';
+import AdjustModal from './AdjustModal';
 
 const App = () => {
 
@@ -15,6 +19,10 @@ const App = () => {
     const [isMethodListModalVisible, setIsMethodListModalVisible] = useState(false);
     const [isReportHistoryModalVisible, setIsReportHistoryModalVisible] = useState(false);
     const [isSaveMethodModalVisible, setIsSaveMethodModalVisible] = useState(false);
+    const [isPIDModalVisible, setIsPIDModalVisible] = useState(false);
+    const [isAboutModalVisible, setIsAboutModalVisible] = useState(false);
+    const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
+    const [isAdjustModalVisible, setIsAdjustModalVisible] = useState(false);
 
 
     const onClick = (e) => {
@@ -26,6 +34,23 @@ const App = () => {
             setIsReportHistoryModalVisible(true);
         } else if (e.key === 'save method') {
             setIsSaveMethodModalVisible(true);
+        }
+        else if (e.key === 'PID') {
+            setIsPIDModalVisible(true);
+        }
+        else if (e.key === 'exit') {
+            //window.close();
+        }
+        else if (e.key === 'version') {
+            setIsAboutModalVisible(true);
+        }
+        else if (e.key === 'lanuage') {
+            setIsLanguageModalVisible(true);
+        } else if (e.key === 'adjust') {
+            setIsAdjustModalVisible(true);
+        }
+        else if (e.key === 'print') {
+            window.print();
         }
     };
 
@@ -63,10 +88,10 @@ const App = () => {
                 //     label: t("preview"),
                 //     key: 'preview',
                 // },
-                {
-                    label: t("exit"),
-                    key: 'exit',
-                }
+                // {
+                //     label: t("exit"),
+                //     key: 'exit',
+                // }
             ]
         },
         {
@@ -149,7 +174,45 @@ const App = () => {
                 setIsSaveMethodModalVisible(false);
             }}
         />
+        <PIDModal
+            visible={isPIDModalVisible}
+            onOk={() => {
+                setIsPIDModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsPIDModalVisible(false);
+            }}
+        />
+        <About
+            visible={isAboutModalVisible}
+            onOk={() => {
+                setIsAboutModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsAboutModalVisible(false);
+            }}
+        />
 
+
+        <LanguageModal
+            visible={isLanguageModalVisible}
+            onOk={() => {
+                setIsLanguageModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsLanguageModalVisible(false);
+            }}
+        />
+
+        <AdjustModal
+            visible={isAdjustModalVisible}
+            onOk={() => {
+                setIsAdjustModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsAdjustModalVisible(false);
+            }}
+        />
 
     </>;
 };
