@@ -103,7 +103,7 @@ const TestingContent = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
-            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', height: "100%", padding: '16px', display: 'flex', flexDirection: 'column' }}>
+            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', padding: '16px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ flex: 1, width: '100%', display: 'flex' }}>
                     <MyLineChart width="100%" height="100%" />
                 </div>
