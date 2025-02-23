@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +15,10 @@ const data = [
 
 const MyLineChart = ({ width, height }) => {
     const { t } = useTranslation();
+
+    useEffect(() => {
+        console.log('MyLineChart');
+    }, []);
 
     return (
         <ResponsiveContainer width={width} height={height}>

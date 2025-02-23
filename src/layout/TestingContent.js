@@ -32,8 +32,6 @@ const TestingContent = () => {
         { key: '3', label: t('torsionalStiffness'), value: '200 Nm/°' },
     ];
 
-
-
     const checkFormData = () => {
         const { configForm, testModeConfig } = formData;
         const isComplete = configForm && Object.keys(configForm).length > 0 && testModeConfig && Object.keys(testModeConfig).length > 0;
@@ -105,32 +103,9 @@ const TestingContent = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
-            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', marginBottom: '16px', padding: '16px' }}>
-                {/* <table style={{ width: '100%', fontSize: 15, borderCollapse: 'collapse', display: "none" }}>
-                    <tbody>
-                        {basicInfoData.reduce((rows, item, index) => {
-                            if (index % 3 === 0) rows.push([]);
-                            rows[rows.length - 1].push(item);
-                            return rows;
-                        }, []).map((row, rowIndex) => {
-                            return <tr key={rowIndex}>
-                                {row.map((item, colIndex) => {
-                                    return <React.Fragment key={item.key}>
-                                        <td style={{ border: '1px solid #d9d9d9', padding: '5px', width: '16.66%', }}>{item.label}</td>
-                                        <td style={{ border: '1px solid #d9d9d9', padding: '5px', width: '16.66%' }}>{item.value}</td>
-                                    </React.Fragment>;
-                                }
-
-                                )}
-                            </tr>;
-                        }
-
-
-                        )}
-                    </tbody>
-                </table> */}
-                <div style={{ width: '100%', backgroundColor: 'yellow' }}>
-                    <MyLineChart height="100%" width="100%" />
+            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', height: "100%", padding: '16px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ flex: 1, width: '100%', display: 'flex' }}>
+                    <MyLineChart width="100%" height="100%" />
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px', fontSize: 15 }}>
                     <thead>
@@ -149,7 +124,7 @@ const TestingContent = () => {
                     </tbody>
                 </table>
             </div>
-            <div style={{ textAlign: 'right', width: '100%', maxWidth: '1200px', padding: '16px' }}>
+            <div style={{ textAlign: 'right', width: '100%', maxWidth: '1200px', padding: '16px', height: '80px' }}>
                 <Button
                     onClick={TransferDFSet}
                     icon={<SwapOutlined />}
