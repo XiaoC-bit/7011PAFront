@@ -1,28 +1,32 @@
 import React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { useTranslation } from 'react-i18next';
 
 // 示例数据
 const data = [
-    { name: "Page A", uv: 4000, pv: 2400, amt: 2400 },
-    { name: "Page B", uv: 3000, pv: 1398, amt: 2210 },
-    { name: "Page C", uv: 2000, pv: 9800, amt: 2290 },
-    { name: "Page D", uv: 2780, pv: 3908, amt: 2000 },
-    { name: "Page E", uv: 1890, pv: 4800, amt: 2181 },
-    { name: "Page F", uv: 2390, pv: 3800, amt: 2500 },
-    { name: "Page G", uv: 3490, pv: 4300, amt: 2100 },
+    { angle: 0, torque: 10, displacement: 5 },
+    { angle: 10, torque: 15, displacement: 10 },
+    { angle: 20, torque: 20, displacement: 15 },
+    { angle: 30, torque: 25, displacement: 20 },
+    { angle: 40, torque: 30, displacement: 25 },
+    { angle: 50, torque: 35, displacement: 30 },
+    { angle: 60, torque: 40, displacement: 35 },
 ];
 
 const MyLineChart = ({ width, height }) => {
+    const { t } = useTranslation();
+
     return (
         <ResponsiveContainer width={width} height={height}>
             <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+                <XAxis dataKey="angle" label={{ value: t('angleLabel'), position: 'insideBottomRight', offset: 0 }} />
+                <YAxis yAxisId="left" label={{ value: t('torqueLabel'), angle: -90, position: 'insideLeft' }} />
+                <YAxis yAxisId="right" orientation="right" label={{ value: t('displacementLabel'), angle: -90, position: 'insideRight' }} />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="uv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="pv" stroke="#82ca9d" />
+                <Line yAxisId="left" type="monotone" dataKey="torque" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line yAxisId="right" type="monotone" dataKey="displacement" stroke="#82ca9d" />
             </LineChart>
         </ResponsiveContainer>
     );

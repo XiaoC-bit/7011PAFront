@@ -72,7 +72,7 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
                     if (data.status === 'success') {
                         resolve(data);
                     } else {
-                        reject(new Error(t('deleteFailed')));
+                        reject(new Error(t(data.message) || t('deleteFailed')));
                     }
                 });
             });
@@ -204,7 +204,7 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
             onOk={onOk}
             onCancel={onCancel}
             footer={[
-                <Button key="delete" onClick={handleDelete} disabled={selectedRowKeys.length === 0}>
+                <Button key="delete" onClick={handleDelete} disabled={selectedRowKeys.length === 0 || data.length === 1}>
                     {t('delete')}
                 </Button>,
                 <Button key="open" type="primary" onClick={handleOpen} disabled={selectedRowKeys.length !== 1}>

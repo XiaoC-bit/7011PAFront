@@ -2,15 +2,18 @@ import React, { useRef } from 'react';
 import { Button, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import MyLineChart from './ReportChart';
+import { formState } from '../data/Data';
+import { useAtom } from 'jotai';
 import { SwapOutlined, PlayCircleOutlined } from '@ant-design/icons';
 
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
 import '../styles/layout.css';
 
-const ReportContent = () => {
+const TestingContent = () => {
     const { t } = useTranslation();
     const printRef = useRef();
+    const [formData] = useAtom(formState);
 
     const basicInfoData = [
         { key: '1', label: t('specimenName'), value: 'Specimen 1' },
@@ -28,7 +31,49 @@ const ReportContent = () => {
         { key: '2', label: t('maxAngle'), value: '45°' },
         { key: '3', label: t('torsionalStiffness'), value: '200 Nm/°' },
     ];
+
+
+
+    const checkFormData = () => {
+        const { configForm, testModeConfig } = formData;
+        const isComplete = configForm && Object.keys(configForm).length > 0 && testModeConfig && Object.keys(testModeConfig).length > 0;
+        return isComplete;
+    };
+
     const TransferDFSet = () => {
+        const isComplete = checkFormData();
+        if (!isComplete) {
+            message.warning(t('pleaseCompleteForm'));
+            return;
+        }
+
+        const { configForm, testModeConfig } = formData;
+
+        try {
+            const __channel = "data-testing-message";
+            const __type = "transfer-method";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                configForm,
+                testModeConfig,
+            };
+
+            wsService.sendMessage(data);
+
+            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                PubSub.unsubscribe(token);
+                if (data.status === 'success') {
+                    //message.success(t('spin success'));
+                } else {
+                    message.error(t('spin failed'));
+                }
+            });
+
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+        }
 
     };
 
@@ -60,8 +105,8 @@ const ReportContent = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
-            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', maxWidth: '1200px', marginBottom: '16px' }}>
-                <table style={{ width: '100%', fontSize: 15, borderCollapse: 'collapse', display: "none" }}>
+            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', marginBottom: '16px', padding: '16px' }}>
+                {/* <table style={{ width: '100%', fontSize: 15, borderCollapse: 'collapse', display: "none" }}>
                     <tbody>
                         {basicInfoData.reduce((rows, item, index) => {
                             if (index % 3 === 0) rows.push([]);
@@ -83,9 +128,9 @@ const ReportContent = () => {
 
                         )}
                     </tbody>
-                </table>
-                <div style={{ width: '100%', marginTop: '16px' }}>
-                    <MyLineChart height={400} />
+                </table> */}
+                <div style={{ width: '100%', backgroundColor: 'yellow' }}>
+                    <MyLineChart height="100%" width="100%" />
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px', fontSize: 15 }}>
                     <thead>
@@ -139,4 +184,4 @@ const ReportContent = () => {
     );
 };
 
-export default ReportContent;
+export default TestingContent;

@@ -7,7 +7,6 @@ import initI18next from "./i18n";
 
 
 
-
 const startApp = async () => {
   await initI18next(); // 初始化 i18next
   const root = ReactDOM.createRoot(document.getElementById('root'));

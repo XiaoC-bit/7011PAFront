@@ -127,5 +127,9 @@
     "angle1": "扭力点1",
     "angle2": "扭力点2",
     "addStiffnessPair": "添加扭转刚度对",
-    "transfer method": "下发方法"
+    "transfer method": "下发方法",
+    "only one record left,can not delete.": "只有一条记录，无法删除",
+    "angleLabel": "角度",
+    "torqueLabel": "扭矩",
+    "displacementLabel": "轴向位移"
 }

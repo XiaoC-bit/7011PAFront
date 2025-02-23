@@ -14,6 +14,7 @@ const TestModeConfig = () => {
 
     useEffect(() => {
         form.setFieldsValue(formData.testModeConfig);
+        console.log("formData.testModeConfig:", formData.testModeConfig);
     }, [formData, form]);
 
     const handleValuesChange = (changedValues, allValues) => {
