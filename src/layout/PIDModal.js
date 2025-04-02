@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Modal, InputNumber, Row, Col } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Modal, InputNumber, Row, Col, message } from 'antd';
 import { useTranslation } from 'react-i18next';
+import PubSub from 'pubsub-js';
+import wsService from '../services/WebSocketService';
 
 const PIDModal = ({ visible, onOk, onCancel }) => {
-
-
 
     const { t } = useTranslation();
 
@@ -67,6 +67,36 @@ const PIDModal = ({ visible, onOk, onCancel }) => {
         RUN_OUT_LIM_OFF: 0
     });
 
+    useEffect(() => {
+
+        const readPIDData = async () => {
+            const __channel = "pid-message";
+            const __type = "read-data";
+            const data = {
+                "__channel": __channel,
+                "__type": __type
+            };
+
+            wsService.sendMessage(data);
+
+            const PIDData = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('pid read failed')));
+                    }
+                });
+            });
+
+            setPid(PIDData);
+
+        };
+
+        readPIDData();
+    }, []);
+
     const handleChange = (key, value) => {
         setPid(prevState => ({
             ...prevState,
@@ -75,7 +105,22 @@ const PIDModal = ({ visible, onOk, onCancel }) => {
     };
 
     const handleOk = () => {
-        onOk(pid);
+        const __channel = "pid-message";
+        const __type = "write-data";
+        const data = {
+            "__channel": __channel,
+            "__type": __type,
+            pid
+        };
+        wsService.sendMessage(data);
+        const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+            PubSub.unsubscribe(token);
+            if (data.status === 'success') {
+                message.success(t('pid write success'));
+            } else {
+                message.error(t('pid write failed'));
+            }
+        });
     };
 
     return (

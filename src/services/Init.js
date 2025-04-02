@@ -22,7 +22,7 @@ const useLoadDefaultMethod = () => {
     const [_, setFormData] = useAtom(formState);
 
     useEffect(() => {
-        console.log('useLoadDefaultMethod');
+
         const loadDefaultMethod = async () => {
             const __channel = "config-method-message";
             const __type = "fetchDetail";

@@ -131,5 +131,9 @@
     "only one record left,can not delete.": "只有一条记录，无法删除",
     "angleLabel": "角度",
     "torqueLabel": "扭矩",
-    "displacementLabel": "轴向位移"
+    "displacementLabel": "轴向位移",
+    "pid write success": "PID 写入成功",
+    "pid write failed": "PID 写入失败",
+    "pid read success": "PID 读取成功",
+    "pid read failed": "PID 读取失败"
 }
