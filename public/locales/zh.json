@@ -135,5 +135,17 @@
     "pid write success": "PID 写入成功",
     "pid write failed": "PID 写入失败",
     "pid read success": "PID 读取成功",
-    "pid read failed": "PID 读取失败"
+    "pid read failed": "PID 读取失败",
+    "unit": "单位",
+    "endTest": "结束测试",
+    "exportData": "导出数据",
+    "save as": "另存为",
+    "are you sure to save the change?": "是否保存更改？",
+    "confirm": "确认",
+    "set as default": "设为默认",
+    "default": "默认",
+    "cannotDeleteDefaultMethod": "无法删除默认方法",
+    "delay_time": "延时",
+    "maxAngleToTorque": "最大角度对应的扭矩",
+    "maxTorqueToAngle": "最大扭矩对应的角度"
 }

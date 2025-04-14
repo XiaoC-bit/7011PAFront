@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, InputNumber, Divider, Button, Space, Row, Col } from "antd";
+import { Form, InputNumber, Divider, Button, Space, Row, Col, Select } from "antd";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { formState } from '../data/Data';
@@ -39,7 +39,7 @@ const ConfigForm = () => {
 
             {/* 初始载荷配置项 */}
             <Row gutter={16}>
-                <Col span={12}>
+                {/* <Col span={12}>
                     <Form.Item label={t("torqueZero")} name="initialLoadTorque">
                         <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
                     </Form.Item>
@@ -48,13 +48,45 @@ const ConfigForm = () => {
                     <Form.Item label={t("angleZero")} name="initialLoadAngle">
                         <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
                     </Form.Item>
+                </Col> */}
+
+                <Col span={6}>
+                    <Form.Item name="initialMode">
+                        <Select style={{ width: "100%" }} mode='single'
+                            options={[
+                                { label: t("torque"), value: 'torque' },
+                                { label: t("angle"), value: 'angle' },
+                            ]}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={6}>
+                    <Form.Item name="initialLoadValue">
+                        <InputNumber min={-10} step={0.01} style={{ width: "100%" }} />
+                    </Form.Item>
+                </Col>
+                <Col span={6}>
+                    <Form.Item name="unit">
+                        <Select style={{ width: "100%" }} mode='single'
+                            options={[
+                                { label: t("N"), value: 'N' },
+                                { label: t("mm"), value: 'mm' },
+                            ]}
+                        />
+                    </Form.Item>
                 </Col>
             </Row>
 
             <Row gutter={16}>
-                <Col span={12}>
-                    <Form.Item label={t("deformationZero")} name="initialLoadDisplacement">
-                        <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
+
+                <Col span={24}>
+                    <Form.Item name="zeroMode">
+                        <Select style={{ width: "100%" }} mode='multiple'
+                            options={[
+                                { label: t("torqueZero"), value: 'torqueZero' },
+                                { label: t("angleZero"), value: 'angleZero' },
+                            ]}
+                        />
                     </Form.Item>
                 </Col>
             </Row>

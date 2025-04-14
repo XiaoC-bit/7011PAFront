@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import MyLineChart from './ReportChart';
 import { formState } from '../data/Data';
 import { useAtom } from 'jotai';
-import { SwapOutlined, PlayCircleOutlined } from '@ant-design/icons';
-
+import { SwapOutlined, PlayCircleOutlined, PauseCircleOutlined, ExportOutlined } from '@ant-design/icons';
+import TestBaseInfoTable from './TestBaseInfoTable';
+import ResultInfoTable from './ResultInfoTable';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
 import '../styles/layout.css';
@@ -101,28 +102,67 @@ const TestingContent = () => {
         }
     };
 
+    const EndTest = () => {
+        try {
+            const __channel = "control-message";
+            const __type = "end-test";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+            };
+
+            wsService.sendMessage(data);
+
+            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                PubSub.unsubscribe(token);
+                if (data.status === 'success') {
+                    //message.success(t('spin success'));
+                } else {
+                    message.error(t('spin failed'));
+                }
+            });
+
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+        }
+    };
+
+    const exportData = () => {
+        try {
+            const __channel = "report-message";
+            const __type = "export-data";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+            };
+
+            wsService.sendMessage(data);
+
+            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                PubSub.unsubscribe(token);
+                if (data.status === 'success') {
+                    //message.success(t('spin success'));
+                } else {
+                    message.error(t('spin failed'));
+                }
+            });
+
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+        }
+    };
+
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
             <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', padding: '16px', display: 'flex', flexDirection: 'column' }}>
+                <TestBaseInfoTable />
                 <div style={{ flex: 1, width: '100%', display: 'flex' }}>
                     <MyLineChart width="100%" height="100%" />
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px', fontSize: 15 }}>
-                    <thead>
-                        <tr>
-                            {testData.map(item => (
-                                <th key={item.key} className='header' style={{ border: '1px solid #d9d9d9', padding: '5px' }}>{item.label}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {testData.map(item => (
-                                <td key={item.key} style={{ border: '1px solid #d9d9d9', padding: '5px' }}>{item.value}</td>
-                            ))}
-                        </tr>
-                    </tbody>
-                </table>
+                <ResultInfoTable />
             </div>
             <div style={{ textAlign: 'right', width: '100%', maxWidth: '1200px', padding: '16px', height: '80px' }}>
                 <Button
@@ -153,6 +193,38 @@ const TestingContent = () => {
                     onClick={StartTest}
                 >
                     {t('startTest')}
+                </Button>
+                <Button
+
+                    type="primary"
+                    icon={<PauseCircleOutlined />}
+                    style={{
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        //偏紫色
+                        backgroundColor: '#722ed1',
+                        border: 'none',
+                        borderRadius: '4px',
+                        marginLeft: '16px'
+                    }}
+                    onClick={EndTest}
+                >
+                    {t('endTest')}
+                </Button>
+                <Button type="primary"
+                    icon={<ExportOutlined />}
+                    style={{
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        //其他颜色 偏黄一点 不要跟上面的一样
+                        backgroundColor: '#faad24',
+                        border: 'none',
+                        borderRadius: '4px',
+                        marginLeft: '16px'
+                    }}
+                    onClick={exportData}
+                >
+                    {t('exportData')}
                 </Button>
             </div>
         </div>

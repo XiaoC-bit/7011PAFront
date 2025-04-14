@@ -17,9 +17,14 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({
         current: 1,
-        pageSize: 5,
+        pageSize: 20,
         total: 0,
     });
+
+    const onClose = () => {
+        setSelectedRowKeys([]);
+        onCancel();
+    };
 
     useEffect(() => {
         if (visible) {
@@ -39,6 +44,14 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
             dataIndex: 'remark',
             key: 'remark',
         },
+        {
+            title: t('default'),
+            dataIndex: 'is_current',
+            key: 'is_current',
+            render: (text, record) => {
+                return text ? t('✓') : t('');
+            }
+        }
     ];
 
     const rowSelection = {
@@ -51,28 +64,41 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
     const handleDelete = async () => {
         // 删除逻辑
         try {
+            //找到选中的行
+            let is_current = false;
+            data.forEach((item) => {
+                if (selectedRowKeys.includes(item.key)) {
+                    is_current = item.is_current;
+                }
+            });
+            if (is_current) {
+                message.error(t('cannotDeleteDefaultMethod'));
+                return;
+            }
+
+
             if (selectedRowKeys.length === 0) {
                 return;
             }
 
             const __channel = "config-method-message";
             const __type = "deleteData";
-            const data = {
+            const sendMessage = {
                 "__channel": __channel,
                 "__type": __type,
                 ids: selectedRowKeys,
             };
 
-            wsService.sendMessage(data);
+            wsService.sendMessage(sendMessage);
 
 
             const response = await new Promise((resolve, reject) => {
-                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, recvData) => {
                     PubSub.unsubscribe(token);
-                    if (data.status === 'success') {
-                        resolve(data);
+                    if (recvData.status === 'success') {
+                        resolve(recvData);
                     } else {
-                        reject(new Error(t(data.message) || t('deleteFailed')));
+                        reject(new Error(t(recvData.message) || t('deleteFailed')));
                     }
                 });
             });
@@ -143,7 +169,7 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
                 testModeConfig: transformedData
             }));
 
-            onCancel();
+            onClose();
 
         } catch (error) {
             message.error(error.message || t('deleteFailed'));
@@ -208,9 +234,9 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
                     {t('delete')}
                 </Button>,
                 <Button key="open" type="primary" onClick={handleOpen} disabled={selectedRowKeys.length !== 1}>
-                    {t('open')}
+                    {t('set as default')}
                 </Button>,
-                <Button key="cancel" onClick={onCancel}>
+                <Button key="cancel" onClick={onClose}>
                     {t('cancel')}
                 </Button>,
             ]}

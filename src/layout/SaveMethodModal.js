@@ -6,7 +6,7 @@ import { useAtom } from 'jotai';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
 
-const SaveMethodModal = ({ visible, onSave, onCancel }) => {
+const SaveMethodModal = ({ visible, onSave, onCancel, isSaveAs }) => {
     const [form] = Form.useForm();
     const { t } = useTranslation();
     const [formData] = useAtom(formState);
@@ -19,7 +19,37 @@ const SaveMethodModal = ({ visible, onSave, onCancel }) => {
         }
     }, [visible]);
 
-    const handleOk = () => {
+    const handleSave = () => {
+
+        const { configForm, testModeConfig } = formData;
+        const data = {
+            "__channel": "config-method-message",
+            "__type": "modifyData",
+            configForm,
+            testModeConfig,
+        };
+
+
+        wsService.sendMessage(data);
+
+        const token = PubSub.subscribe('config-method-message-modifyData', (_, data) => {
+            PubSub.unsubscribe(token);
+            if (data.status === 'success') {
+                message.success(t('saveSuccess'));
+                form.resetFields();
+                setOpen(false);
+            }
+            else {
+                message.error(t(data.message));
+            }
+        });
+
+
+
+    };
+
+
+    const handleSaveAs = () => {
         const formValues = form.getFieldsValue();
         const { methodName, methodRemark } = formValues;
 
@@ -69,37 +99,55 @@ const SaveMethodModal = ({ visible, onSave, onCancel }) => {
     };
 
     return (
-        <Modal
-            title={t('saveMethod')}
-            open={open}
-            onOk={() => {
-                handleOk();
-                onCancel();
-            }}
-            onCancel={() => {
-                onCancel();
-                setOpen(false);
-                form.resetFields();
-            }}
-            okText={t('save')}
-            cancelText={t('cancel')}
-        >
-            <Form form={form} layout="vertical">
-                <Form.Item
-                    name="methodName"
-                    label={t('methodName')}
-                    rules={[{ required: true, message: t('pleaseInputMethodName') }]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="methodRemark"
-                    label={t('remark')}
-                >
-                    <Input.TextArea />
-                </Form.Item>
-            </Form>
-        </Modal>
+        isSaveAs ?
+            <Modal
+                title={t('saveMethod')}
+                open={open}
+                onOk={() => {
+                    handleSaveAs();
+                    onCancel();
+                }}
+                onCancel={() => {
+                    onCancel();
+                    setOpen(false);
+                    form.resetFields();
+                }}
+                okText={t('save')}
+                cancelText={t('cancel')}
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item
+                        name="methodName"
+                        label={t('methodName')}
+                        rules={[{ required: true, message: t('pleaseInputMethodName') }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="methodRemark"
+                        label={t('remark')}
+                    >
+                        <Input.TextArea />
+                    </Form.Item>
+                </Form>
+            </Modal> :
+            <Modal
+                title={t('are you sure to save the change?')}
+                open={visible}
+                onOk={() => {
+                    handleSave();
+                    onCancel();
+                    setOpen(false);
+                }}
+                onCancel={() => {
+                    onCancel();
+                    setOpen(false);
+                }}
+                okText={t('confirm')}
+                cancelText={t('cancel')}
+            >
+            </Modal>
+
     );
 };
 

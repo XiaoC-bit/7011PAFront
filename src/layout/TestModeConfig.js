@@ -101,7 +101,7 @@ const TestModeConfig = () => {
                             {/* 破坏测试 */}
                             {mode === "destructive" && (
                                 <>
-                                    <p>{t("input_project")}</p>
+                                    <p>{t("torsion_speed")}</p>
                                     <Row gutter={16}>
                                         <Col span={12}>
                                             <Form.Item name="torsionSpeed">
@@ -187,6 +187,18 @@ const TestModeConfig = () => {
                                         <Col span={12} >
                                             <Form.Item name="cycleCount">
                                                 <InputNumber style={{ width: "100%" }} placeholder={t("input_cycle_count")} />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <p>{t("delay_time") + "(ms)"}</p>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={6}>
+                                            <Form.Item name="delayTime">
+                                                <InputNumber style={{ width: "100%" }} placeholder={t("delay_time")} />
                                             </Form.Item>
                                         </Col>
                                     </Row>

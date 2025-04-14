@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
-import { Menu } from 'antd';
+import { Menu, Modal } from 'antd';
 import { useTranslation } from "react-i18next";
 import ReportSettingModal from './ReportSettingModal';
 import MethodListModal from './MethodListModal';
@@ -24,6 +24,7 @@ const App = () => {
     const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
     const [isAdjustModalVisible, setIsAdjustModalVisible] = useState(false);
 
+    const [isSaveAs, setIsSaveAs] = useState(false);
 
     const onClick = (e) => {
         if (e.key === 'report setting') {
@@ -32,7 +33,12 @@ const App = () => {
             setIsMethodListModalVisible(true);
         } else if (e.key === 'report history') {
             setIsReportHistoryModalVisible(true);
-        } else if (e.key === 'save method') {
+        } else if (e.key === 'save as') {
+            setIsSaveAs(true);
+            setIsSaveMethodModalVisible(true);
+        }
+        else if (e.key === 'save method') {
+            setIsSaveAs(false);
             setIsSaveMethodModalVisible(true);
         }
         else if (e.key === 'PID') {
@@ -67,6 +73,10 @@ const App = () => {
                 {
                     label: t("save method"),
                     key: 'save method',
+                },
+                {
+                    label: t("save as"),
+                    key: 'save as',
                 },
                 // {
                 //     label: t("report history"),
@@ -167,6 +177,7 @@ const App = () => {
 
         <SaveMethodModal
             visible={isSaveMethodModalVisible}
+            isSaveAs={isSaveAs}
             onSave={() => {
                 setIsSaveMethodModalVisible(false);
             }}
