@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
 
-const ResultInfoTable = () => {
+const ResultInfoHistoryTable = ({ req_queue_id, method }) => {
     const { t } = useTranslation();
 
     const [data, setData] = useState([]);
@@ -18,7 +18,7 @@ const ResultInfoTable = () => {
 
     const [pagination, setPagination] = useState({
         current: 1,
-        pageSize: 10,
+        pageSize: 5,
         total: 0,
     });
 
@@ -33,17 +33,19 @@ const ResultInfoTable = () => {
     }, [pagination]);
 
     // 请求数据
-    const fetchData = useCallback(async (page, pageSize) => {
+    const fetchData = async (page, pageSize) => {
         if (loadingRef.current) return;
 
         loadingRef.current = true;
         const __channel = "report-message";
-        const __type = "fetch-report-data";
+        const __type = "fetch-report-history-data";
         const payload = {
             __channel,
             __type,
             page,
             pageSize,
+            req_queue_id: req_queue_id,
+            method: method,
         };
 
         try {
@@ -87,44 +89,44 @@ const ResultInfoTable = () => {
             loadingRef.current = false;
             message.error(err.message);
         }
-    }, [t]);
+    };
 
     // 自动轮询 total 变化
     useEffect(() => {
         fetchData(pagination.current, pagination.pageSize); // 初始化加载
 
-        const intervalId = setInterval(() => {
-            const __channel = "report-message";
-            const __type = "fetch-report-data";
-            const payload = {
-                __channel,
-                __type,
-                page: paginationRef.current.current,
-                pageSize: paginationRef.current.pageSize,
-            };
+        // const intervalId = setInterval(() => {
+        //     const __channel = "report-message";
+        //     const __type = "fetch-report-data";
+        //     const payload = {
+        //         __channel,
+        //         __type,
+        //         page: paginationRef.current.current,
+        //         pageSize: paginationRef.current.pageSize,
+        //     };
 
-            wsService.sendMessage(payload);
+        //     wsService.sendMessage(payload);
 
-            const token = PubSub.subscribe(`${__channel}-${__type}`, (_, response) => {
-                PubSub.unsubscribe(token);
+        //     const token = PubSub.subscribe(`${__channel}-${__type}`, (_, response) => {
+        //         PubSub.unsubscribe(token);
 
-                // 如果 total 改变了，重新加载第一页
-                if (response.total !== totalRef.current) {
-                    totalRef.current = response.total;
+        //         // 如果 total 改变了，重新加载第一页
+        //         if (response.total !== totalRef.current) {
+        //             totalRef.current = response.total;
 
-                    setPagination(prev => ({
-                        ...prev,
-                        current: 1,
-                        total: response.total,
-                    }));
+        //             setPagination(prev => ({
+        //                 ...prev,
+        //                 current: 1,
+        //                 total: response.total,
+        //             }));
 
-                    fetchData(1, paginationRef.current.pageSize);
-                }
-            });
-        }, 2000);
+        //             fetchData(1, paginationRef.current.pageSize);
+        //         }
+        //     });
+        // }, 2000);
 
-        return () => clearInterval(intervalId);
-    }, [fetchData]);
+        // return () => clearInterval(intervalId);
+    }, []);
 
     // 表格翻页
     const handleTableChange = (newPagination) => {
@@ -133,17 +135,16 @@ const ResultInfoTable = () => {
 
     return (
         <Table
-            style={{ height: "100%" }}
             dataSource={data}
             columns={columns}
             pagination={pagination}
             onChange={handleTableChange}
             loading={loadingRef.current}
             size='small'
-            scroll={{ x: true, y: "15vh" }} // 设置滚动高度
+            scroll={{ x: true }} // 设置滚动高度
             rowKey={(record, index) => index} // 根据实际数据设置唯一 rowKey 更好
         />
     );
 };
 
-export default ResultInfoTable;
+export default ResultInfoHistoryTable;

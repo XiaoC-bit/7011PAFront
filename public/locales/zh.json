@@ -5,10 +5,12 @@
     "twist count": "扭转次数",
     "test time": "测试时间",
     "file": "文件",
+    "method": "方法",
     "open method": "打开方法",
     "save method": "保存方法",
     "report history": "历史报告",
     "export report": "汇出报告",
+    "export": "汇出",
     "export data": "导出数据",
     "print": "打印",
     "preview": "预览",
@@ -147,5 +149,6 @@
     "cannotDeleteDefaultMethod": "无法删除默认方法",
     "delay_time": "延时",
     "maxAngleToTorque": "最大角度对应的扭矩",
-    "maxTorqueToAngle": "最大扭矩对应的角度"
+    "maxTorqueToAngle": "最大扭矩对应的角度",
+    "queue_id": "序号"
 }

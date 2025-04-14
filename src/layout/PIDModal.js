@@ -206,8 +206,8 @@ const PIDModal = ({ visible, onOk, onCancel }) => {
                     { label: 'RAM_PID_TWIST2', value: 7 },
                     { label: 'RAM_PID_CHANGE_SPEED', value: 8 },
                     { label: 'RAM_PID_POS_ABS_mm', value: 9 },
-                    { label: 'RAM_PID_CYCLE_mm', value: 10 },
-                    { label: 'RAM_PID_CYCLE_N', value: 11 },
+                    { label: 'RAM_PID_SIN_mm', value: 10 },
+                    { label: 'RAM_PID_SIN_N', value: 11 },
                     { label: 'RAM_PID_POS_mm', value: 12 },
                     { label: 'RAM_PID_POS_N', value: 13 },
                     { label: 'RAM_PID_CYCLE_17_18_10', value: 14 },
@@ -234,18 +234,21 @@ const PIDModal = ({ visible, onOk, onCancel }) => {
                 }
                 onChange={value => setGroup(value)}
                 style={{ width: 300, marginBottom: '16px' }}
+                dropdownStyle={{ maxHeight: 1000 }}
             />
 
             <Row gutter={16}>
                 {Object.keys(pid).map(key => (
                     <Col span={6} key={key}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px', marginRight: '16px' }}>
-                            <label style={{ width: '70%' }}>{key}:</label>
+                            <label style={{ width: '60%' }}>{key}:</label>
                             <InputNumber
                                 value={pid[key]}
                                 onChange={value => handleChange(key, value)}
-                                style={{ width: '30%' }}
+                                style={{ width: '40%' }}
                                 size="small"
+                                step={0.001}
+                                precision={3}
                             />
                         </div>
                     </Col>

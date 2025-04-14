@@ -40,7 +40,8 @@ const TestBaseInfoTable = () => {
     const colsPerRow = 4;
 
     return (
-        <div style={{ padding: 20 }}>
+        <div >
+
             <Row gutter={0}>
                 {data.map((item, index) => (
                     <Col span={24 / colsPerRow} key={index}>
@@ -58,6 +59,7 @@ const TestBaseInfoTable = () => {
                 ))}
             </Row>
         </div>
+
     );
 };
 

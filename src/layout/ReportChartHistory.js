@@ -12,80 +12,79 @@ import {
 import { useTranslation } from "react-i18next";
 import PubSub from "pubsub-js";
 import wsService from "../services/WebSocketService";
-import { message } from "antd";
+import { message, Spin } from "antd";
 
-const MyLineChart = ({ width, height }) => {
+const HistoryChart = ({ width, height, req_queue_id, method }) => {
     const { t } = useTranslation();
     const [data, setData] = useState([]);
     const loading = useRef(false);
-    const loadedIds = useRef(new Set());
+
+
     const dataRef = useRef([]);
-    const queue_id = useRef(0);
+    const loadedIds = useRef(new Set());
+
+    const LIMIT = 5000;
 
     const fetchData = async () => {
         if (loading.current) return;
 
         loading.current = true;
-        try {
-            const __channel = "report-message";
-            const __type = "live-testing-data";
-            const sendData = {
-                "__channel": __channel,
-                "__type": __type,
-                "offset": dataRef.current.length,
-                "limit": 5000,
-            };
+        const __channel = "report-message";
+        const __type = "fetch-test-history-detail";
 
-            wsService.sendMessage(sendData);
+        const sendData = {
+            __channel,
+            __type,
+            req_queue_id,
+            method,
+            offset: dataRef.current.length,
+            limit: LIMIT,
+        };
 
-            const token = PubSub.subscribe(__channel + "-" + __type, (_, recvData) => {
-                PubSub.unsubscribe(token);
-                loading.current = false;
+        wsService.sendMessage(sendData);
 
-                if (recvData.queue_id !== queue_id.current) {
-                    queue_id.current = recvData.queue_id;
-                    loadedIds.current.clear();
-                    dataRef.current = [];
-                    setData([]); // Clear the data if the queue_id changes
-                    return;
-                }
-
-
-                const newItems = recvData.data.filter((item) => {
-                    if (loadedIds.current.has(item.id)) return false;
-                    loadedIds.current.add(item.id);
-                    return true;
-                });
-
-                if (newItems.length > 0) {
-                    const merged = [...dataRef.current, ...newItems];
-                    dataRef.current = merged;
-                    setData(merged);
-                }
-            });
-        } catch (error) {
-            message.error(error.message);
+        const token = PubSub.subscribe(`${__channel}-${__type}`, (_, recvData) => {
             loading.current = false;
-        }
+            PubSub.unsubscribe(token);
+
+            const newItems = (recvData.data || []).filter(item => {
+                const uniqueId = item.id || JSON.stringify(item); // 自定义唯一值策略
+                if (loadedIds.current.has(uniqueId)) return false;
+                loadedIds.current.add(uniqueId);
+                return true;
+            });
+
+            if (newItems.length > 0) {
+                dataRef.current = [...dataRef.current, ...newItems];
+                setData([...dataRef.current]);
+
+                // 如果数据还有很多，继续拉
+                if (newItems.length === LIMIT) {
+                    fetchData(); // 递归继续拉下一页
+                } else {
+                }
+            }
+        });
     };
 
     useEffect(() => {
+        if (!req_queue_id || !method) return;
+
+        // 清空旧数据（重新加载）
+        dataRef.current = [];
+        loadedIds.current.clear();
+        setData([]);
         fetchData();
-        const intervalId = setInterval(fetchData, 1000);
-        return () => clearInterval(intervalId);
     }, []);
 
-    // Process data to sort by angle (AD2) for proper display
     const processedData = React.useMemo(() => {
         return [...data];
-        // return [...data].sort((a, b) => a.AD2 - b.AD2);
     }, [data]);
 
     return (
-        <ResponsiveContainer width={width} height={height}>
+        <ResponsiveContainer width="100%" height="100%">
             <LineChart data={processedData}>
                 <CartesianGrid strokeDasharray="3 3" />
-
                 <XAxis
                     dataKey="AD2"
                     label={{
@@ -93,12 +92,10 @@ const MyLineChart = ({ width, height }) => {
                         position: "insideBottomRight",
                         offset: 0,
                     }}
-                    name={t("angleLabel")}
                     tickFormatter={(value) => value.toFixed(1)}
-                    domain={['dataMin', 'dataMax']}
+                    domain={["dataMin", "dataMax"]}
                     type="number"
                 />
-
                 <YAxis
                     yAxisId="left"
                     label={{
@@ -117,13 +114,8 @@ const MyLineChart = ({ width, height }) => {
                     }}
                 />
                 <Tooltip
-                    formatter={(value, name, props) => {
-                        return [value, t(name)];
-                    }}
-                    labelFormatter={(label) => {
-                        return t("angleLabel") + ": " + parseFloat(label).toFixed(1);
-                    }
-                    }
+                    formatter={(value, name) => [value, t(name)]}
+                    labelFormatter={(label) => `Angle: ${parseFloat(label).toFixed(1)}`}
                 />
                 <Legend />
                 <Line
@@ -144,10 +136,9 @@ const MyLineChart = ({ width, height }) => {
                     name={t("displacementLabel")}
                     isAnimationActive={false}
                 />
-
             </LineChart>
         </ResponsiveContainer>
     );
 };
 
-export default MyLineChart;
+export default HistoryChart;

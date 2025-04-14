@@ -16,22 +16,7 @@ const TestingContent = () => {
     const printRef = useRef();
     const [formData] = useAtom(formState);
 
-    const basicInfoData = [
-        { key: '1', label: t('specimenName'), value: 'Specimen 1' },
-        { key: '2', label: t('specimenNumber'), value: '001' },
-        { key: '3', label: t('batchNumber'), value: 'Batch 1' },
-        { key: '4', label: t('productionDate'), value: '2023-01-01' },
-        { key: '5', label: t('operator'), value: 'Operator 1' },
-        { key: '6', label: t('labTemperature'), value: '25°C' },
-        { key: '7', label: t('labHumidity'), value: '60%' },
-        { key: '8', label: t('remarks'), value: 'Remark 1' },
-    ];
 
-    const testData = [
-        { key: '1', label: t('maxTorque'), value: '100 Nm' },
-        { key: '2', label: t('maxAngle'), value: '45°' },
-        { key: '3', label: t('torsionalStiffness'), value: '200 Nm/°' },
-    ];
 
     const checkFormData = () => {
         const { configForm, testModeConfig } = formData;
@@ -156,15 +141,27 @@ const TestingContent = () => {
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
-            <div className="printableArea" ref={printRef} style={{ flex: 1, width: '100%', padding: '16px', display: 'flex', flexDirection: 'column' }}>
-                <TestBaseInfoTable />
-                <div style={{ flex: 1, width: '100%', display: 'flex' }}>
-                    <MyLineChart width="100%" height="100%" />
+        <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 190px)', alignItems: 'center', boxSizing: 'border-box' }}>
+            <div className="printableArea" ref={printRef} style={{
+                flex: 1, width: '100%', padding: '0px', display: 'flex', flexDirection: 'column',
+                boxSizing: "border-box"
+                ,
+            }}>
+                <div style={{ minHeight: "auto", backgroundColor: "green", boxSizing: 'border-box', marginBottom: '8px' }}>
+                    <TestBaseInfoTable />
                 </div>
-                <ResultInfoTable />
+                <div style={{ flex: 2, display: 'flex', minHeight: 0, backgroundColor: "lightyellow" }}>
+                    <div style={{ flex: 1, height: '100%' }}>
+                        <MyLineChart width={"100%"} height={"100%"} />
+                    </div>
+                </div>
+                <div style={{ flex: 1, minHeight: 0, backgroundColor: '', boxSizing: 'border-box', marginTop: '8px' }}>
+                    <ResultInfoTable />
+                </div>
             </div>
-            <div style={{ textAlign: 'right', width: '100%', maxWidth: '1200px', padding: '16px', height: '80px' }}>
+            <div style={{
+                textAlign: 'right', width: '100%', height: '50px',
+            }}>
                 <Button
                     onClick={TransferDFSet}
                     icon={<SwapOutlined />}

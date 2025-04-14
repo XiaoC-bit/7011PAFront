@@ -27,9 +27,14 @@ const Layout = () => {
 
     return (
         <div className="layout-container">
-            <MenuBar className="flex-item" />
+            <div style={{ height: 40, backgroundColor: '#001529', minHeight: 0 }} >
+                <MenuBar />
+            </div>
 
-            <div className="toolbar-info-container">
+            <div className="toolbar-info-container"
+                style={{ height: 80, backgroundColor: 'InfoBackground' }}
+
+            >
                 <ToolBar className="flex-item" />
                 <Info className="flex-item" statusData={sampleData} />
             </div>
@@ -37,7 +42,12 @@ const Layout = () => {
             <Info className="flex-item" statusData={sampleData}></Info> */}
 
             <MainContent className="flex-item main-content" />
-            <StatusBar className="flex-item" hardwareInfo={hardwareInfo} />
+            <div style={{ height: 50, backgroundColor: 'StatusBarBackground' }}>
+
+                <StatusBar
+
+                    hardwareInfo={hardwareInfo} />
+            </div>
         </div>
     );
 };

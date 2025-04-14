@@ -1,73 +1,274 @@
-import React, { useState } from 'react';
-import { Modal, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Col, Modal, Row, Table, Select, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import HistoryChart from './ReportChartHistory';
+import TestBaseInfoTableHistory from './TestBaseInfoTableHistory';
+import ResultInfoHistoryTable from './ResultInfoTableHistory';
+import PubSub from 'pubsub-js';
+import wsService from '../services/WebSocketService';
+import { type } from '@testing-library/user-event/dist/type';
 
-const ReportHistoryModal = ({ visible, onOk, onCancel }) => {
+const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
     const { t } = useTranslation();
 
-    const data = [
-        { key: '1', specimenName: 'Specimen 1', specimenNumber: '001', batchNumber: 'Batch 1', productionDate: '2023-01-01', operator: 'Operator 1', labTemperature: '25°C', labHumidity: '60%', remarks: 'Remark 1' },
-        { key: '2', specimenName: 'Specimen 2', specimenNumber: '002', batchNumber: 'Batch 2', productionDate: '2023-01-02', operator: 'Operator 2', labTemperature: '26°C', labHumidity: '65%', remarks: 'Remark 2' },
-        { key: '3', specimenName: 'Specimen 3', specimenNumber: '003', batchNumber: 'Batch 3', productionDate: '2023-01-03', operator: 'Operator 3', labTemperature: '27°C', labHumidity: '70%', remarks: 'Remark 3' },
-    ];
+    const [data, setData] = useState([]);
+    const [options, setOptions] = useState([
+        { label: t('selectMethod'), value: '', disabled: true },
+    ]);
+    const [method, setMethod] = useState('');
 
-    const columns = [
+    const fetchMethod = async (page = 1, pageSize = 1000) => {
+        try {
+            const __channel = "config-method-message";
+            const __type = "fetchData";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                page,
+                pageSize,
+            };
+
+            wsService.sendMessage(data);
+
+            const response = await new Promise((resolve, reject) => {
+                const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                    PubSub.unsubscribe(token);
+                    if (data.status === 'success') {
+                        resolve(data);
+                    } else {
+                        reject(new Error(t('fetchFailed')));
+                    }
+                });
+            });
+            setOptions(response.methods.map((item) => {
+                return {
+                    label: item.name,
+                    value: item.name
+                };
+            }));
+
+        } catch (error) {
+        } finally {
+        }
+    };
+
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 20,
+        total: 0,
+    });
+    const [columns, setColumns] = useState([
         {
-            title: t('specimenName'),
-            dataIndex: 'specimenName',
-            key: 'specimenName',
+            title: t('methodName'),
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            title: t('specimenNumber'),
-            dataIndex: 'specimenNumber',
-            key: 'specimenNumber',
+            title: t('remark'),
+            dataIndex: 'remark',
+            key: 'remark',
         },
-        {
-            title: t('batchNumber'),
-            dataIndex: 'batchNumber',
-            key: 'batchNumber',
+    ]);
+
+    // 请求数据
+    const fetchData = async (page, pageSize) => {
+
+        const __channel = "report-message";
+        const __type = "fetch-history-data";
+        const payload = {
+            __channel,
+            __type,
+            page,
+            pageSize,
+            method
+        };
+
+        try {
+            wsService.sendMessage(payload);
+
+            const token = PubSub.subscribe(`${__channel}-${__type}`, (_, response) => {
+                PubSub.unsubscribe(token);
+
+                // 更新 columns
+                const updatedColumns = response.columns?.map(col => ({
+                    title: t(col),
+                    dataIndex: col,
+                    key: col,
+                    ellipsis: true, // 超出内容加省略号
+                })) || [];
+
+                setColumns(updatedColumns);
+                setData(response.data || []);
+
+                setPagination(prev => ({
+                    ...prev,
+                    current: page,
+                    pageSize,
+                    total: response.total,
+                }));
+            });
+        } catch (err) {
+        }
+    };
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+    useEffect(() => {
+        fetchMethod();
+    }, []);
+
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedRowKeys) => {
+            setSelectedRowKeys(selectedRowKeys);
         },
-        {
-            title: t('productionDate'),
-            dataIndex: 'productionDate',
-            key: 'productionDate',
-        },
-        {
-            title: t('operator'),
-            dataIndex: 'operator',
-            key: 'operator',
-        },
-        {
-            title: t('labTemperature'),
-            dataIndex: 'labTemperature',
-            key: 'labTemperature',
-        },
-        {
-            title: t('labHumidity'),
-            dataIndex: 'labHumidity',
-            key: 'labHumidity',
-        },
-        {
-            title: t('remarks'),
-            dataIndex: 'remarks',
-            key: 'remarks',
-        },
-    ];
+    };
+
+    const [historyBaseInfo, setHistoryBaseInfo] = useState([]);
+
+    const [refreshKey, setRefreshKey] = useState(0); // 用于刷新组件
+    const onOpen = () => {
+        data.forEach((item) => {
+            if (selectedRowKeys.includes(item.key)) {
+                setHistoryBaseInfo(item);
+                setRefreshKey(prev => prev + 1); // 修改 key，强制刷新组件
+            }
+        });
+        //setHistoryBaseInfo(data[selectedRowKeys[0]]);
+    };
+
+    const onClose = () => {
+        setSelectedRowKeys([]);
+        setHistoryBaseInfo([]);
+        setMethod('');
+        setData([]);
+        setRefreshKey(0); // 重置 key
+    };
 
     return (
         <Modal
             title={t('reportHistory')}
             open={visible}
-            onOk={onOk}
-            onCancel={onCancel}
+            onOk={() => {
+                onOk();
+                onClose();
+            }}
+            onCancel={() => {
+                onCancel();
+                onClose();
+            }}
             footer={null}
-            width={1000}
+            width={width}
+            maskClosable={false}
+            bodyProps={{ style: { height: height, } }}
+            centered
         >
-            <Table
-                columns={columns}
-                dataSource={data}
-            />
-        </Modal>
+            <div style={{ height: '50px' }}>
+                <span style={{ marginRight: '16px' }}>{t('method')}</span>
+                <Select style={{ width: 200 }} placeholder="选择项"
+                    options={options}
+                    value={method}
+                    onChange={(value) => {
+                        const __channel = "report-message";
+                        const __type = "fetch-history-data";
+                        const data = {
+                            "__channel": __channel,
+                            "__type": __type,
+                            method: value,
+                            page: 1,
+                            pageSize: pagination.pageSize,
+                        };
+
+                        wsService.sendMessage(data);
+                        fetchData(1, pagination.pageSize);
+                        setMethod(value);
+                    }}
+                >
+
+                </Select>
+                <Button type="primary" style={{ marginLeft: '16px' }}
+                    disabled={selectedRowKeys.length !== 1}
+                    onClick={onOpen}
+                >{t('open')}</Button>
+                <Button type="primary" style={{ marginLeft: '16px' }}
+                    disabled={selectedRowKeys.length !== 1}
+                    onClick={() => {
+                        const __channel = "report-message";
+                        const __type = "export-history-data";
+                        const data = {
+                            "__channel": __channel,
+                            "__type": __type,
+                            method: method,
+                            queue_id: selectedRowKeys[0],
+                        };
+
+                        wsService.sendMessage(data);
+                    }}
+                >{t('export data')}</Button>
+            </div>
+            <Row style={{ height: "calc(100% - 50px)", overflowY: 'hidden' }} gutter={0}>
+                <Col span={8}>
+
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {/* 第一行：Select */}
+
+
+                        {/* 第二行：Table */}
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                            <Table
+                                columns={columns}
+                                dataSource={data}
+                                pagination={pagination}
+                                onChange={(pagination) => {
+                                    fetchData(pagination.current, pagination.pageSize);
+                                }}
+                                rowSelection={rowSelection}
+                                onRow={(record) => ({
+                                    onClick: () => {
+                                        const { key } = record;
+                                        if (selectedRowKeys.includes(key)) {
+                                            // 已选中 => 取消选中
+                                            setSelectedRowKeys(selectedRowKeys.filter(k => k !== key));
+                                        } else {
+                                            // 未选中 => 加入选中
+                                            setSelectedRowKeys([...selectedRowKeys, key]);
+                                        }
+                                    },
+                                })}
+                                scroll={{ x: true }}
+                            />
+                        </div>
+                    </div>
+                </Col>
+                <Col span={16} style={{ height: '100%', paddingLeft: '8px', backgroundColor: "lightyellow" }}>
+                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', }}>
+                        <div style={{ height: 100, }}>
+                            <TestBaseInfoTableHistory baseInfo={historyBaseInfo} />
+
+                        </div>
+
+                        <div style={{ flex: '8', display: 'flex', minHeight: 0 }}>
+                            <HistoryChart width={"100%"} height={"100%"}
+                                key={refreshKey}
+                                method={method}
+                                req_queue_id={selectedRowKeys[0]}
+                            />
+                        </div>
+
+                        <div style={{ height: "200px", minHeight: 0, backgroundColor: "" }}>
+                            <ResultInfoHistoryTable
+                                key={refreshKey}
+                                method={method}
+                                req_queue_id={selectedRowKeys[0]}
+                            />
+                        </div>
+                    </div>
+
+
+                </Col>
+            </Row>
+
+        </Modal >
     );
 };
 

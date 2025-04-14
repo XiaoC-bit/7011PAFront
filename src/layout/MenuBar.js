@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
-import { Menu, Modal } from 'antd';
+import { Menu, Dropdown, Button } from 'antd';
 import { useTranslation } from "react-i18next";
 import ReportSettingModal from './ReportSettingModal';
 import MethodListModal from './MethodListModal';
@@ -78,18 +78,18 @@ const App = () => {
                     label: t("save as"),
                     key: 'save as',
                 },
+                {
+                    label: t("report history"),
+                    key: "report history"
+                },
                 // {
-                //     label: t("report history"),
-                //     key: "report history"
+                //     label: t("export report"),
+                //     key: 'export report',
                 // },
-                {
-                    label: t("export report"),
-                    key: 'export report',
-                },
-                {
-                    label: t("export data"),
-                    key: 'export data',
-                },
+                // {
+                //     label: t("export data"),
+                //     key: 'export data',
+                // },
                 {
                     label: t("print"),
                     key: 'print',
@@ -144,9 +144,34 @@ const App = () => {
         },
     ];
 
-
-    return <>
+    const menu = (
         <Menu onClick={onClick} mode="horizontal" items={items} />
+    );
+
+
+    const menu1 = (
+        <Menu
+            onClick={({ key }) => {
+                console.log('点击了菜单项:', key);
+            }}
+            items={[
+                {
+                    label: '选项一',
+                    key: '1',
+                },
+                {
+                    label: '选项二',
+                    key: '2',
+                },
+                {
+                    label: '选项三',
+                    key: '3',
+                },
+            ]}
+        />
+    );
+    return <>
+        <Menu onClick={onClick} mode="horizontal" items={items} triggerSubMenuAction={'click'} />
         <ReportSettingModal
             visible={isReportSettingModalVisible}
             onCancel={() => {
@@ -172,6 +197,8 @@ const App = () => {
             onCancel={() => {
                 setIsReportHistoryModalVisible(false);
             }}
+            height={"90vh"}
+            width={"100%"}
         />
 
 
