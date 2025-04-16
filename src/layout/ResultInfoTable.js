@@ -120,6 +120,26 @@ const ResultInfoTable = () => {
 
                     fetchData(1, paginationRef.current.pageSize);
                 }
+                else {
+                    const newData = response.data || [];
+                    if (newData.length === 0)
+                        return;
+                    if (data.length === 0)
+                        return;
+                    const currentFirstRow = data[0];
+                    const newFirstRow = newData[0];
+                    const hasFirstRowChanged =
+                        JSON.stringify(currentFirstRow) !== JSON.stringify(newFirstRow);
+                    if (hasFirstRowChanged) {
+                        setPagination(prev => ({
+                            ...prev,
+                            current: 1,
+                            total: response.total,
+                        }));
+
+                        fetchData(1, paginationRef.current.pageSize);
+                    }
+                }
             });
         }, 2000);
 

@@ -39,8 +39,17 @@ const MyLineChart = ({ width, height }) => {
             wsService.sendMessage(sendData);
 
             const token = PubSub.subscribe(__channel + "-" + __type, (_, recvData) => {
+
                 PubSub.unsubscribe(token);
                 loading.current = false;
+
+                if (recvData.queue_id === 0) {
+                    queue_id.current = recvData.queue_id;
+                    loadedIds.current.clear();
+                    dataRef.current = [];
+                    setData([]); // Clear the data if the queue_id changes
+                    return;
+                }
 
                 if (recvData.queue_id !== queue_id.current) {
                     queue_id.current = recvData.queue_id;
@@ -118,10 +127,10 @@ const MyLineChart = ({ width, height }) => {
                 />
                 <Tooltip
                     formatter={(value, name, props) => {
-                        return [value, t(name)];
+                        return [parseFloat(value).toFixed(3), t(name)];
                     }}
                     labelFormatter={(label) => {
-                        return t("angleLabel") + ": " + parseFloat(label).toFixed(1);
+                        return t("angleLabel") + ": " + parseFloat(label).toFixed(3);
                     }
                     }
                 />

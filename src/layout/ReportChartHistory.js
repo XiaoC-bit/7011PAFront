@@ -114,8 +114,8 @@ const HistoryChart = ({ width, height, req_queue_id, method }) => {
                     }}
                 />
                 <Tooltip
-                    formatter={(value, name) => [value, t(name)]}
-                    labelFormatter={(label) => `Angle: ${parseFloat(label).toFixed(1)}`}
+                    formatter={(value, name) => [parseFloat(value).toFixed(3), t(name)]}
+                    labelFormatter={(label) => `Angle: ${parseFloat(label).toFixed(3)}`}
                 />
                 <Legend />
                 <Line

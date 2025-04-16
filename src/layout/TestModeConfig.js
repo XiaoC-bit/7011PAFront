@@ -272,6 +272,14 @@ const TestModeConfig = () => {
                                     </Row>
                                     <Row gutter={16}>
                                         <Col span={12}>
+                                            <>
+                                                <p>{t("cycle_count")}</p>
+                                                <Form.Item name="cycleCount">
+                                                    <InputNumber style={{ width: "100%" }} placeholder={t("input_cycle_count")} />
+                                                </Form.Item>
+                                            </>
+                                        </Col>
+                                        <Col span={12}>
                                             <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.dynamicMode !== currentValues.dynamicMode}>
                                                 {({ getFieldValue }) => {
                                                     const dynamicMode = getFieldValue('dynamicMode');
@@ -291,6 +299,7 @@ const TestModeConfig = () => {
                                             </Form.Item>
                                         </Col>
                                     </Row>
+
                                 </>
                             )}
                         </>

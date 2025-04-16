@@ -5,36 +5,35 @@ import { useTranslation } from "react-i18next";
 import PubSub from 'pubsub-js';
 import "../styles/layout.css";
 import wsService from '../services/WebSocketService';
+import { useAtom } from 'jotai';
+import { formState } from '../data/Data';
 
 const Info = () => {
 
     const { t } = useTranslation();
-    const sampleData = {
-        torque: 120,
-        angle: 45,
-        axialDisplacement: 10,
-        twistCount: 5,
-        testTime: '01:15:30', // 测试时间格式
-    };
+
+    const [formData, setFormData] = useAtom(formState);
 
     const [statusData, setStatusData] = useState({
-        torque: 120,
-        angle: 45,
-        axialDisplacement: 10,
-        twistCount: 5,
-        testTime: '01:15:30', // 测试时间格式
+        torque: 0,
+        angle: 0,
+        axialDisplacement: 0,
+        twistCount: 0,
+        testTime: '00:00:00', // 测试时间格式
     });
 
     useEffect(() => {
         const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
+
             //PubSub.unsubscribe(token);
             if (data.connectErr === false) {
-                console.log("正常数据", data);
                 setStatusData({
                     torque: Math.round(data.torque * 1000) / 1000,
                     angle: Math.round(data.angle * 1000) / 1000,
                     axialDisplacement: Math.round(data.axialDisplacement * 1000) / 1000,
-                    twistCount: data.twistCount,
+                    twistCount:
+                        formData && formData.testModeConfig && formData.testModeConfig.mode === 'destructive' ?
+                            data.twistCount : data.twistCount_SIN,
                     testTime:
                         String(Math.floor(data.testTimer / 3600)).padStart(2, "0") +
                         ":" +
@@ -51,7 +50,7 @@ const Info = () => {
                 //通讯失败
             }
         });
-    }, []);
+    }, [formData]);
 
 
     const handleZero = async () => {

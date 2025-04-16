@@ -118,6 +118,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
 
 
     const rowSelection = {
+        type: 'radio',
         selectedRowKeys,
         onChange: (selectedRowKeys) => {
             setSelectedRowKeys(selectedRowKeys);
@@ -226,13 +227,14 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                                 onRow={(record) => ({
                                     onClick: () => {
                                         const { key } = record;
-                                        if (selectedRowKeys.includes(key)) {
-                                            // 已选中 => 取消选中
-                                            setSelectedRowKeys(selectedRowKeys.filter(k => k !== key));
-                                        } else {
-                                            // 未选中 => 加入选中
-                                            setSelectedRowKeys([...selectedRowKeys, key]);
-                                        }
+                                        // if (selectedRowKeys.includes(key)) {
+                                        //     // 已选中 => 取消选中
+                                        //     setSelectedRowKeys(selectedRowKeys.filter(k => k !== key));
+                                        // } else {
+                                        //     // 未选中 => 加入选中
+                                        //     setSelectedRowKeys([...selectedRowKeys, key]);
+                                        // }
+                                        setSelectedRowKeys([key]); // 只允许单选
                                     },
                                 })}
                                 scroll={{ x: true }}
