@@ -141,7 +141,7 @@ const TestingContent = () => {
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 190px)', alignItems: 'center', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 190px)', alignItems: 'center', boxSizing: 'border-box', width: '100%', minWidth: 0 }}>
             <div className="printableArea" ref={printRef} style={{
                 flex: 1, width: '100%', padding: '0px', display: 'flex', flexDirection: 'column',
                 boxSizing: "border-box"
@@ -150,8 +150,11 @@ const TestingContent = () => {
                 <div style={{ minHeight: "auto", backgroundColor: "green", boxSizing: 'border-box', marginBottom: '8px' }}>
                     <TestBaseInfoTable />
                 </div>
-                <div style={{ flex: 2, display: 'flex', minHeight: 0, backgroundColor: "lightyellow" }}>
-                    <div style={{ flex: 1, height: '100%' }}>
+                <div style={{
+                    flex: 2, display: 'flex', minHeight: 0, backgroundColor: "lightyellow",
+                    minWidth: 0, width: '100%'
+                }}>
+                    <div style={{ flex: 1, height: '100%', minWidth: 0, width: '100%' }}>
                         <MyLineChart width={"100%"} height={"100%"} />
                     </div>
                 </div>

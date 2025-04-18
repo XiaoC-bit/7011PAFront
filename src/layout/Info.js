@@ -32,7 +32,7 @@ const Info = () => {
                     angle: Math.round(data.angle * 1000) / 1000,
                     axialDisplacement: Math.round(data.axialDisplacement * 1000) / 1000,
                     twistCount:
-                        formData && formData.testModeConfig && formData.testModeConfig.mode === 'destructive' ?
+                        formData && formData.testModeConfig && formData.testModeConfig.mode === 'dynamic' ?
                             data.twistCount : data.twistCount_SIN,
                     testTime:
                         String(Math.floor(data.testTimer / 3600)).padStart(2, "0") +
