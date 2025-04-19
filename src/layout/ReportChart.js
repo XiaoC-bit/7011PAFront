@@ -3,20 +3,35 @@ import ReactECharts from "echarts-for-react";
 import { useTranslation } from "react-i18next";
 import PubSub from "pubsub-js";
 import wsService from "../services/WebSocketService";
-import { message } from "antd";
+import { message, Select, Space } from "antd";
+
+const { Option } = Select;
 
 const MyLineChart = ({ width, height }) => {
     const { t } = useTranslation();
-    const dataRef = useRef([]);             // 用于保存数据，不触发 re-render
-    const loading = useRef(false);          // 用于控制数据加载状态
-    const lastId = useRef(null);            // 最后一个 ID，用于控制数据分页
-    const queueId = useRef(null);           // 用于区分不同的队列
-    const [chartData, setChartData] = useState([]); // 用于保存需要渲染的图表数据
+    const dataRef = useRef([]);
+    const loading = useRef(false);
+    const lastId = useRef(null);
+    const queueId = useRef(null);
+    const [chartData, setChartData] = useState([]);
 
-    const MAX_LENGTH = 2000000; // 数据最大长度
+    const MAX_LENGTH = 2000000;
+
+    const [xField, setXField] = useState("id"); // 默认时间
+    const [y1Field, setY1Field] = useState("YZ_mm");
+    const [y2Field, setY2Field] = useState("AD2");
+
+    const getLabel = (field) => {
+        const keys = {
+            id: "chart.label.time",
+            AD2: "chart.label.angle",
+            AD1: "chart.label.displacement",
+            YZ_mm: "chart.label.torque",
+        };
+        return t(keys[field] || field);
+    };
 
     const fetchData = async () => {
-        // 如果正在加载，跳过
         if (loading.current) return;
         loading.current = true;
 
@@ -26,8 +41,8 @@ const MyLineChart = ({ width, height }) => {
         const sendData = {
             "__channel": __channel,
             "__type": __type,
-            "offset": lastId.current || 0,  // 使用上次的 ID
-            "limit": 5000,                      // 每次请求最多返回5000条数据
+            "offset": lastId.current || 0,
+            "limit": 5000,
         };
 
         try {
@@ -35,66 +50,83 @@ const MyLineChart = ({ width, height }) => {
 
             const token = PubSub.subscribe(`${__channel}-${__type}`, (_, recvData) => {
                 PubSub.unsubscribe(token);
-                loading.current = false;  // 请求完成，解除加载状态
+                loading.current = false;
 
-                // 如果数据队列 ID 不一致，重置数据
                 if (recvData.queue_id !== queueId.current) {
                     queueId.current = recvData.queue_id;
                     lastId.current = null;
                     dataRef.current = [];
-                    setChartData([]);  // 清空图表数据
+                    setChartData([]);
                     return;
                 }
 
                 const newItems = recvData.data || [];
+                if (newItems.length === 0) return;
 
-                if (newItems.length === 0) return;  // 如果没有数据，返回
-
-                // 更新最新的最后一个数据 ID
                 lastId.current = newItems[newItems.length - 1].id;
-
-                // 合并新的数据，并保持不超过最大数据长度
                 dataRef.current = [...dataRef.current, ...newItems];
                 if (dataRef.current.length > MAX_LENGTH) {
                     dataRef.current = dataRef.current.slice(-MAX_LENGTH);
                 }
-
-                // 只更新图表所需的数据
                 setChartData([...dataRef.current]);
             });
         } catch (err) {
             message.error(err.message);
-            loading.current = false;  // 请求失败，解除加载状态
+            loading.current = false;
         }
     };
 
-    // 启动定时拉取数据
     useEffect(() => {
         const intervalId = setInterval(() => {
-            console.log("Fetching data...");
             fetchData();
         }, 1000);
+        return () => clearInterval(intervalId);
+    }, []);
 
-        return () => clearInterval(intervalId);  // 清理定时器
-    }, []);  // 空数组，意味着这个 effect 只会在组件挂载时执行一次
+    const getSeries = () => {
+        const series = [];
 
-    // 配置图表选项
+        if (y1Field && chartData.length > 0) {
+            series.push({
+                name: getLabel(y1Field),
+                type: 'line',
+                yAxisIndex: 0,
+                showSymbol: false,
+                lineStyle: { width: 1 },
+                data: chartData.map(d => [d[xField], d[y1Field]]),
+            });
+        }
+
+        if (xField === "id" && y2Field && y2Field !== y1Field) {
+            series.push({
+                name: getLabel(y2Field),
+                type: 'line',
+                yAxisIndex: 1,
+                showSymbol: false,
+                lineStyle: { width: 1 },
+                data: chartData.map(d => [d[xField], d[y2Field]]),
+            });
+        }
+
+        return series;
+    };
+
     const option = {
         tooltip: {
             trigger: 'axis',
             show: false,
             formatter: (params) => {
-                const angle = params[0]?.axisValue;
-                let content = `${t("angleLabel")}: ${parseFloat(angle).toFixed(3)}<br/>`;
+                const xVal = params[0]?.axisValue;
+                let content = `${getLabel(xField)}: ${parseFloat(xVal).toFixed(3)}<br/>`;
                 params.forEach(p => {
-                    content += `${t(p.seriesName)}: ${parseFloat(p.data[1]).toFixed(3)}<br/>`;
+                    content += `${p.seriesName}: ${parseFloat(p.data[1]).toFixed(3)}<br/>`;
                 });
                 return content;
             },
             axisPointer: { type: 'cross' },
         },
         legend: {
-            data: [t("torqueLabel"), t("displacementLabel")],
+            data: getSeries().map(s => s.name),
         },
         grid: {
             left: '10%',
@@ -104,7 +136,7 @@ const MyLineChart = ({ width, height }) => {
         },
         xAxis: {
             type: 'value',
-            name: t("angleLabel"),
+            name: getLabel(xField),
             nameLocation: 'end',
             nameGap: 25,
             axisLabel: {
@@ -114,46 +146,71 @@ const MyLineChart = ({ width, height }) => {
         yAxis: [
             {
                 type: 'value',
-                name: t("torqueLabel"),
+                name: getLabel(y1Field),
                 position: 'left',
             },
             {
                 type: 'value',
-                name: t("displacementLabel"),
+                name: xField === "id" && y2Field ? getLabel(y2Field) : "",
                 position: 'right',
             }
         ],
-        series: [
-            {
-                name: t("torqueLabel"),
-                type: 'line',
-                yAxisIndex: 0,
-                showSymbol: false,
-                lineStyle: {
-                    width: 1,
-                },
-                data: chartData.map(d => [d.AD2, d.YZ_mm]),
-            },
-            {
-                name: t("displacementLabel"),
-                type: 'line',
-                yAxisIndex: 1,
-                showSymbol: false,
-                lineStyle: {
-                    width: 1,
-                },
-                data: chartData.map(d => [d.AD2, d.AD1]),
-            },
-        ],
+        series: getSeries(),
     };
 
+    const yFieldOptions = xField === "id"
+        ? ["YZ_mm", "AD2"]
+        : ["YZ_mm"];
+
     return (
-        <ReactECharts
-            option={option}
-            style={{ width: width || "100%", height: "100%" }}
-            notMerge={true}
-            lazyUpdate={true}
-        />
+        <div style={{ width: "100%", height: "100%" }}>
+            <div style={{ padding: 8 }}>
+                <Space>
+                    <div>
+                        <span style={{ marginRight: 6 }}>{t("chart.xAxis")}:</span>
+                        <Select value={xField} onChange={(val) => {
+                            setXField(val);
+                            setY1Field("YZ_mm");
+                            setY2Field(val === "id" ? "AD2" : null);
+                        }} style={{ width: 160 }}>
+                            <Option value="id">{getLabel("id")}（id）</Option>
+                            <Option value="AD2">{getLabel("AD2")}（AD2）</Option>
+                        </Select>
+                    </div>
+
+                    <div>
+                        <span style={{ marginRight: 6 }}>{t("chart.y1Axis")}:</span>
+                        <Select value={y1Field} onChange={setY1Field} style={{ width: 160 }}>
+                            {yFieldOptions.map(opt => (
+                                <Option key={opt} value={opt}>
+                                    {getLabel(opt)}（{opt}）
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+
+                    {xField === "id" && (
+                        <div>
+                            <span style={{ marginRight: 6 }}>{t("chart.y2Axis")}:</span>
+                            <Select value={y2Field} onChange={setY2Field} style={{ width: 160 }}>
+                                {["YZ_mm", "AD2"].map(opt => (
+                                    <Option key={opt} value={opt}>
+                                        {getLabel(opt)}（{opt}）
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                    )}
+                </Space>
+            </div>
+
+            <ReactECharts
+                option={option}
+                style={{ width: width || "100%", height: height || "500px" }}
+                notMerge={true}
+                lazyUpdate={true}
+            />
+        </div>
     );
 };
 

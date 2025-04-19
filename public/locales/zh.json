@@ -233,6 +233,7 @@
     "Backward": "反向",
     "new method": "新方法",
     "pleaseSaveMethod": "当前方法有未保存的信息,请先保存",
+    "test_configuration": "测试参数",
     "methodModal": {
         "title": "请输入方法名称",
         "label": "方法名称",
@@ -242,5 +243,25 @@
     "common": {
         "confirm": "确认",
         "cancel": "取消"
-    }
+    },
+    "chart": {
+        "label": {
+            "time": "时间",
+            "angle": "角度",
+            "displacement": "位移",
+            "torque": "扭矩"
+        },
+        "xAxis": "X轴",
+        "y1Axis": "Y1轴",
+        "y2Axis": "Y2轴"
+    },
+    "no_data_available": "暂无数据",
+    "max_torque": "最大扭矩",
+    "max_angle": "最大角度",
+    "break_sensitivity": "断裂灵敏度",
+    "move_speed": "移动速度",
+    "initial_load": "初始负载",
+    "zero_mode": "零位模式",
+    "start_point": "起始点",
+    "end_condition": "终止条件"
 }
