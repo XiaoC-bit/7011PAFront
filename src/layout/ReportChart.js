@@ -82,6 +82,7 @@ const MyLineChart = ({ width, height }) => {
     const option = {
         tooltip: {
             trigger: 'axis',
+            show: false,
             formatter: (params) => {
                 const angle = params[0]?.axisValue;
                 let content = `${t("angleLabel")}: ${parseFloat(angle).toFixed(3)}<br/>`;
@@ -128,6 +129,9 @@ const MyLineChart = ({ width, height }) => {
                 type: 'line',
                 yAxisIndex: 0,
                 showSymbol: false,
+                lineStyle: {
+                    width: 1,
+                },
                 data: chartData.map(d => [d.AD2, d.YZ_mm]),
             },
             {
@@ -135,6 +139,9 @@ const MyLineChart = ({ width, height }) => {
                 type: 'line',
                 yAxisIndex: 1,
                 showSymbol: false,
+                lineStyle: {
+                    width: 1,
+                },
                 data: chartData.map(d => [d.AD2, d.AD1]),
             },
         ],
