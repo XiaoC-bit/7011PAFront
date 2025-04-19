@@ -1,24 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
-import { Menu, Dropdown, Button } from 'antd';
+import { Menu, message, Modal } from 'antd';
 import { useTranslation } from "react-i18next";
 import ReportSettingModal from './ReportSettingModal';
 import MethodListModal from './MethodListModal';
 import ReportHistoryModal from './ReportHistoryModal';
 import SaveMethodModal from './SaveMethodModal';
+import MethodNameModal from './MethodNameModal';
 import PIDModal from './PIDModal';
 import About from './About';
 import LanguageModal from './LanguageModal';
 import AdjustModal from './AdjustModal';
+import { formState, currentMethod } from '../data/Data';
+import { useAtom } from 'jotai';
 
 const App = () => {
 
     const { t } = useTranslation();
+    const [formData, setFormData] = useAtom(formState);
+    const [method, setMethod] = useAtom(currentMethod);
 
     const [isReportSettingModalVisible, setIsReportSettingModalVisible] = useState(false);
     const [isMethodListModalVisible, setIsMethodListModalVisible] = useState(false);
     const [isReportHistoryModalVisible, setIsReportHistoryModalVisible] = useState(false);
     const [isSaveMethodModalVisible, setIsSaveMethodModalVisible] = useState(false);
+    const [isMethodNameModalVisible, setIsMethodNameModalVisible] = useState(false);
     const [isPIDModalVisible, setIsPIDModalVisible] = useState(false);
     const [isAboutModalVisible, setIsAboutModalVisible] = useState(false);
     const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
@@ -26,8 +32,27 @@ const App = () => {
 
     const [isSaveAs, setIsSaveAs] = useState(false);
 
+    const [disabledSave, setIsDisabledSave] = useState(false);
+    const [disableNew, setIsDisableNew] = useState(false);
+
+    useEffect(() => {
+        setIsDisableNew(method === '');
+    }, [method]);
+
+    useEffect(() => {
+        setIsDisabledSave(formData.dirty === false);
+    }, [formData]);
+
     const onClick = (e) => {
-        if (e.key === 'report setting') {
+        if (e.key === "new method") {
+            if (formData.dirty === true) {
+                message.warning(t('pleaseSaveMethod'));
+            }
+            else {
+                setIsMethodNameModalVisible(true);
+            }
+        }
+        else if (e.key === 'report setting') {
             setIsReportSettingModalVisible(true);
         } else if (e.key === 'open method') {
             setIsMethodListModalVisible(true);
@@ -67,17 +92,23 @@ const App = () => {
             key: 'file',
             children: [
                 {
+                    label: t("new method"),
+                    key: 'new method',
+                    disabled: disableNew
+                },
+                {
                     label: t("open method"),
-                    key: 'open method',
+                    key: 'open method'
                 },
                 {
                     label: t("save method"),
                     key: 'save method',
+                    disabled: disabledSave
                 },
-                {
-                    label: t("save as"),
-                    key: 'save as',
-                },
+                // {
+                //     label: t("save as"),
+                //     key: 'save as',
+                // },
                 {
                     label: t("report history"),
                     key: "report history"
@@ -144,38 +175,22 @@ const App = () => {
         },
     ];
 
-    const menu = (
-        <Menu onClick={onClick} mode="horizontal" items={items} />
-    );
-
-
-    const menu1 = (
-        <Menu
-            onClick={({ key }) => {
-                console.log('点击了菜单项:', key);
-            }}
-            items={[
-                {
-                    label: '选项一',
-                    key: '1',
-                },
-                {
-                    label: '选项二',
-                    key: '2',
-                },
-                {
-                    label: '选项三',
-                    key: '3',
-                },
-            ]}
-        />
-    );
     return <>
         <Menu onClick={onClick} mode="horizontal" items={items} triggerSubMenuAction={'click'} />
         <ReportSettingModal
             visible={isReportSettingModalVisible}
             onCancel={() => {
                 setIsReportSettingModalVisible(false);
+            }}
+        />
+        <MethodNameModal
+
+            visible={isMethodNameModalVisible}
+            onOk={() => {
+                setIsMethodNameModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsMethodNameModalVisible(false);
             }}
         />
 

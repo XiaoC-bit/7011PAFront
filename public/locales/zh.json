@@ -36,9 +36,9 @@
     "angleZero": "角度归零 (°)",
     "deformationZero": "变形归零 (mm)",
     "startPoint": "起始点",
-    "validTestStart": "有效测试起点 (N)",
+    "validTestStart": "有效测试起点 (N.m)",
     "endPoint": "结束点",
-    "testEndCondition": "测试结束条件 (N)",
+    "testEndCondition": "测试结束条件 (N.m)",
     "otherParams": "其他参数",
     "maxTorque": "最大扭力 (N·m)",
     "maxAngle": "最大角度 (°)",
@@ -52,13 +52,13 @@
     "input_project": "输入项目",
     "torsion_speed": "扭转速度",
     "degree_per_min": "度/min",
-    "n_per_min": "N/min",
+    "n_per_min": "N.m/min",
     "mode_selection": "模式选择",
     "select_mode": "请选择模式",
     "constant_angle_mode": "定角度模式",
     "constant_torque_mode": "定扭力模式",
     "constant_angle": "定角度",
-    "constant_torque": "定扭力",
+    "constant_torque": "定扭力(N.m)",
     "input_constant_angle": "输入定角度",
     "input_constant_torque": "输入定扭力",
     "cycle_count": "循环次数",
@@ -227,5 +227,20 @@
     "GT-7046HS Safety Switch Triggered, Test Aborted": "GT-7046HS安全开关触发，测试取消",
     "Triangle Wave Permission Invalid": "三角波权限不合法",
     "Unknown Error": "未知错误",
-    "To Test Mode": "待测模式"
+    "To Test Mode": "待测模式",
+    "direction": "方向",
+    "Forward": "正向",
+    "Backward": "反向",
+    "new method": "新方法",
+    "pleaseSaveMethod": "当前方法有未保存的信息,请先保存",
+    "methodModal": {
+        "title": "请输入方法名称",
+        "label": "方法名称",
+        "placeholder": "例如：calculateTorque",
+        "validation": "请输入方法名称"
+    },
+    "common": {
+        "confirm": "确认",
+        "cancel": "取消"
+    }
 }

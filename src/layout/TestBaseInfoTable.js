@@ -6,7 +6,7 @@ import { formState } from '../data/Data';
 
 const TestBaseInfoTable = () => {
     const { t } = useTranslation();
-    const [formData, setFormData] = useAtom(formState);
+    const [formData, _] = useAtom(formState);
 
     const [data, setdata] = useState([
         { label: t('specimenName'), value: '', key: 'specimenName' },

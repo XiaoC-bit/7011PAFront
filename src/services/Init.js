@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
 import { useAtom } from 'jotai';
-import { formState } from '../data/Data';
+import { formState, currentMethod } from '../data/Data';
 
 const snakeToCamel = (str) => {
     return str.replace(/(_\w)/g, (matches) => matches[1].toUpperCase());
@@ -20,7 +20,7 @@ const transformDataKeys = (data) => {
 
 const useLoadDefaultMethod = () => {
     const [_, setFormData] = useAtom(formState);
-
+    const [method, setMethod] = useAtom(currentMethod);
     useEffect(() => {
 
         const loadDefaultMethod = async () => {
@@ -46,11 +46,15 @@ const useLoadDefaultMethod = () => {
             });
 
             const transformedData = transformDataKeys(response.data[0]);
-
+            setMethod(transformedData.name);
             setFormData((prevState) => ({
                 ...prevState,
+
                 configForm: transformedData,
-                testModeConfig: transformedData
+                testModeConfig: transformedData,
+                testModeConfigInitial: transformedData,
+                configFormInitial: transformedData,
+
             }));
         };
 

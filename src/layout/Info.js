@@ -27,13 +27,29 @@ const Info = () => {
 
             //PubSub.unsubscribe(token);
             if (data.connectErr === false) {
+                let twistCount = 0;
+                /**
+                 * 
+                        formData && formData.testModeConfig && formData.testModeConfig.mode === 'dynamic' ?
+                            data.twistCount : data.twistCount_SIN
+                 * 
+                 */
+                if (formData && formData.testModeConfig) {
+                    if (formData.testModeConfig.mode === 'dynamic') {
+                        twistCount = data.twistCount_SIN;
+                    }
+                    else if (formData.testModeConfig.mode === 'static') {
+                        twistCount = data.twistCount;
+                    }
+                    else if (formData.testModeConfig.mode === 'destructive') {
+                        twistCount = data.twistCount;
+                    }
+                }
                 setStatusData({
                     torque: Math.round(data.torque * 1000) / 1000,
                     angle: Math.round(data.angle * 1000) / 1000,
                     axialDisplacement: Math.round(data.axialDisplacement * 1000) / 1000,
-                    twistCount:
-                        formData && formData.testModeConfig && formData.testModeConfig.mode === 'dynamic' ?
-                            data.twistCount : data.twistCount_SIN,
+                    twistCount: twistCount,
                     testTime:
                         String(Math.floor(data.testTimer / 3600)).padStart(2, "0") +
                         ":" +

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, message } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { formState } from '../data/Data';
+import { formState, isFirstCreateMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
@@ -9,12 +9,12 @@ import wsService from '../services/WebSocketService';
 const SaveMethodModal = ({ visible, onSave, onCancel, isSaveAs }) => {
     const [form] = Form.useForm();
     const { t } = useTranslation();
-    const [formData] = useAtom(formState);
+    const [formData, setFormData] = useAtom(formState);
     const [open, setOpen] = useState(false);
 
+    const [isFirstCreateMethod, setIsFirstCreateMethod] = useAtom(isFirstCreateMethodState);
     useEffect(() => {
         if (visible) {
-            console.log('formData', formData);
             checkFormData();
         }
     }, [visible]);
@@ -38,6 +38,12 @@ const SaveMethodModal = ({ visible, onSave, onCancel, isSaveAs }) => {
                 message.success(t('saveSuccess'));
                 form.resetFields();
                 setOpen(false);
+                setIsFirstCreateMethod(false);
+                setFormData((prevState) => ({
+                    ...prevState,
+                    dirty: false
+                }));
+
             }
             else {
                 message.error(t(data.message));

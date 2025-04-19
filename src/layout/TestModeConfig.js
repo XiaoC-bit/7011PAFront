@@ -1,28 +1,16 @@
 import React, { useEffect } from 'react';
 import { Form, Row, Col, Input, InputNumber, Select, Radio, DatePicker } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
 import dayjs from 'dayjs';
-import { formState } from '../data/Data';
+import { useAtom } from 'jotai';
+import { isFirstCreateMethodState } from '../data/Data';
 
 const { Option } = Select;
 
 const TestModeConfig = () => {
     const { t } = useTranslation();
-    const [form] = Form.useForm();
-    const [formData, setFormData] = useAtom(formState);
 
-    useEffect(() => {
-        form.setFieldsValue(formData.testModeConfig);
-        console.log("formData.testModeConfig:", formData.testModeConfig);
-    }, [formData, form]);
-
-    const handleValuesChange = (changedValues, allValues) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            testModeConfig: allValues,
-        }));
-    };
+    const [isFirstCreateMethod, setIsFirstCreateMethod] = useAtom(isFirstCreateMethodState);
 
     const modeOptions = [
         { label: t("destructive_test"), value: "destructive" },
@@ -31,11 +19,7 @@ const TestModeConfig = () => {
     ];
 
     return (
-        <Form
-            form={form}
-            layout="vertical"
-            onValuesChange={handleValuesChange}
-        >
+        <>
             {/* 试件基本信息 */}
             <h3>{t("specimen_basic_info")}</h3>
             <Row gutter={16}>
@@ -90,7 +74,9 @@ const TestModeConfig = () => {
 
             {/* 测试模式选择 */}
             <Form.Item name="mode" initialValue="destructive">
-                <Radio.Group options={modeOptions} optionType="button" buttonStyle="solid" />
+                <Radio.Group options={modeOptions} optionType="button" buttonStyle="solid"
+                    disabled={!isFirstCreateMethod}
+                />
             </Form.Item>
 
             <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.mode !== currentValues.mode}>
@@ -113,6 +99,18 @@ const TestModeConfig = () => {
                                                 <Select defaultValue="degree_per_min" style={{ width: "100%" }}>
                                                     <Option value="degree_per_min">{t("degree_per_min")}</Option>
                                                     <Option value="n_per_min">{t("n_per_min")}</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <p>{t("direction")}</p>
+                                            <Form.Item name="direction" initialValue="Forward">
+                                                <Select defaultValue="Forward" style={{ width: "100%" }}>
+                                                    <Option value="Forward">{t("Forward")}</Option>
+                                                    <Option value="Backward">{t("Backward")}</Option>
                                                 </Select>
                                             </Form.Item>
                                         </Col>
@@ -177,12 +175,40 @@ const TestModeConfig = () => {
                                             </Form.Item>
                                         </Col>
                                         <Col span={6}>
-                                            <Form.Item name="torsionUnit">
-                                                <Select defaultValue="degree_per_min" style={{ width: "100%" }}>
-                                                    <Option value="degree_per_min">{t("degree_per_min")}</Option>
-                                                    <Option value="n_per_min">{t("n_per_min")}</Option>
-                                                </Select>
+                                            <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.staticMode !== currentValues.staticMode}>
+                                                {({ getFieldValue, setFieldValue }) => {
+                                                    const staticMode = getFieldValue('staticMode');
+                                                    if (staticMode === "torque") {
+                                                        //把torsionUnit设置为n_per_min
+                                                        setFieldValue('torsionUnit', "n_per_min");
+                                                    }
+                                                    return (
+                                                        <>
+                                                            {staticMode === "angle" && (
+                                                                <>
+                                                                    <Form.Item name="torsionUnit">
+                                                                        <Select defaultValue="degree_per_min" style={{ width: "100%" }}>
+                                                                            <Option value="degree_per_min">{t("degree_per_min")}</Option>
+                                                                            <Option value="n_per_min">{t("n_per_min")}</Option>
+                                                                        </Select>
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                            {staticMode === "torque" && (
+                                                                <>
+                                                                    <Form.Item name="torsionUnit">
+                                                                        <Select defaultValue="n_per_min" style={{ width: "100%" }} disabled>
+                                                                            <Option value="n_per_min">{t("n_per_min")}</Option>
+                                                                        </Select>
+                                                                    </Form.Item>
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    );
+                                                }}
+
                                             </Form.Item>
+
                                         </Col>
                                         <Col span={12} >
                                             <Form.Item name="cycleCount">
@@ -306,7 +332,7 @@ const TestModeConfig = () => {
                     );
                 }}
             </Form.Item>
-        </Form>
+        </>
     );
 };
 

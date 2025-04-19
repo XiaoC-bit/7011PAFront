@@ -3,38 +3,14 @@ import { Form, InputNumber, Divider, Button, Space, Row, Col, Select } from "ant
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { formState } from '../data/Data';
+import { isEqual } from 'lodash';
 
 const ConfigForm = () => {
     const { t } = useTranslation();
-    const [form] = Form.useForm();
-    const [formData, setFormData] = useAtom(formState);
-
-
-    const handleValuesChange = (changedValues, allValues) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            configForm: allValues,
-        }));
-    };
-
-    useEffect(() => {
-        const test = form.getFieldsValue();
-        form.setFieldsValue(formData.configForm);
-    }, [formData, form]);
 
 
     return (
-        <Form
-            className="config-form"
-            form={form}
-            layout="vertical"
-            // initialValues={{
-            //     initialLoadTorque: 0,
-            //     initialLoadAngle: 0,
-            //     initialLoadDisplacement: 0,
-            // }}
-            onValuesChange={handleValuesChange}
-        >
+        <>
             <h3>{t("initialLoad")}</h3>
 
             {/* 初始载荷配置项 */}
@@ -68,9 +44,11 @@ const ConfigForm = () => {
                 <Col span={6}>
                     <Form.Item name="unit">
                         <Select style={{ width: "100%" }} mode='single'
+                            disabled
                             options={[
-                                { label: t("N"), value: 'N' },
-                                { label: t("mm"), value: 'mm' },
+                                { label: t("N.m"), value: 'N.m' },
+                                { label: t("N.m"), value: 'N' },
+                                // { label: t("mm"), value: 'mm' },
                             ]}
                         />
                     </Form.Item>
@@ -141,7 +119,7 @@ const ConfigForm = () => {
                     </Form.Item>
                 </Col>
             </Row>
-        </Form>
+        </>
     );
 };
 

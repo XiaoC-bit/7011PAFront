@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
-import { formState } from '../data/Data';
+import { formState, isFirstCreateMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 
 const MethodListModal = ({ visible, onOk, onCancel }) => {
     const { t } = useTranslation();
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
+    const [isFirstCreateMethod, setIsFirstCreateMethod] = useAtom(isFirstCreateMethodState);
 
     const [formData, setFormData] = useAtom(formState);
     const [loading, setLoading] = useState(false);
@@ -55,6 +56,8 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
     ];
 
     const rowSelection = {
+        //允许行选择
+
         selectedRowKeys,
         onChange: (selectedRowKeys) => {
             setSelectedRowKeys(selectedRowKeys);
@@ -166,8 +169,12 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
             setFormData((prevState) => ({
                 ...prevState,
                 configForm: transformedData,
-                testModeConfig: transformedData
+                testModeConfig: transformedData,
+                testModeConfigInitial: transformedData,
+                configFormInitial: transformedData,
+                dirty: false,
             }));
+            setIsFirstCreateMethod(false);
 
             onClose();
 
@@ -248,6 +255,16 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
                 loading={loading}
                 pagination={pagination}
                 onChange={handleTableChange}
+                onRow={(record) => ({
+                    onClick: () => {
+                        const key = record.key;
+                        const selected = selectedRowKeys.includes(key);
+                        const newKeys = selected
+                            ? selectedRowKeys.filter(k => k !== key)
+                            : [...selectedRowKeys, key];
+                        setSelectedRowKeys(newKeys);
+                    }
+                })}
             />
         </Modal>
     );
