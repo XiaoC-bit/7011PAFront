@@ -212,7 +212,7 @@ const App = () => {
             onCancel={() => {
                 setIsReportHistoryModalVisible(false);
             }}
-            height={"90vh"}
+            height={"80vh"}
             width={"100%"}
         />
 

@@ -13,7 +13,6 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
 
     const [data, setData] = useState([]);
     const [options, setOptions] = useState([
-        { label: t('selectMethod'), value: '', disabled: true },
     ]);
     const [method, setMethod] = useState('');
 
@@ -59,14 +58,58 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
     });
     const [columns, setColumns] = useState([
         {
-            title: t('methodName'),
-            dataIndex: 'name',
-            key: 'name',
+            title: t('key'),
+            dataIndex: 'key',
+            key: 'key',
+            width: 50
         },
         {
-            title: t('remark'),
-            dataIndex: 'remark',
-            key: 'remark',
+            title: t('specimen_name'),
+            dataIndex: 'specimen_name',
+            key: 'specimen_name',
+            width: 120
+        },
+        {
+            title: t('specimen_number'),
+            dataIndex: 'specimen_number',
+            key: 'specimen_number',
+            width: 120
+        },
+        {
+            title: t('production_date'),
+            dataIndex: 'production_date',
+            key: 'production_date',
+            width: 120
+        },
+        {
+            title: t('batch_number'),
+            dataIndex: 'batch_number',
+            key: 'batch_number',
+            width: 120
+        },
+        {
+            title: t('operator'),
+            dataIndex: 'operator',
+            key: 'operator',
+            width: 120
+        },
+        {
+            title: t('lab_temperature'),
+            dataIndex: 'lab_temperature',
+            key: 'lab_temperature',
+            width: 120
+        },
+        {
+            title: t('lab_humidity'),
+            dataIndex: 'lab_humidity',
+            key: 'lab_humidity',
+            width: 120
+        },
+        {
+            title: t('remarks'),
+            dataIndex: 'remarks',
+            key: 'remarks',
+            width: 120
         },
     ]);
 
@@ -90,14 +133,6 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                 PubSub.unsubscribe(token);
 
                 // 更新 columns
-                const updatedColumns = response.columns?.map(col => ({
-                    title: t(col),
-                    dataIndex: col,
-                    key: col,
-                    ellipsis: true, // 超出内容加省略号
-                })) || [];
-
-                setColumns(updatedColumns);
                 setData(response.data || []);
 
                 setPagination(prev => ({
@@ -138,6 +173,10 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
         //setHistoryBaseInfo(data[selectedRowKeys[0]]);
     };
 
+    useEffect(() => {
+        onOpen();
+    }, [selectedRowKeys]);
+
     const onClose = () => {
         setSelectedRowKeys([]);
         setHistoryBaseInfo([]);
@@ -164,92 +203,99 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
             bodyProps={{ style: { height: height, } }}
             centered
         >
-            <div style={{ height: '50px' }}>
-                <span style={{ marginRight: '16px' }}>{t('method')}</span>
-                <Select style={{ width: 200 }} placeholder="选择项"
-                    options={options}
-                    value={method}
-                    onChange={(value) => {
-                        const __channel = "report-message";
-                        const __type = "fetch-history-data";
-                        const data = {
-                            "__channel": __channel,
-                            "__type": __type,
-                            method: value,
-                            page: 1,
-                            pageSize: pagination.pageSize,
-                        };
 
-                        wsService.sendMessage(data);
-                        fetchData(1, pagination.pageSize);
-                        setMethod(value);
-                    }}
-                >
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', }}>
+                {/* 第一行：固定高度 */}
+                <div style={{ height: 50, }}>
+                    <span style={{ marginRight: '16px' }}>{t('method')}</span>
+                    <Select style={{ width: 200 }} placeholder="选择项"
+                        options={options}
+                        value={method}
+                        onChange={(value) => {
+                            const __channel = "report-message";
+                            const __type = "fetch-history-data";
+                            const data = {
+                                "__channel": __channel,
+                                "__type": __type,
+                                method: value,
+                                page: 1,
+                                pageSize: pagination.pageSize,
+                            };
 
-                </Select>
-                <Button type="primary" style={{ marginLeft: '16px' }}
-                    disabled={selectedRowKeys.length !== 1}
-                    onClick={onOpen}
-                >{t('open')}</Button>
-                <Button type="primary" style={{ marginLeft: '16px' }}
-                    disabled={selectedRowKeys.length !== 1}
-                    onClick={() => {
-                        const __channel = "report-message";
-                        const __type = "export-history-data";
-                        const data = {
-                            "__channel": __channel,
-                            "__type": __type,
-                            method: method,
-                            queue_id: selectedRowKeys[0],
-                        };
+                            wsService.sendMessage(data);
+                            fetchData(1, pagination.pageSize);
+                            setMethod(value);
+                        }}
+                    >
 
-                        wsService.sendMessage(data);
-                    }}
-                >{t('export data')}</Button>
-            </div>
-            <Row style={{ height: "calc(100% - 50px)", overflowY: 'hidden' }} gutter={0}>
-                <Col span={8}>
+                    </Select>
+                    {/* <Button type="primary" style={{ marginLeft: '16px' }}
+                        disabled={selectedRowKeys.length !== 1}
+                        onClick={onOpen}
+                    >{t('open')}</Button> */}
+                    <Button type="primary" style={{ marginLeft: '16px' }}
+                        disabled={selectedRowKeys.length !== 1}
+                        onClick={() => {
+                            const __channel = "report-message";
+                            const __type = "export-history-data";
+                            const data = {
+                                "__channel": __channel,
+                                "__type": __type,
+                                method: method,
+                                queue_id: selectedRowKeys[0],
+                            };
 
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        {/* 第一行：Select */}
+                            wsService.sendMessage(data);
+                        }}
+                    >{t('export data')}</Button>
+                </div>
 
+                {/* 第二行：动态高度 */}
+                <div style={{
+                    flex: 1, overflow: 'auto', minHeight: 0,
 
-                        {/* 第二行：Table */}
-                        <div style={{ flex: 1, overflow: 'hidden' }}>
-                            <Table
-                                columns={columns}
-                                dataSource={data}
-                                pagination={pagination}
-                                onChange={(pagination) => {
-                                    fetchData(pagination.current, pagination.pageSize);
-                                }}
-                                rowSelection={rowSelection}
-                                onRow={(record) => ({
-                                    onClick: () => {
-                                        const { key } = record;
-                                        // if (selectedRowKeys.includes(key)) {
-                                        //     // 已选中 => 取消选中
-                                        //     setSelectedRowKeys(selectedRowKeys.filter(k => k !== key));
-                                        // } else {
-                                        //     // 未选中 => 加入选中
-                                        //     setSelectedRowKeys([...selectedRowKeys, key]);
-                                        // }
-                                        setSelectedRowKeys([key]); // 只允许单选
-                                    },
-                                })}
-                                scroll={{ x: true }}
-                            />
-                        </div>
+                    display: 'flex',
+
+                }}>
+                    <div style={{
+                        display: 'flex', flexDirection: 'column', width: "600px",
+
+                        boxSizing: "border-box",
+                        paddingRight: "16px"
+
+                    }}>
+                        <Table
+                            columns={columns}
+                            dataSource={data}
+                            pagination={pagination}
+                            onChange={(pagination) => {
+                                fetchData(pagination.current, pagination.pageSize);
+                            }}
+                            rowSelection={rowSelection}
+                            onRow={(record) => ({
+                                onClick: () => {
+                                    const { key } = record;
+                                    setSelectedRowKeys([key]); // 只允许单选
+                                },
+                            })}
+                            scroll={{ x: "max-content", y: '600px' }} // 💡 关键点
+                        />
                     </div>
-                </Col>
-                <Col span={16} style={{ height: '100%', paddingLeft: '8px', backgroundColor: "lightyellow" }}>
-                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', }}>
-                        <div style={{ height: 100, }}>
-                            <TestBaseInfoTableHistory baseInfo={historyBaseInfo} />
+                    <div
+                        style={{
+                            flex: 1, overflow: "hidden",
+                            display: 'flex', flexDirection: 'column',
+                        }}
+                    >
 
+                        <div style={{ height: 'auto', boxSizing: 'border-box', paddingBottom: '16px' }}>
+                            <TestBaseInfoTableHistory baseInfo={historyBaseInfo} />
                         </div>
 
-                        <div style={{ flex: '8', display: 'flex', minHeight: 0 }}>
+                        <div style={{
+                            flex: 1, display: 'flex', minHeight: 0,
+                            backgroundColor: "lightyellow"
+                        }}>
                             <HistoryChart width={"100%"} height={"100%"}
                                 key={refreshKey}
                                 method={method}
@@ -264,11 +310,13 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                                 req_queue_id={selectedRowKeys[0]}
                             />
                         </div>
+
                     </div>
+                </div>
+
+            </div>
 
 
-                </Col>
-            </Row>
 
         </Modal >
     );

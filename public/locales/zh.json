@@ -1,7 +1,8 @@
 {
+    "key": "编号",
     "torque": "扭矩",
     "angle": "角度",
-    "axisal displacement": "轴向位移",
+    "axisal displacement": "位移",
     "twist count": "扭转次数",
     "test time": "测试时间",
     "file": "文件",
@@ -263,5 +264,26 @@
     "initial_load": "初始负载",
     "zero_mode": "零位模式",
     "start_point": "起始点",
-    "end_condition": "终止条件"
+    "end_condition": "终止条件",
+    "xDir": "X方向",
+    "yzDir": "YZ方向",
+    "adjustModal": {
+        "title": "校准调整",
+        "okText": "确定",
+        "cancelText": "取消",
+        "reset": "重置参数",
+        "currentMotorSpeed": "当前电机速度",
+        "increase": "加速",
+        "stop": "停止",
+        "decrease": "减速",
+        "xDirectionConfig": "X 方向配置",
+        "yzDirectionConfig": "YZ 方向配置",
+        "adChannel": "AD通道",
+        "xGain": "X GAIN",
+        "yzGain": "YZ GAIN",
+        "number": "编号"
+    },
+    "spin success": "旋转成功",
+    "spin failed": "旋转失败",
+    "submit": "提交"
 }

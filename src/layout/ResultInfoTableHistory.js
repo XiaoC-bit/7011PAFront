@@ -34,6 +34,8 @@ const ResultInfoHistoryTable = ({ req_queue_id, method }) => {
 
     // 请求数据
     const fetchData = async (page, pageSize) => {
+        if (req_queue_id === undefined || method === undefined)
+            return;
         if (loadingRef.current) return;
 
         loadingRef.current = true;
@@ -126,7 +128,7 @@ const ResultInfoHistoryTable = ({ req_queue_id, method }) => {
         // }, 2000);
 
         // return () => clearInterval(intervalId);
-    }, []);
+    }, [method, req_queue_id]);
 
     // 表格翻页
     const handleTableChange = (newPagination) => {

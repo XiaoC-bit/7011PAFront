@@ -18,15 +18,15 @@ const MyLineChart = ({ width, height }) => {
     const MAX_LENGTH = 2000000;
 
     const [xField, setXField] = useState("id"); // 默认时间
-    const [y1Field, setY1Field] = useState("YZ_mm");
-    const [y2Field, setY2Field] = useState("AD2");
+    const [y1Field, setY1Field] = useState("YZ_mm"); // 默认角度
+    const [y2Field, setY2Field] = useState("AD2");    // 默认扭矩
 
     const getLabel = (field) => {
         const keys = {
             id: "chart.label.time",
-            AD2: "chart.label.angle",
+            AD2: "chart.label.torque",       // ✅ 扭矩
             AD1: "chart.label.displacement",
-            YZ_mm: "chart.label.torque",
+            YZ_mm: "chart.label.angle",      // ✅ 角度
         };
         return t(keys[field] || field);
     };
@@ -63,12 +63,19 @@ const MyLineChart = ({ width, height }) => {
                 const newItems = recvData.data || [];
                 if (newItems.length === 0) return;
 
-                lastId.current = newItems[newItems.length - 1].id;
-                dataRef.current = [...dataRef.current, ...newItems];
-                if (dataRef.current.length > MAX_LENGTH) {
-                    dataRef.current = dataRef.current.slice(-MAX_LENGTH);
+                // ⚠️ 如果新数据和旧数据长度相同，最后一个点的 ID 相同，就认为没变化，直接 return
+                const newLastId = newItems[newItems.length - 1]?.id;
+                const oldLastId = dataRef.current[dataRef.current.length - 1]?.id;
+
+                if (
+                    dataRef.current.length === newItems.length &&
+                    newLastId === oldLastId
+                ) {
+                    return; // ✅ 避免重复 setChartData
                 }
-                setChartData([...dataRef.current]);
+
+                dataRef.current = newItems;
+                setChartData(newItems);
             });
         } catch (err) {
             message.error(err.message);
@@ -160,7 +167,7 @@ const MyLineChart = ({ width, height }) => {
 
     const yFieldOptions = xField === "id"
         ? ["YZ_mm", "AD2"]
-        : ["YZ_mm"];
+        : ["AD2"];
 
     return (
         <div style={{ width: "100%", height: "100%" }}>
@@ -170,11 +177,11 @@ const MyLineChart = ({ width, height }) => {
                         <span style={{ marginRight: 6 }}>{t("chart.xAxis")}:</span>
                         <Select value={xField} onChange={(val) => {
                             setXField(val);
-                            setY1Field("YZ_mm");
+                            setY1Field("AD2");
                             setY2Field(val === "id" ? "AD2" : null);
                         }} style={{ width: 160 }}>
                             <Option value="id">{getLabel("id")}（id）</Option>
-                            <Option value="AD2">{getLabel("AD2")}（AD2）</Option>
+                            <Option value="YZ_mm">{getLabel("YZ_mm")}（YZ_mm）</Option>
                         </Select>
                     </div>
 
@@ -193,7 +200,7 @@ const MyLineChart = ({ width, height }) => {
                         <div>
                             <span style={{ marginRight: 6 }}>{t("chart.y2Axis")}:</span>
                             <Select value={y2Field} onChange={setY2Field} style={{ width: 160 }}>
-                                {["YZ_mm", "AD2"].map(opt => (
+                                {["YZ_mm", "AD2", "AD1"].map(opt => (
                                     <Option key={opt} value={opt}>
                                         {getLabel(opt)}（{opt}）
                                     </Option>

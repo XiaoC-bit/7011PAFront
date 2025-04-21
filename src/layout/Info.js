@@ -20,6 +20,7 @@ const Info = () => {
         axialDisplacement: 0,
         twistCount: 0,
         testTime: '00:00:00', // 测试时间格式
+        X_mm: 0
     });
 
     useEffect(() => {
@@ -48,6 +49,7 @@ const Info = () => {
                 setStatusData({
                     torque: Math.round(data.torque * 1000) / 1000,
                     angle: Math.round(data.angle * 1000) / 1000,
+                    X_mm: Math.round(data.X_mm * 1000) / 1000,
                     axialDisplacement: Math.round(data.axialDisplacement * 1000) / 1000,
                     twistCount: twistCount,
                     testTime:
@@ -96,6 +98,7 @@ const Info = () => {
     };
 
 
+
     return (
         <Row className='info' gutter={16} >
             <Col span={4}>
@@ -121,6 +124,18 @@ const Info = () => {
                     />
                 </div>
             </Col>
+
+            <Col span={2}>
+
+                <div className="statistic-item">
+                    <span className="statistic-title">{t("X_mm")}</span>
+                    <Statistic
+                        value={statusData.X_mm}
+                        valueStyle={{ color: '#3f8600' }}
+                    />
+                </div>
+            </Col>
+
             <Col span={4}>
 
                 <div className="statistic-item">

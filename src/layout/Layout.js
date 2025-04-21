@@ -6,6 +6,7 @@ import MainContent from "./MainContent";
 import StatusBar from './StatusBar';
 
 import '../styles/layout.css';
+import { Flex } from 'antd';
 
 const Layout = () => {
 

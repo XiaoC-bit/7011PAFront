@@ -24,11 +24,7 @@ const App = () => {
 
             const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
                 PubSub.unsubscribe(token);
-                if (data.status === 'success') {
-                    //message.success(t('spin success'));
-                } else {
-                    message.error(t('spin failed'));
-                }
+
             });
 
         } catch (error) {
@@ -102,11 +98,7 @@ const App = () => {
 
             const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
                 PubSub.unsubscribe(token);
-                if (data.status === 'success') {
-                    // message.success(t('re-spin success'));
-                } else {
-                    message.error(t('re-spin failed'));
-                }
+
             });
 
         } catch (error) {
