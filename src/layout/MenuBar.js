@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Menu, message, Modal } from 'antd';
 import { useTranslation } from "react-i18next";
 import ReportSettingModal from './ReportSettingModal';
@@ -8,7 +7,9 @@ import ReportHistoryModal from './ReportHistoryModal';
 import SaveMethodModal from './SaveMethodModal';
 import MethodNameModal from './MethodNameModal';
 import PIDModal from './PIDModal';
+import AdvancedSettingsModal from './AdvancedSettingsModal';
 import About from './About';
+import PasswordPromptModal from './PasswordPromptModal';
 import LanguageModal from './LanguageModal';
 import AdjustModal from './AdjustModal';
 import { formState, currentMethod } from '../data/Data';
@@ -29,12 +30,12 @@ const App = () => {
     const [isAboutModalVisible, setIsAboutModalVisible] = useState(false);
     const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
     const [isAdjustModalVisible, setIsAdjustModalVisible] = useState(false);
-
+    const [isAdvanceModalVisible, setIsAdvanceModalVisible] = useState(false);
     const [isSaveAs, setIsSaveAs] = useState(false);
 
     const [disabledSave, setIsDisabledSave] = useState(false);
     const [disableNew, setIsDisableNew] = useState(false);
-
+    const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
     useEffect(() => {
         setIsDisableNew(method === '');
     }, [method]);
@@ -42,6 +43,20 @@ const App = () => {
     useEffect(() => {
         setIsDisabledSave(formData.dirty === false);
     }, [formData]);
+
+    const handleKeyDown = useCallback((event) => {
+        if (event.altKey && event.key.toLowerCase() === "t") {
+            event.preventDefault(); // 阻止浏览器默认打开新标签页
+            // setIsAdvanceModalVisible(true);
+            setPasswordModalVisible(true); // 打开密码验证框
+        }
+    }, []);
+
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [handleKeyDown]);
 
     const onClick = (e) => {
         if (e.key === "new method") {
@@ -183,6 +198,14 @@ const App = () => {
                 setIsReportSettingModalVisible(false);
             }}
         />
+        <PasswordPromptModal
+            visible={isPasswordModalVisible}
+            onSuccess={() => {
+                setPasswordModalVisible(false);
+                setIsAdvanceModalVisible(true);
+            }}
+            onCancel={() => setPasswordModalVisible(false)}
+        />
         <MethodNameModal
 
             visible={isMethodNameModalVisible}
@@ -234,6 +257,16 @@ const App = () => {
             }}
             onCancel={() => {
                 setIsPIDModalVisible(false);
+            }}
+        />
+        <AdvancedSettingsModal
+
+            visible={isAdvanceModalVisible}
+            onOk={() => {
+                setIsAdvanceModalVisible(false);
+            }}
+            onClose={() => {
+                setIsAdvanceModalVisible(false);
             }}
         />
         <About

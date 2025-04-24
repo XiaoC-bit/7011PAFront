@@ -81,6 +81,8 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
     const [xGain, setXGain] = useState(1.0);
     const [yzGain, setYzGain] = useState(1.0);
+    const [AD_1_Gain, setAD_1_Gain] = useState(1.0);
+    const [AD_2_Gain, setAD_2_Gain] = useState(1.0);
 
     const handleSave = (row) => {
         const newData = [...data];
@@ -224,7 +226,7 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
             width={1000}
         >
             <Row gutter={16}>
-                <Col span={12}>
+                {/* <Col span={12}>
                     <Table
                         dataSource={data}
                         columns={mergedColumns}
@@ -243,7 +245,7 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                     <Button type="primary" style={{ marginBottom: 16, marginLeft: 16 }}>{t('adjustModal.stop')}</Button>
                     <Button type="primary" style={{ marginBottom: 16, marginLeft: 16 }}>{t('adjustModal.decrease')}</Button>
 
-                </Col>
+                </Col> */}
                 <Col span={12}>
                     {/* X方向配置 */}
                     <div style={{ marginBottom: 32 }}>
@@ -251,18 +253,6 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
                         {/* 第一行：AD选择 + Gain + 写入按钮 */}
                         <Row gutter={[16, 16]} align="middle">
-                            {/* <Col span={8}>
-                                <Form.Item label={t('adjustModal.adChannel')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
-                                    <Select value={xAdChannel} onChange={setXAdChannel} style={{ width: '100%' }}>
-                                        <Select.Option value="AD1">AD1</Select.Option>
-                                        <Select.Option value="AD2">AD2</Select.Option>
-                                        <Select.Option value="AD3">AD3</Select.Option>
-                                        <Select.Option value="AD4">AD4</Select.Option>
-                                        <Select.Option value="AD5">AD5</Select.Option>
-                                        <Select.Option value="AD6">AD6</Select.Option>
-                                    </Select>
-                                </Form.Item>
-                            </Col> */}
                             <Col span={8}>
                                 <Form.Item label={t('adjustModal.xGain')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <InputNumber
@@ -301,7 +291,7 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                         {/* 第二行：X方向Checkbox */}
                         <Row style={{ marginTop: 16 }}>
                             <Col span={24}>
-                                <Form.Item label={t('xDir')} labelCol={{ span: 2 }} wrapperCol={{ span: 22 }} style={{ marginBottom: 0 }}>
+                                <Form.Item label={t('xDir')} labelCol={{ span: 3 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <Checkbox
                                         checked={X_DIR}
                                         onChange={(e) => {
@@ -369,7 +359,7 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                         {/* 第二行：YZ方向Checkbox */}
                         <Row style={{ marginTop: 16 }}>
                             <Col span={24}>
-                                <Form.Item label={t('yzDir')} labelCol={{ span: 2 }} wrapperCol={{ span: 22 }} style={{ marginBottom: 0 }}>
+                                <Form.Item label={t('yzDir')} labelCol={{ span: 3 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <Checkbox
                                         checked={Y_DIR}
                                         onChange={(e) => {
@@ -378,6 +368,89 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                                         }}
                                     />
                                 </Form.Item>
+                            </Col>
+                        </Row>
+                    </div>
+
+
+
+
+                    <div style={{ marginBottom: 32 }}>
+                        <h4 style={{ marginBottom: 16 }}>{t('AD GAIN')}</h4>
+
+                        {/* 第一行：AD选择 + Gain + 写入按钮 */}
+                        <Row gutter={[16, 16]} align="middle">
+                            <Col span={8}>
+                                <Form.Item label={t('AD1')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <InputNumber
+                                        // value={AD_1_Gain}
+                                        onChange={setAD_1_Gain}
+                                        step={0.01}
+                                        min={0}
+                                        style={{ width: '100%' }}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Button type="primary" onClick={() => {
+                                    try {
+                                        const __channel = "control-message";
+                                        const __type = "setADGAIN";
+                                        const data = {
+                                            "__channel": __channel,
+                                            "__type": __type,
+                                            "GAIN": AD_1_Gain,
+                                            "AD": 1
+                                        };
+
+                                        wsService.sendMessage(data);
+
+
+                                    } catch (error) {
+                                        message.error(error.message);
+                                    } finally {
+                                    }
+                                }}>
+                                    {t('submit')}
+                                </Button>
+                            </Col>
+                        </Row>
+
+                        {/* 第二行：YZ方向Checkbox */}
+                        <Row gutter={[16, 16]} align="middle" style={{ marginTop: 16 }}>
+                            <Col span={8}>
+                                <Form.Item label={t('AD2')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <InputNumber
+                                        // value={AD_2_Gain}
+                                        onChange={setAD_2_Gain}
+                                        step={0.01}
+                                        min={0}
+                                        style={{ width: '100%' }}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Button type="primary" onClick={() => {
+                                    try {
+                                        const __channel = "control-message";
+                                        const __type = "setADGAIN";
+                                        const data = {
+                                            "__channel": __channel,
+                                            "__type": __type,
+                                            "GAIN": AD_1_Gain,
+                                            "AD": 2
+                                        };
+
+                                        wsService.sendMessage(data);
+
+
+                                    } catch (error) {
+                                        message.error(error.message);
+                                    } finally {
+                                    }
+                                }}>
+                                    {t('submit')}
+                                </Button>
                             </Col>
                         </Row>
                     </div>
