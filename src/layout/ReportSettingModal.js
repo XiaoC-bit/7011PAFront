@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Tree, InputNumber, Space, message } from 'antd';
+import { Modal, Button, Tree, InputNumber, Space, message, Row, Col } from 'antd';
 import { UpOutlined, DownOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import PubSub from 'pubsub-js';
@@ -84,21 +84,22 @@ const ReportSettingModal = ({ visible, onCancel }) => {
 
 
     const addCustomItem = (type, value, value2 = null) => {
+        // alert(cycleCount);
         if (value === null || value === undefined || value === '') {
             message.warning(t('valueCannotBeEmpty'));
             return;
         }
         let title = "";
-        let key = `${type}-${value}`;
+        let key = `${type}-${value}-${cycleCount}`;
         if (type === 'torque') {
-            title = `扭力[${value}N]对应的角度值`;
+            title = `循环[${cycleCount}]扭力[${value}N]对应的角度值`;
         }
         else if (type === 'angle') {
-            title = `角度[${value}]对应的扭矩值`;
+            title = `循环[${cycleCount}]角度[${value}]对应的扭矩值`;
         }
         else if (type === 'stiffness') {
-            title = `扭转刚度[${value}, ${value2}]`;
-            key = `${type}-${value}-${value2}`;
+            title = `循环[${cycleCount}]扭转刚度[${value}, ${value2}]`;
+            key = `${type}-${value}-${value2}-${cycleCount}`;
 
 
             if (value2 === null || value2 === undefined || value2 === '') {
@@ -164,16 +165,16 @@ const ReportSettingModal = ({ visible, onCancel }) => {
             let tmpCustomItems = [];
             response.reportMetas.forEach(meta => {
                 if (meta.startsWith('angle-') || meta.startsWith('torque-')) {
-                    const [type, value] = meta.split('-');
-                    const title = type === 'torque' ? `扭力[${value}N]对应的角度值` : `角度[${value}]对应的扭矩值`;
-                    const key = `${type}-${value}`;
+                    const [type, value, cycleCountTmp] = meta.split('-');
+                    const title = type === 'torque' ? `循环[${cycleCountTmp}]扭力[${value}N]对应的角度值` : `循环[${cycleCountTmp}]角度[${value}]对应的扭矩值`;
+                    const key = `${type}-${value}-${cycleCountTmp}`;
                     const newCustomItem = { key, title };
                     tmpCustomItems.push(newCustomItem);
                 }
                 else if (meta.startsWith('stiffness-')) {
-                    const [type, value1, value2] = meta.split('-');
-                    const title = `扭转刚度[${value1}, ${value2}]`;
-                    const key = `${type}-${value1}-${value2}`;
+                    const [type, value1, value2, cycleCountTmp] = meta.split('-');
+                    const title = `循环[${cycleCountTmp}]扭转刚度[${value1}, ${value2}]`;
+                    const key = `${type}-${value1}-${value2}-${cycleCountTmp}`;
                     const newCustomItem = { key, title };
                     tmpCustomItems.push(newCustomItem);
                 }
@@ -233,6 +234,8 @@ const ReportSettingModal = ({ visible, onCancel }) => {
 
     };
 
+    const [cycleCount, setCycleCount] = useState(0);
+
     return (
         <Modal
             title={t('reportSetting')}
@@ -281,6 +284,22 @@ const ReportSettingModal = ({ visible, onCancel }) => {
                     className="transfer-tree"
                 />
             </div>
+
+            <Row justifyContent="center" alignItems="center" >
+                <Col span={2}><span>{t('cycleCount')}</span></Col>
+                <Col>
+                    <InputNumber
+                        precision={0}
+                        min={0}
+                        max={1000}
+                        placeholder={t('cycleCount')}
+                        value={cycleCount}
+                        onChange={setCycleCount}
+                        style={{ width: '80px' }}
+                    /></Col>
+            </Row>
+
+
             <Space style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                 <Space style={{ display: 'flex', gap: '8px' }}>
                     <InputNumber
@@ -292,6 +311,10 @@ const ReportSettingModal = ({ visible, onCancel }) => {
                     <Button
                         type="dashed"
                         onClick={() => {
+                            if (cycleCount === null || cycleCount === undefined || cycleCount === '') {
+                                message.warning(t("cycleCountCannotBeZero"));
+                                return;
+                            }
                             addCustomItem('torque', torqueValue);
                             setTorqueValue(null);
                         }}
@@ -339,10 +362,10 @@ const ReportSettingModal = ({ visible, onCancel }) => {
                     <Button
                         type="dashed"
                         onClick={() => {
-                            if (angle1 < angle2) {
-                                message.warning(t(""));
-                                return;
-                            }
+                            // if (angle1 < angle2) {
+                            //     message.warning(t("angle1MustBeGreaterThanAngle2"));
+                            //     return;
+                            // }
                             addCustomItem('stiffness', angle1, angle2);
                             setStiffnessValue1(null);
                             setStiffnessValue2(null);

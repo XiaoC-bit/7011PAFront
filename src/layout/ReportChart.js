@@ -84,9 +84,10 @@ const MyLineChart = ({ width, height }) => {
     };
 
     useEffect(() => {
+        fetchData();
         const intervalId = setInterval(() => {
             fetchData();
-        }, 1000);
+        }, 2000);
         return () => clearInterval(intervalId);
     }, []);
 
@@ -121,7 +122,7 @@ const MyLineChart = ({ width, height }) => {
     const option = {
         tooltip: {
             trigger: 'axis',
-            show: false,
+            show: true,
             formatter: (params) => {
                 const xVal = params[0]?.axisValue;
                 let content = `${getLabel(xField)}: ${parseFloat(xVal).toFixed(3)}<br/>`;
@@ -166,7 +167,7 @@ const MyLineChart = ({ width, height }) => {
     };
 
     const yFieldOptions = xField === "id"
-        ? ["YZ_mm", "AD2"]
+        ? ["YZ_mm", "AD1", "AD2"]
         : ["AD2"];
 
     return (
@@ -180,8 +181,8 @@ const MyLineChart = ({ width, height }) => {
                             setY1Field("AD2");
                             setY2Field(val === "id" ? "AD2" : null);
                         }} style={{ width: 160 }}>
-                            <Option value="id">{getLabel("id")}（id）</Option>
-                            <Option value="YZ_mm">{getLabel("YZ_mm")}（YZ_mm）</Option>
+                            <Option value="id">{getLabel("id")}</Option>
+                            <Option value="YZ_mm">{getLabel("YZ_mm")}</Option>
                         </Select>
                     </div>
 
@@ -190,7 +191,7 @@ const MyLineChart = ({ width, height }) => {
                         <Select value={y1Field} onChange={setY1Field} style={{ width: 160 }}>
                             {yFieldOptions.map(opt => (
                                 <Option key={opt} value={opt}>
-                                    {getLabel(opt)}（{opt}）
+                                    {getLabel(opt)}
                                 </Option>
                             ))}
                         </Select>
@@ -202,7 +203,7 @@ const MyLineChart = ({ width, height }) => {
                             <Select value={y2Field} onChange={setY2Field} style={{ width: 160 }}>
                                 {["YZ_mm", "AD2", "AD1"].map(opt => (
                                     <Option key={opt} value={opt}>
-                                        {getLabel(opt)}（{opt}）
+                                        {getLabel(opt)}
                                     </Option>
                                 ))}
                             </Select>

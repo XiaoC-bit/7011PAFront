@@ -55,7 +55,22 @@ const ResultInfoTable = () => {
 
                 // 更新 columns
                 const updatedColumns = response.columns?.map(col => ({
-                    title: t(col),
+                    title: ()=>{
+                        if (col.startsWith('angle-') || col.startsWith('torque-')) {
+                            const [type, value, cycleCountTmp] = col.split('-');
+                            const title = type === 'torque' ? `循环[${cycleCountTmp}]扭力[${value}N]对应的角度值` : `循环[${cycleCountTmp}]角度[${value}]对应的扭矩值`;
+                            return title;
+                        }
+                        else if (col.startsWith('stiffness-')) {
+                            const [type, value1, value2, cycleCountTmp] = col.split('-');
+                            const title = `循环[${cycleCountTmp}]扭转刚度[${value1}, ${value2}]`;
+                            return title;
+                        }
+                        else{
+                            return   t(col)
+
+                        }
+                    },
                     dataIndex: col,
                     key: col,
                     ellipsis: true, // 超出内容加省略号
@@ -144,7 +159,7 @@ const ResultInfoTable = () => {
         }, 2000);
 
         return () => clearInterval(intervalId);
-    }, [fetchData]);
+    }, [fetchData,data]);
 
     // 表格翻页
     const handleTableChange = (newPagination) => {

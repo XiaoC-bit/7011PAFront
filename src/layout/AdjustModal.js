@@ -84,6 +84,10 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
     const [AD_1_Gain, setAD_1_Gain] = useState(1.0);
     const [AD_2_Gain, setAD_2_Gain] = useState(1.0);
 
+
+    const [AD_1_CAP, setAD_1_CAP] = useState(1.0);
+    const [AD_2_CAP, setAD_2_CAP] = useState(1.0);
+
     const handleSave = (row) => {
         const newData = [...data];
         const index = newData.findIndex((item) => row.key === item.key);
@@ -140,6 +144,7 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
             //PubSub.unsubscribe(token);
             if (data.connectErr === false) {
+                PubSub.unsubscribe(token);
                 //取出 data.Sys_Flag1  BIT 9 和 BIT 10
                 let bit9 = (data.Sys_Flag1 >> 9) & 1;
                 let bit10 = (data.Sys_Flag1 >> 10) & 1;
@@ -147,8 +152,14 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                 setY_DIR(bit10 === 1 ? true : false);
 
                 //保留三位小数
-                setXGain(data.X_RATE.toFixed(3));
-                setYzGain(data.YZ_RATE.toFixed(3));
+                setXGain(data.X_RATE.toFixed(9));
+                setYzGain(data.YZ_RATE.toFixed(9));
+
+                setAD_1_Gain(data.AD_1_GAIN.toFixed(9));
+                setAD_2_Gain(data.AD_2_GAIN.toFixed(9));
+
+                setAD_1_CAP(data.AD_1_CAP.toFixed(9));
+                setAD_2_CAP(data.AD_2_CAP.toFixed(9));
             }
             else {
                 //通讯失败
@@ -253,12 +264,12 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
                         {/* 第一行：AD选择 + Gain + 写入按钮 */}
                         <Row gutter={[16, 16]} align="middle">
-                            <Col span={8}>
+                            <Col span={16}>
                                 <Form.Item label={t('adjustModal.xGain')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <InputNumber
                                         value={xGain}
                                         onChange={setXGain}
-                                        step={0.01}
+                                        step={0.000000001}
                                         min={0}
                                         style={{ width: '100%' }}
                                     />
@@ -321,12 +332,12 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                                     </Select>
                                 </Form.Item>
                             </Col> */}
-                            <Col span={8}>
+                            <Col span={16}>
                                 <Form.Item label={t('adjustModal.yzGain')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <InputNumber
                                         value={yzGain}
                                         onChange={setYzGain}
-                                        step={0.01}
+                                        step={0.000000001}
                                         min={0}
                                         style={{ width: '100%' }}
                                     />
@@ -375,17 +386,21 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
 
 
+                </Col>
+                <Col span={12}>
+
+
                     <div style={{ marginBottom: 32 }}>
                         <h4 style={{ marginBottom: 16 }}>{t('AD GAIN')}</h4>
 
                         {/* 第一行：AD选择 + Gain + 写入按钮 */}
                         <Row gutter={[16, 16]} align="middle">
-                            <Col span={8}>
+                            <Col span={16}>
                                 <Form.Item label={t('AD1')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <InputNumber
-                                        // value={AD_1_Gain}
+                                        value={AD_1_Gain}
                                         onChange={setAD_1_Gain}
-                                        step={0.01}
+                                        step={0.000000001}
                                         min={0}
                                         style={{ width: '100%' }}
                                     />
@@ -418,12 +433,12 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
                         {/* 第二行：YZ方向Checkbox */}
                         <Row gutter={[16, 16]} align="middle" style={{ marginTop: 16 }}>
-                            <Col span={8}>
+                            <Col span={16}>
                                 <Form.Item label={t('AD2')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
                                     <InputNumber
-                                        // value={AD_2_Gain}
+                                        value={AD_2_Gain}
                                         onChange={setAD_2_Gain}
-                                        step={0.01}
+                                        step={0.000000001}
                                         min={0}
                                         style={{ width: '100%' }}
                                     />
@@ -437,7 +452,7 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                                         const data = {
                                             "__channel": __channel,
                                             "__type": __type,
-                                            "GAIN": AD_1_Gain,
+                                            "GAIN": AD_2_Gain,
                                             "AD": 2
                                         };
 
@@ -454,6 +469,95 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                             </Col>
                         </Row>
                     </div>
+
+
+
+
+
+
+
+
+
+                    <div style={{ marginBottom: 32 }}>
+                        <h4 style={{ marginBottom: 16 }}>{t('AD CAP')}</h4>
+
+                        {/* 第一行：AD选择 + Gain + 写入按钮 */}
+                        <Row gutter={[16, 16]} align="middle">
+                            <Col span={16}>
+                                <Form.Item label={t('AD1')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <InputNumber
+                                        value={AD_1_CAP}
+                                        onChange={setAD_1_CAP}
+                                        step={0.000000001}
+                                        min={0}
+                                        style={{ width: '100%' }}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Button type="primary" onClick={() => {
+                                    try {
+                                        const __channel = "control-message";
+                                        const __type = "setADCAP";
+                                        const data = {
+                                            "__channel": __channel,
+                                            "__type": __type,
+                                            "CAP": AD_1_CAP,
+                                            "AD": 1
+                                        };
+
+                                        wsService.sendMessage(data);
+
+
+                                    } catch (error) {
+                                        message.error(error.message);
+                                    } finally {
+                                    }
+                                }}>
+                                    {t('submit')}
+                                </Button>
+                            </Col>
+                        </Row>
+
+                        {/* 第二行：YZ方向Checkbox */}
+                        <Row gutter={[16, 16]} align="middle" style={{ marginTop: 16 }}>
+                            <Col span={16}>
+                                <Form.Item label={t('AD2')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <InputNumber
+                                        value={AD_2_CAP}
+                                        onChange={setAD_2_CAP}
+                                        step={0.000000001}
+                                        min={0}
+                                        style={{ width: '100%' }}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Button type="primary" onClick={() => {
+                                    try {
+                                        const __channel = "control-message";
+                                        const __type = "setADCAP";
+                                        const data = {
+                                            "__channel": __channel,
+                                            "__type": __type,
+                                            "CAP": AD_2_CAP,
+                                            "AD": 2
+                                        };
+
+                                        wsService.sendMessage(data);
+
+
+                                    } catch (error) {
+                                        message.error(error.message);
+                                    } finally {
+                                    }
+                                }}>
+                                    {t('submit')}
+                                </Button>
+                            </Col>
+                        </Row>
+                    </div>
+
 
                 </Col>
 

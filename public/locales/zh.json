@@ -285,5 +285,10 @@
     },
     "spin success": "旋转成功",
     "spin failed": "旋转失败",
-    "submit": "提交"
+    "submit": "提交",
+    "cycleCount": "循环次数",
+    "cycleCountCannotBeZero": "循环次数不能为空",
+    "angle1MustBeGreaterThanAngle2": "角度1必须大于角度2",
+    "addSuccess": "添加成功",
+    "AD CAP": "AD 容量"
 }

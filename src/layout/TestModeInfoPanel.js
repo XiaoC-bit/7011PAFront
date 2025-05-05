@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Descriptions, Divider, Tag } from 'antd';
+import { Card, Descriptions, Divider, Tag,Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
@@ -161,12 +161,16 @@ const TestModeInfoPanel = ({ formData }) => {
 
             {/* Initial Load Configuration */}
             <Descriptions column={1} bordered size="small">
-                <Descriptions.Item label={t("initial_load")}>
+                <Descriptions.Item label={t("initial_load")} style={{
+                    whiteSpace:'nowrap'
+                }}>
                     {initialLoadValue} {initialMode === 'torque' ? 'N.m' : '°'}
                 </Descriptions.Item>
                 <Descriptions.Item label={t("zero_mode")}>
-                    {zeroMode?.includes('torqueZero') && <Tag>{t("torqueZero")}</Tag>}
-                    {zeroMode?.includes('angleZero') && <Tag>{t("angleZero")}</Tag>}
+                <Space size="small"  wrap>
+    {zeroMode?.includes('torqueZero') && <Tag>{t("torqueZero")}</Tag>}
+    {zeroMode?.includes('angleZero') && <Tag>{t("angleZero")}</Tag>}
+  </Space>
                 </Descriptions.Item>
             </Descriptions>
 
