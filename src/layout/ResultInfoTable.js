@@ -55,7 +55,7 @@ const ResultInfoTable = () => {
 
                 // 更新 columns
                 const updatedColumns = response.columns?.map(col => ({
-                    title: ()=>{
+                    title: () => {
                         if (col.startsWith('angle-') || col.startsWith('torque-')) {
                             const [type, value, cycleCountTmp] = col.split('-');
                             const title = type === 'torque' ? `循环[${cycleCountTmp}]扭力[${value}N]对应的角度值` : `循环[${cycleCountTmp}]角度[${value}]对应的扭矩值`;
@@ -66,8 +66,8 @@ const ResultInfoTable = () => {
                             const title = `循环[${cycleCountTmp}]扭转刚度[${value1}, ${value2}]`;
                             return title;
                         }
-                        else{
-                            return   t(col)
+                        else {
+                            return t(col);
 
                         }
                     },
@@ -109,24 +109,42 @@ const ResultInfoTable = () => {
         fetchData(pagination.current, pagination.pageSize); // 初始化加载
 
         const intervalId = setInterval(() => {
-            const __channel = "report-message";
-            const __type = "fetch-report-data";
-            const payload = {
-                __channel,
-                __type,
-                page: paginationRef.current.current,
-                pageSize: paginationRef.current.pageSize,
-            };
+            fetchData(pagination.current, pagination.pageSize); // 初始化加载
 
-            wsService.sendMessage(payload);
+        }, 2000);
 
-            const token = PubSub.subscribe(`${__channel}-${__type}`, (_, response) => {
-                PubSub.unsubscribe(token);
+        return () => clearInterval(intervalId);
+    }, [fetchData]);
 
-                // 如果 total 改变了，重新加载第一页
-                if (response.total !== totalRef.current) {
-                    totalRef.current = response.total;
+    useEffect(() => {
 
+        const __channel = "report-message";
+        const __type = "fetch-report-data";
+        const token = PubSub.subscribe(`${__channel}-${__type}`, (_, response) => {
+
+            // 如果 total 改变了，重新加载第一页
+            if (response.total !== totalRef.current) {
+                totalRef.current = response.total;
+
+                setPagination(prev => ({
+                    ...prev,
+                    current: 1,
+                    total: response.total,
+                }));
+
+                fetchData(1, paginationRef.current.pageSize);
+            }
+            else {
+                const newData = response.data || [];
+                if (newData.length === 0)
+                    return;
+                if (data.length === 0)
+                    return;
+                const currentFirstRow = data[0];
+                const newFirstRow = newData[0];
+                const hasFirstRowChanged =
+                    JSON.stringify(currentFirstRow) !== JSON.stringify(newFirstRow);
+                if (hasFirstRowChanged) {
                     setPagination(prev => ({
                         ...prev,
                         current: 1,
@@ -135,31 +153,13 @@ const ResultInfoTable = () => {
 
                     fetchData(1, paginationRef.current.pageSize);
                 }
-                else {
-                    const newData = response.data || [];
-                    if (newData.length === 0)
-                        return;
-                    if (data.length === 0)
-                        return;
-                    const currentFirstRow = data[0];
-                    const newFirstRow = newData[0];
-                    const hasFirstRowChanged =
-                        JSON.stringify(currentFirstRow) !== JSON.stringify(newFirstRow);
-                    if (hasFirstRowChanged) {
-                        setPagination(prev => ({
-                            ...prev,
-                            current: 1,
-                            total: response.total,
-                        }));
+            }
+        });
 
-                        fetchData(1, paginationRef.current.pageSize);
-                    }
-                }
-            });
-        }, 2000);
-
-        return () => clearInterval(intervalId);
-    }, [fetchData,data]);
+        return () => {
+            PubSub.unsubscribe(token);
+        };
+    }, [data]);
 
     // 表格翻页
     const handleTableChange = (newPagination) => {

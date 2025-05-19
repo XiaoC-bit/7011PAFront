@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Menu, message, Modal } from 'antd';
 import { useTranslation } from "react-i18next";
 import ReportSettingModal from './ReportSettingModal';
@@ -36,6 +36,10 @@ const App = () => {
     const [disabledSave, setIsDisabledSave] = useState(false);
     const [disableNew, setIsDisableNew] = useState(false);
     const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
+
+
+    const itemType = useRef(1);
+
     useEffect(() => {
         setIsDisableNew(method === '');
     }, [method]);
@@ -49,6 +53,7 @@ const App = () => {
             event.preventDefault(); // 阻止浏览器默认打开新标签页
             // setIsAdvanceModalVisible(true);
             setPasswordModalVisible(true); // 打开密码验证框
+            itemType.current = 1; // 设置为高级设置
         }
     }, []);
 
@@ -82,7 +87,9 @@ const App = () => {
             setIsSaveMethodModalVisible(true);
         }
         else if (e.key === 'PID') {
-            setIsPIDModalVisible(true);
+
+            setPasswordModalVisible(true);
+            itemType.current = 3;
         }
         else if (e.key === 'exit') {
             //window.close();
@@ -93,7 +100,8 @@ const App = () => {
         else if (e.key === 'lanuage') {
             setIsLanguageModalVisible(true);
         } else if (e.key === 'adjust') {
-            setIsAdjustModalVisible(true);
+            setPasswordModalVisible(true);
+            itemType.current = 2;
         }
         else if (e.key === 'print') {
             window.print();
@@ -202,7 +210,17 @@ const App = () => {
             visible={isPasswordModalVisible}
             onSuccess={() => {
                 setPasswordModalVisible(false);
-                setIsAdvanceModalVisible(true);
+                if (itemType.current === 1) {
+                    setIsAdvanceModalVisible(true);
+                }
+                else if (itemType.current === 2) {
+
+                    setIsAdjustModalVisible(true);
+                }
+                else if (itemType.current === 3) {
+                    setIsPIDModalVisible(true);
+                }
+
             }}
             onCancel={() => setPasswordModalVisible(false)}
         />

@@ -41,7 +41,7 @@
     "maxTorque": "Mô-men xoắn tối đa (N·m)",
     "maxAngle": "Góc tối đa (°)",
     "breakSensitivity": "Độ nhạy gãy (%)",
-    "moveSpeed": "Tốc độ di chuyển (r/min)",
+    "moveSpeed": "Tốc độ di chuyển (°/min)",
     "save": "Lưu cấu hình",
     "reset": "Đặt lại",
     "destructive_test": "Kiểm tra phá hủy",

@@ -119,6 +119,19 @@ const ConfigForm = () => {
                     </Form.Item>
                 </Col>
             </Row>
+
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label={t("specimenReturn")} name="specimenReturn">
+                        <Select style={{ width: "100%" }} mode='single'
+                            options={[
+                                { label: t("return"), value: 1 },
+                                { label: t("no-return"), value: 0 },
+                            ]}
+                        />
+                    </Form.Item>
+                </Col>
+            </Row>
         </>
     );
 };

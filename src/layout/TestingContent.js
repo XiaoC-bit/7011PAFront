@@ -58,12 +58,15 @@ const TestingContent = () => {
     };
 
     const StartTest = () => {
+        const { configForm, testModeConfig } = formData;
         try {
-            const __channel = "control-message";
+            const __channel = "data-testing-message";
             const __type = "start-test";
             const data = {
                 "__channel": __channel,
                 "__type": __type,
+                configForm,
+                testModeConfig,
             };
 
             wsService.sendMessage(data);

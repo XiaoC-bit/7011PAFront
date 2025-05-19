@@ -44,7 +44,7 @@
     "maxTorque": "最大扭力 (N·m)",
     "maxAngle": "最大角度 (°)",
     "breakSensitivity": "断裂敏感度 (%)",
-    "moveSpeed": "移动转速 (r/min)",
+    "moveSpeed": "移动转速 (°/min)",
     "save": "保存配置",
     "reset": "重置",
     "destructive_test": "破坏测试",
@@ -290,5 +290,8 @@
     "cycleCountCannotBeZero": "循环次数不能为空",
     "angle1MustBeGreaterThanAngle2": "角度1必须大于角度2",
     "addSuccess": "添加成功",
-    "AD CAP": "AD 容量"
+    "AD CAP": "AD 容量",
+    "return": "回位",
+    "no-return": "不回位",
+    "specimenReturn": "回位设定"
 }

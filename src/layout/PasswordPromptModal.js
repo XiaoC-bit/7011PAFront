@@ -4,7 +4,7 @@ import { Modal, Input, message } from "antd";
 
 const PasswordPromptModal = ({ visible, onSuccess, onCancel }) => {
     const [password, setPassword] = useState("");
-    const correctPassword = "Advance"; // 你可以换成其他方式，比如从环境变量读
+    const correctPassword = "gotech"; // 你可以换成其他方式，比如从环境变量读
 
     const handleOk = () => {
         if (password === correctPassword) {
