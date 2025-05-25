@@ -3,6 +3,7 @@ import { Layout, Row, Col, Space, Tag, Tooltip } from 'antd';
 
 import PubSub from 'pubsub-js';
 import { useTranslation } from "react-i18next";
+import "../styles/layout.css";
 const { Footer } = Layout;
 
 const StatusBar = ({ hardwareInfo }) => {
@@ -19,6 +20,7 @@ const StatusBar = ({ hardwareInfo }) => {
     const [msgInfo, setMsgInfo] = React.useState('');
     const [msg2Info, setMsg2Info] = React.useState('');
     const [msg3Info, setMsg3Info] = React.useState('');
+    const [isTesting, setIsTesting] = React.useState(false);
 
     useEffect(() => {
         const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
@@ -26,7 +28,12 @@ const StatusBar = ({ hardwareInfo }) => {
             //PubSub.unsubscribe(token);
             if (data.connectErr === false) {
                 setRealData(data);
-
+                if (data.U65_MODE === 3) {
+                    setIsTesting(true);
+                }
+                else {
+                    setIsTesting(false);
+                }
                 /**
                  * 
                  * 0	開機 .. 自動變 1 或 5	1	初始化 … 自動變 2
@@ -375,7 +382,15 @@ const StatusBar = ({ hardwareInfo }) => {
                 <Col span={6}>
                     <Space>
                         <Tooltip title="MODE">
-                            <Tag color="blue">MODE: {realData.U65_MODE} {modeInfo}</Tag>
+                            {isTesting ? (
+                                <Tag className={'blink'} color="red" style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                                    🚨 TEST MODE: {realData.U65_MODE} {modeInfo}
+                                </Tag>
+                            ) : (
+                                <Tag color="blue">
+                                    MODE: {realData.U65_MODE} {modeInfo}
+                                </Tag>
+                            )}
                         </Tooltip>
                     </Space>
                 </Col>

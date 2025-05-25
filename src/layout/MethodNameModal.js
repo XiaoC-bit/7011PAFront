@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, Input, Form, message } from "antd";
 import { useTranslation } from "react-i18next";
 import PubSub from 'pubsub-js';
-import { formState, isFirstCreateMethodState } from '../data/Data';
+import { formState, isFirstCreateMethodState, hasChangeMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 import wsService from '../services/WebSocketService';
 
@@ -11,7 +11,7 @@ const MethodNameModal = ({ visible, onOk, onCancel }) => {
     const [form] = Form.useForm();
     const [formData, setFormData] = useAtom(formState);
     const [isFirstCreateMethod, setIsFirstCreateMethod] = useAtom(isFirstCreateMethodState);
-
+    const [hasChangeMethod, setHasChangeMethod] = useAtom(hasChangeMethodState);
 
     const handleOk = async () => {
         try {

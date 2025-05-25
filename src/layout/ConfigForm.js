@@ -1,9 +1,6 @@
 import React, { useEffect } from "react";
 import { Form, InputNumber, Divider, Button, Space, Row, Col, Select } from "antd";
 import { useTranslation } from "react-i18next";
-import { useAtom } from "jotai";
-import { formState } from '../data/Data';
-import { isEqual } from 'lodash';
 
 const ConfigForm = () => {
     const { t } = useTranslation();

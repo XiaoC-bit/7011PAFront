@@ -88,6 +88,13 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
     const [AD_1_CAP, setAD_1_CAP] = useState(1.0);
     const [AD_2_CAP, setAD_2_CAP] = useState(1.0);
 
+    const [AD1_DIR, setAD1_DIR] = useState(false);
+    const [AD2_DIR, setAD2_DIR] = useState(false);
+    const [AD1_UPDN, setAD1_UPDN] = useState(false);
+    const [AD2_UPDN, setAD2_UPDN] = useState(false);
+
+    const [AD1_Gain] = useState(1.0);
+
     const handleSave = (row) => {
         const newData = [...data];
         const index = newData.findIndex((item) => row.key === item.key);
@@ -160,6 +167,18 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
 
                 setAD_1_CAP(data.AD_1_CAP.toFixed(9));
                 setAD_2_CAP(data.AD_2_CAP.toFixed(9));
+
+                if (1) {
+                    let bit0 = (data.DIR_FLAG >> 0) & 1;
+                    let bit1 = (data.DIR_FLAG >> 1) & 1;
+                    let bit8 = (data.DIR_FLAG >> 8) & 1;
+                    let bit9 = (data.DIR_FLAG >> 9) & 1;
+                    setAD1_DIR(bit0 === 1 ? true : false);
+                    setAD2_DIR(bit1 === 1 ? true : false);
+                    setAD1_UPDN(bit8 === 1 ? true : false);
+                    setAD2_UPDN(bit9 === 1 ? true : false);
+                }
+
             }
             else {
                 //通讯失败
@@ -383,7 +402,88 @@ const AdjustModal = ({ visible, onOk, onCancel }) => {
                         </Row>
                     </div>
 
+                    <div>
 
+                        <h4 style={{ marginBottom: 16 }}>{t('DIR_FLAG')}</h4>
+                        <Row gutter={[16, 16]} align="middle">
+                            <Col span={16}>
+                                <Form.Item label={t('AD1_DIR')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <Checkbox
+                                        checked={AD1_DIR}
+                                        onChange={(e) => {
+                                            setAD1_DIR(e.target.checked);
+                                            const __channel = "control-message";
+                                            const __type = "setAD1_DIR";
+                                            const data = {
+                                                "__channel": __channel,
+                                                "__type": __type,
+                                                "on": e.target.checked
+                                            };
+                                            wsService.sendMessage(data);
+                                        }}
+                                    />
+
+                                </Form.Item>
+                                <Form.Item label={t('AD1_UPDN')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <Checkbox
+
+                                        checked={AD1_UPDN}
+                                        onChange={(e) => {
+                                            setAD1_UPDN(e.target.checked);
+                                            const __channel = "control-message";
+                                            const __type = "setAD1_UPDN";
+                                            const data = {
+                                                "__channel": __channel,
+                                                "__type": __type,
+                                                "on": e.target.checked
+                                            };
+                                            wsService.sendMessage(data);
+                                        }
+                                        }
+                                    />
+                                </Form.Item>
+                                <Form.Item label={t('AD2_UPDN')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+                                    <Checkbox
+
+                                        checked={AD2_UPDN}
+                                        onChange={(e) => {
+                                            setAD2_UPDN(e.target.checked);
+                                            const __channel = "control-message";
+                                            const __type = "setAD2_UPDN";
+                                            const data = {
+                                                "__channel": __channel,
+                                                "__type": __type,
+                                                "on": e.target.checked
+                                            };
+                                            wsService.sendMessage(data);
+                                        }
+                                        }
+                                    />
+                                </Form.Item>
+
+
+                                <Form.Item label={t('AD2_DIR')} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} style={{ marginBottom: 0 }}>
+
+                                    <Checkbox
+                                        checked={AD2_DIR}
+                                        onChange={(e) => {
+                                            setAD2_DIR(e.target.checked);
+                                            const __channel = "control-message";
+                                            const __type = "setAD2_DIR";
+                                            const data = {
+                                                "__channel": __channel,
+                                                "__type": __type,
+                                                "on": e.target.checked
+                                            };
+                                            wsService.sendMessage(data);
+                                        }}
+                                    />
+
+                                </Form.Item>
+                            </Col>
+
+                        </Row>
+                    </div>
 
 
                 </Col>

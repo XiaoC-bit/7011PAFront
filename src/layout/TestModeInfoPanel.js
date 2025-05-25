@@ -24,6 +24,7 @@ const TestModeInfoPanel = ({ formData }) => {
         torsionSpeed,
         torsionUnit,
         direction,
+        ad_direction,
         // Static test fields
         staticMode,
         constantAngle,

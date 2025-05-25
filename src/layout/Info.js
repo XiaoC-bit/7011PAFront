@@ -87,7 +87,7 @@ const Info = () => {
                 if (data.status === 'success') {
                     // message.success(t('home success'));
                 } else {
-                    message.error(t('home failed'));
+                    // message.error(t('home failed'));
                 }
             });
 

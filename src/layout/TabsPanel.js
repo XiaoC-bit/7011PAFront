@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { Tabs, Form } from "antd";
+import { Tabs, Form, message } from "antd";
 import ConfigForm from "./ConfigForm";
 import TestModeConfig from "./TestModeConfig";
 import { useTranslation } from "react-i18next";
 
-import { formState } from '../data/Data';
+import { formState, hasChangeMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 import { pick, isEqual } from 'lodash';
 import '../styles/layout.css';
@@ -16,6 +16,7 @@ const TabsPanel = () => {
 
   const [form] = Form.useForm();
   const [formData, setFormData] = useAtom(formState);
+  const [hasChangeMethod, setHasChangeMethod] = useAtom(hasChangeMethodState);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -36,6 +37,8 @@ const TabsPanel = () => {
       configForm: fullValues,
       dirty
     }));
+    setHasChangeMethod(dirty);
+    message.warning(dirty);
 
     return;
     // const initial = formData.testModeConfigInitial || {};

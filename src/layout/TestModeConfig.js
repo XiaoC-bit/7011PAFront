@@ -3,7 +3,7 @@ import { Form, Row, Col, Input, InputNumber, Select, Radio, DatePicker } from 'a
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
-import { isFirstCreateMethodState } from '../data/Data';
+import { isFirstCreateMethodState, hasChangeMethodState } from '../data/Data';
 
 const { Option } = Select;
 
@@ -106,11 +106,22 @@ const TestModeConfig = () => {
 
                                     <Row gutter={16}>
                                         <Col span={12}>
-                                            <p>{t("direction")}</p>
+                                            <p>{t("test_direction")}</p>
                                             <Form.Item name="direction" initialValue="Forward">
-                                                <Select defaultValue="Forward" style={{ width: "100%" }}>
-                                                    <Option value="Forward">{t("Forward")}</Option>
-                                                    <Option value="Backward">{t("Backward")}</Option>
+                                                <Select defaultValue="Forward" style={{ width: "100%" }}
+                                                    disabled={!isFirstCreateMethod}
+                                                >
+                                                    <Option value="Forward">{t("+")}</Option>
+                                                    <Option value="Backward">{t("-")}</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <p>{t("ad_direction")}</p>
+                                            <Form.Item name="ad_direction" initialValue="Forward">
+                                                <Select defaultValue="Forward" style={{ width: "100%" }} disabled={!isFirstCreateMethod}>
+                                                    <Option value="Forward">{t("+")}</Option>
+                                                    <Option value="Backward">{t("-")}</Option>
                                                 </Select>
                                             </Form.Item>
                                         </Col>

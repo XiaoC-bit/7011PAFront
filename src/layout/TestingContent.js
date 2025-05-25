@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import MyLineChart from './ReportChart';
-import { formState } from '../data/Data';
+import { formState, hasChangeMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 import { SwapOutlined, PlayCircleOutlined, PauseCircleOutlined, ExportOutlined } from '@ant-design/icons';
 import TestBaseInfoTable from './TestBaseInfoTable';
@@ -15,6 +15,36 @@ const TestingContent = () => {
     const { t } = useTranslation();
     const printRef = useRef();
     const [formData] = useAtom(formState);
+    const [isTesting, setIsTesting] = useState(false);
+    const [hasTransfered, setHasTransfered] = useState(false);
+    const [hasChangeMethod, setHasChangeMethod] = useAtom(hasChangeMethodState);
+
+    const [remoteKey, setRemoteKey] = useState(0);
+    const [readyToTest, setReadyToTest] = useState(false);
+
+    useEffect(() => {
+        const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
+
+            //PubSub.unsubscribe(token);
+            if (data.connectErr === false) {
+                if (data.U65_MODE === 3) {
+                    setHasTransfered(false);
+                    setIsTesting(true);
+                    setReadyToTest(false);
+                }
+                else if (data.U65_MODE === 2) {
+                    setReadyToTest(true);
+                }
+                else {
+                    setReadyToTest(false);
+                    setIsTesting(false);
+                }
+
+                setRemoteKey(data.REMOTE_KEY);
+            }
+        });
+    }, []);
+
 
 
 
@@ -25,6 +55,8 @@ const TestingContent = () => {
     };
 
     const TransferDFSet = () => {
+        setHasTransfered(true);
+        setHasChangeMethod(false);
         const isComplete = checkFormData();
         if (!isComplete) {
             message.warning(t('pleaseCompleteForm'));
@@ -57,7 +89,8 @@ const TestingContent = () => {
 
     };
 
-    const StartTest = () => {
+    const StartTest = (needDelete = false) => {
+        setHasTransfered(false);
         const { configForm, testModeConfig } = formData;
         try {
             const __channel = "data-testing-message";
@@ -67,6 +100,7 @@ const TestingContent = () => {
                 "__type": __type,
                 configForm,
                 testModeConfig,
+                needDelete
             };
 
             wsService.sendMessage(data);
@@ -103,6 +137,21 @@ const TestingContent = () => {
         } finally {
         }
     };
+
+
+    useEffect(() => {
+        //如果remoteKey的BIT1 等于1，需要启动测试
+        const isBit1Set = (remoteKey & (1 << 1)) !== 0;
+        const isBit3Set = (remoteKey & (1 << 3)) !== 0;
+
+        if (isBit1Set && readyToTest) {
+            StartTest(true);
+        }
+        if (isBit3Set && isTesting) {
+            EndTest();
+        }
+    }, [remoteKey, isTesting, readyToTest]);
+
 
     const exportData = () => {
         try {
@@ -153,14 +202,16 @@ const TestingContent = () => {
                 textAlign: 'right', width: '100%', height: '50px',
             }}>
                 <Button
+                    type="primary"
                     onClick={TransferDFSet}
                     icon={<SwapOutlined />}
+                    disabled={!hasChangeMethod && (hasTransfered || isTesting)}
+
                     style={{
                         marginRight: '16px',
                         padding: '10px 20px',
                         fontSize: '16px',
                         backgroundColor: '#1890ff',
-                        color: '#fff',
                         border: 'none',
                         borderRadius: '4px'
                     }}
@@ -170,6 +221,7 @@ const TestingContent = () => {
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
+                    disabled={isTesting || !hasTransfered}
                     style={{
                         padding: '10px 20px',
                         fontSize: '16px',

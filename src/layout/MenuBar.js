@@ -18,7 +18,7 @@ import { useAtom } from 'jotai';
 const App = () => {
 
     const { t } = useTranslation();
-    const [formData, setFormData] = useAtom(formState);
+    const [formData, _] = useAtom(formState);
     const [method, setMethod] = useAtom(currentMethod);
 
     const [isReportSettingModalVisible, setIsReportSettingModalVisible] = useState(false);

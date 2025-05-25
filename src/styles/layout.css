@@ -208,20 +208,36 @@
 
 /* 全局自定义滚动条样式 */
 ::-webkit-scrollbar {
-    width: 6px;   /* 纵向滚动条宽度 */
-    height: 6px;  /* 横向滚动条高度 */
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #f0f0f0; /* 滚动条轨道背景 */
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
+    width: 6px;
+    /* 纵向滚动条宽度 */
+    height: 6px;
+    /* 横向滚动条高度 */
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    /* 滚动条轨道背景 */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    /* 滚动条滑块颜色 */
     border-radius: 3px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 0.4);
-  }
-  
+}
+
+
+.blink {
+    animation: blinker 2s linear infinite;
+    background-color: #ffe6e6;
+    border: 1px solid red;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}

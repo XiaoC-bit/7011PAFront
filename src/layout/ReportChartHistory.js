@@ -13,9 +13,14 @@ const HistoryChart = ({ width, height, req_queue_id, method }) => {
     const loading = useRef(false);
     const [chartData, setChartData] = useState([]);
 
-    const [xField, setXField] = useState("YZ_mm"); // 角度（YZ_mm）作为X轴
-    const [y1Field, setY1Field] = useState("AD2"); // 扭矩（AD2）作为y1轴
-    const [y2Field, setY2Field] = useState("AD1"); // 位移（AD1）作为y2轴
+    // const [xField, setXField] = useState("YZ_mm"); // 角度（YZ_mm）作为X轴
+    // const [y1Field, setY1Field] = useState("AD2"); // 扭矩（AD2）作为y1轴
+    // const [y2Field, setY2Field] = useState("AD1"); // 位移（AD1）作为y2轴
+
+
+    const [xField, setXField] = useState("id"); // 默认时间
+    const [y1Field, setY1Field] = useState("YZ_mm"); // 默认角度
+    const [y2Field, setY2Field] = useState("AD2");    // 默认扭矩
 
     const getLabel = (field) => {
         const keys = {
@@ -80,7 +85,7 @@ const HistoryChart = ({ width, height, req_queue_id, method }) => {
             });
         }
 
-        if (xField === "YZ_mm" && y2Field && y2Field !== y1Field) {
+        if (xField === "id" && y2Field && y2Field !== y1Field) {
             series.push({
                 name: getLabel(y2Field),
                 type: 'line',
@@ -97,7 +102,7 @@ const HistoryChart = ({ width, height, req_queue_id, method }) => {
     const option = {
         tooltip: {
             trigger: 'axis',
-            show: false,
+            show: true,
             formatter: (params) => {
                 const xVal = params[0]?.axisValue;
                 let content = `${getLabel(xField)}: ${parseFloat(xVal).toFixed(3)}<br/>`;

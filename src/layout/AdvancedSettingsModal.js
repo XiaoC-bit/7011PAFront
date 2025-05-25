@@ -11,43 +11,52 @@ const AdvancedSettingsModal = ({ visible, onClose, onSave }) => {
     const [initialValues, setInitialValues] = React.useState({
         samplingRate: 0
     });
+
+    const setSamplingRate = (value) => {
+        try {
+            const __channel = "control-message";
+            const __type = "set-sampling-rate";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                "samplingRate": value
+            };
+
+            wsService.sendMessage(data);
+
+
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+        }
+    };
+
     const handleOk = () => {
         form.validateFields()
             .then(values => {
+                setSamplingRate(values.samplingRate);
 
-                try {
-                    const __channel = "control-message";
-                    const __type = "set-sampling-rate";
-                    const data = {
-                        "__channel": __channel,
-                        "__type": __type,
-                        "samplingRate": values.samplingRate
-                    };
-
-                    wsService.sendMessage(data);
-
-
-                } catch (error) {
-                    message.error(error.message);
-                } finally {
-                }
 
             });
     };
-
     useEffect(() => {
+
+        setSamplingRate(19);
         const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
-
             if (data.connectErr === false) {
-
-                setInitialValues({
-                    samplingRate: data.SAMPLE_RATE
-                });
-
+                if (!form.isFieldTouched('samplingRate')) {
+                    form.setFieldsValue({
+                        samplingRate: data.SAMPLE_RATE
+                    });
+                }
             }
         });
 
+        return () => {
+            PubSub.unsubscribe(token);
+        };
     }, []);
+
 
     return (
         <Modal

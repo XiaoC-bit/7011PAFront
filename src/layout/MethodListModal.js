@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
-import { formState, isFirstCreateMethodState } from '../data/Data';
+import { formState, isFirstCreateMethodState, hasChangeMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 
 const MethodListModal = ({ visible, onOk, onCancel }) => {
@@ -14,6 +14,7 @@ const MethodListModal = ({ visible, onOk, onCancel }) => {
     const [isFirstCreateMethod, setIsFirstCreateMethod] = useAtom(isFirstCreateMethodState);
 
     const [formData, setFormData] = useAtom(formState);
+    const [hasChangeMethod, setHasChangeMethod] = useAtom(hasChangeMethodState);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({

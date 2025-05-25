@@ -14,3 +14,5 @@ export const currentMethod = atom('');
 
 //是否首次创建方法
 export const isFirstCreateMethodState = atom(false);
+
+export const hasChangeMethodState = atom(false);

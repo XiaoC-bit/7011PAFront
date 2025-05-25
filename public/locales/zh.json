@@ -1,4 +1,6 @@
 {
+    "recalculate": "重新计算",
+    "recalculateSuccess": "重新计算成功",
     "key": "编号",
     "torque": "扭矩",
     "angle": "角度",
@@ -230,6 +232,8 @@
     "Unknown Error": "未知错误",
     "To Test Mode": "待测模式",
     "direction": "方向",
+    "ad_direction": "AD方向",
+    "test_direction": "测试方向",
     "Forward": "正向",
     "Backward": "反向",
     "new method": "新方法",
@@ -247,10 +251,10 @@
     },
     "chart": {
         "label": {
-            "time": "时间",
-            "angle": "角度",
-            "displacement": "位移",
-            "torque": "扭矩"
+            "time": "时间(S)",
+            "angle": "角度(°)",
+            "displacement": "位移(mm)",
+            "torque": "扭矩(N.m)"
         },
         "xAxis": "X轴",
         "y1Axis": "Y1轴",

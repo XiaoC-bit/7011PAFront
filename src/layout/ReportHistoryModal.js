@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Modal, Row, Table, Select, Button } from 'antd';
+import { Col, Modal, Row, Table, Select, Button, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import HistoryChart from './ReportChartHistory';
 import TestBaseInfoTableHistory from './TestBaseInfoTableHistory';
@@ -113,6 +113,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
         },
     ]);
 
+
     // 请求数据
     const fetchData = async (page, pageSize) => {
 
@@ -153,7 +154,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
 
 
     const rowSelection = {
-        type: 'radio',
+        type: 'checkbox',
         selectedRowKeys,
         onChange: (selectedRowKeys) => {
             setSelectedRowKeys(selectedRowKeys);
@@ -248,6 +249,57 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                             wsService.sendMessage(data);
                         }}
                     >{t('export data')}</Button>
+                    <Button type="primary" style={{ marginLeft: '16px' }}
+                        disabled={selectedRowKeys.length === 0}
+                        onClick={() => {
+                            const __channel = "report-message";
+                            const __type = "recalculate-history-data";
+                            const data = {
+                                "__channel": __channel,
+                                "__type": __type,
+                                method: method,
+                                queue_id: selectedRowKeys,
+                            };
+
+                            wsService.sendMessage(data);
+                            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                                PubSub.unsubscribe(token);
+                                if (data.status === 'success') {
+                                    message.success(t('recalculateSuccess'));
+                                    setRefreshKey(prev => prev + 1); // 修改 key，强制刷新组件
+                                    setSelectedRowKeys([]);
+                                    fetchData(pagination.current, pagination.pageSize);
+                                }
+                            });
+                        }}
+                    >{t('recalculate')}</Button>
+
+                    <Button type="primary" style={{ marginLeft: '16px' }}
+                        disabled={selectedRowKeys.length == 0}
+                        onClick={() => {
+                            const __channel = "report-message";
+                            const __type = "delete-history-data";
+                            const data = {
+                                "__channel": __channel,
+                                "__type": __type,
+                                method: method,
+                                queue_id: selectedRowKeys,
+                            };
+
+                            wsService.sendMessage(data);
+                            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+                                PubSub.unsubscribe(token);
+                                if (data.status === 'success') {
+                                    setRefreshKey(prev => prev + 1); // 修改 key，强制刷新组件
+                                    setSelectedRowKeys([]);
+                                    fetchData(pagination.current, pagination.pageSize);
+                                }
+                            });
+                        }}
+                    >{t('delete')}
+                    </Button>
+
+
                 </div>
 
                 {/* 第二行：动态高度 */}
@@ -275,7 +327,14 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                             onRow={(record) => ({
                                 onClick: () => {
                                     const { key } = record;
-                                    setSelectedRowKeys([key]); // 只允许单选
+                                    setSelectedRowKeys((prevKeys) => {
+                                        const exists = prevKeys.includes(key);
+                                        if (exists) {
+                                            return prevKeys.filter((k) => k !== key); // 取消选中
+                                        } else {
+                                            return [...prevKeys, key]; // 添加选中
+                                        }
+                                    });
                                 },
                             })}
                             scroll={{ x: "max-content", y: '600px' }} // 💡 关键点
