@@ -18,7 +18,7 @@ const MyLineChart = ({ width, height }) => {
     const MAX_LENGTH = 2000000;
 
     const [xField, setXField] = useState("id"); // 默认时间
-    const [y1Field, setY1Field] = useState("YZ_mm"); // 默认角度
+    const [y1Field, setY1Field] = useState("AD2"); // 默认角度
     const [y2Field, setY2Field] = useState("AD2");    // 默认扭矩
 
     const getLabel = (field) => {
@@ -156,11 +156,6 @@ const MyLineChart = ({ width, height }) => {
                 type: 'value',
                 name: getLabel(y1Field),
                 position: 'left',
-            },
-            {
-                type: 'value',
-                name: xField === "id" && y2Field ? getLabel(y2Field) : "",
-                position: 'right',
             }
         ],
         series: getSeries(),
@@ -172,7 +167,7 @@ const MyLineChart = ({ width, height }) => {
 
     return (
         <div style={{ width: "100%", height: "100%" }}>
-            <div style={{ padding: 8 }}>
+            {/* <div style={{ padding: 8 }}>
                 <Space>
                     <div>
                         <span style={{ marginRight: 6 }}>{t("chart.xAxis")}:</span>
@@ -210,7 +205,7 @@ const MyLineChart = ({ width, height }) => {
                         </div>
                     )}
                 </Space>
-            </div>
+            </div> */}
 
             <ReactECharts
                 option={option}

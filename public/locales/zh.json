@@ -256,7 +256,7 @@
       "time": "时间(S)",
       "angle": "角度(°)",
       "displacement": "位移(mm)",
-      "torque": "扭矩(N.m)"
+      "torque": "扭矩(N)"
     },
     "xAxis": "X轴",
     "y1Axis": "Y1轴",
