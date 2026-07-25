@@ -109,7 +109,7 @@ const Info = () => {
                 >
                     <span className="statistic-title">{t("torque")}</span>
                     <Statistic
-                        value={statusData.torque.toFixed(3) + " N.m"}
+                        value={statusData.torque.toFixed(3) + " N"}
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
@@ -125,7 +125,7 @@ const Info = () => {
                 </div>
             </Col>
 
-            <Col span={2}>
+            {/* <Col span={2}>
 
                 <div className="statistic-item">
                     <span className="statistic-title">{t("X_mm")}</span>
@@ -134,9 +134,9 @@ const Info = () => {
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
-            </Col>
+            </Col> */}
 
-            <Col span={4}>
+            {/* <Col span={4}>
 
                 <div className="statistic-item">
                     <span className="statistic-title">{t("axisal displacement")}</span>
@@ -154,7 +154,7 @@ const Info = () => {
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
-            </Col>
+            </Col> */}
             <Col span={4}>
                 <div className="statistic-item">
                     <span className="statistic-title">{t("test time")}</span>

@@ -9,12 +9,12 @@ import "../styles/layout.css";
 const App = () => {
     const { t } = useTranslation();
 
-    const [loadingSpin, setLoadingSpin] = useState(false);
-    const [loadingRespin, setLoadingRespin] = useState(false);
+    const [loadingRelease, setLoadingRelease] = useState(false);
+    const [loadingMoveDown, setLoadingMoveDown] = useState(false);
 
     const clearLoading = () => {
-        setLoadingSpin(false);
-        setLoadingRespin(false);
+        setLoadingRelease(false);
+        setLoadingMoveDown(false);
     };
 
     // 页面加载完成后，自动发送 stop
@@ -45,12 +45,38 @@ const App = () => {
         }
     };
 
-    const handleSpinDown = () => {
-        sendControlMessage("spin", setLoadingSpin);
+    const handleGrip = () => {
+        const __channel = "control-message";
+        const __type = "grip";
+        const data = { "__channel": __channel, "__type": __type };
+
+        wsService.sendMessage(data);
+        clearLoading();
+
+        const token = PubSub.subscribe(`${__channel}-${__type}`, (_, data) => {
+            PubSub.unsubscribe(token);
+        });
     };
 
-    const handleRespinDown = () => {
-        sendControlMessage("re-spin", setLoadingRespin);
+    const handleRelease = () => {
+        sendControlMessage("release", setLoadingRelease);
+    };
+
+    const handleMoveUp = () => {
+        const __channel = "control-message";
+        const __type = "move-up";
+        const data = { "__channel": __channel, "__type": __type };
+
+        wsService.sendMessage(data);
+        clearLoading();
+
+        const token = PubSub.subscribe(`${__channel}-${__type}`, (_, data) => {
+            PubSub.unsubscribe(token);
+        });
+    };
+
+    const handleMoveDown = () => {
+        sendControlMessage("move-down", setLoadingMoveDown);
     };
 
     const handleStop = () => {
@@ -66,35 +92,32 @@ const App = () => {
         });
     };
 
-    const handleHome = () => {
-        const __channel = "control-message";
-        const __type = "home";
-        const data = { "__channel": __channel, "__type": __type };
-
-        wsService.sendMessage(data);
-        clearLoading();
-
-        const token = PubSub.subscribe(`${__channel}-${__type}`, (_, data) => {
-            PubSub.unsubscribe(token);
-            if (data.status !== 'success') {
-                //message.error(t('home failed'));
-            }
-        });
-    };
-
     return (
         <div className='toolbar'>
-            <Button type='primary' onClick={handleHome}>
-                {t("home")}
+            <Button type='primary' onClick={handleGrip}>
+                {t("grip")}
             </Button>
 
             <Button
                 type='primary'
-                onMouseDown={handleSpinDown}
+                onMouseDown={handleRelease}
                 onMouseUp={handleStop}
-                loading={loadingSpin}
+                loading={loadingRelease}
             >
-                {t("spin")}
+                {t("release")}
+            </Button>
+
+            <Button type='primary' onClick={handleMoveUp}>
+                {t("move-up")}
+            </Button>
+
+            <Button
+                type='primary'
+                onMouseDown={handleMoveDown}
+                onMouseUp={handleStop}
+                loading={loadingMoveDown}
+            >
+                {t("move-down")}
             </Button>
 
             <Button
@@ -102,15 +125,6 @@ const App = () => {
                 onClick={handleStop}
             >
                 {t("stop")}
-            </Button>
-
-            <Button
-                type='primary'
-                onMouseDown={handleRespinDown}
-                onMouseUp={handleStop}
-                loading={loadingRespin}
-            >
-                {t("re-spin")}
             </Button>
         </div>
     );

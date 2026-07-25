@@ -1,3 +1,7 @@
 {
-    "home": "HOME"
+    "grip": "Grip",
+    "release": "Release",
+    "move-up": "Move Up",
+    "move-down": "Move Down",
+    "stop": "Stop"
 }
