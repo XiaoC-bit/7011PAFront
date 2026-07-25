@@ -60,10 +60,20 @@ const fetchData = async () => {
 };
 
 
-
+function fetchDataWithTimeout(timeout = 3000) {
+    return Promise.race([
+        fetchData(), // 你的异步请求函数
+        new Promise((resolve) => {
+            setTimeout(() => {
+                resolve("zh"); // 超时后默认语言
+            }, timeout);
+        }),
+    ]);
+}
 const initI18next = async () => {
     const resources = await loadLanguageResources(); // 加载语言资源
-    const response = await fetchData();
+    const response = await fetchDataWithTimeout(3000); // 3秒超时
+    //const response = await fetchData();
     i18n
         .use(initReactI18next) // 将 i18next 绑定到 React
         .init({

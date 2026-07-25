@@ -37,8 +37,8 @@ const TabsPanel = () => {
       configForm: fullValues,
       dirty
     }));
-    setHasChangeMethod(dirty);
-    message.warning(dirty);
+    setHasChangeMethod(true);
+    //message.warning(dirty);
 
     return;
     // const initial = formData.testModeConfigInitial || {};

@@ -17,6 +17,7 @@ const TestingContent = () => {
     const [formData] = useAtom(formState);
     const [isTesting, setIsTesting] = useState(false);
     const [hasTransfered, setHasTransfered] = useState(false);
+    const [hasTransferedOnce, setHasTransferedOnce] = useState(false);
     const [hasChangeMethod, setHasChangeMethod] = useAtom(hasChangeMethodState);
 
     const [remoteKey, setRemoteKey] = useState(0);
@@ -34,6 +35,7 @@ const TestingContent = () => {
                 }
                 else if (data.U65_MODE === 2) {
                     setReadyToTest(true);
+                    setIsTesting(false);
                 }
                 else {
                     setReadyToTest(false);
@@ -55,8 +57,7 @@ const TestingContent = () => {
     };
 
     const TransferDFSet = () => {
-        setHasTransfered(true);
-        setHasChangeMethod(false);
+
         const isComplete = checkFormData();
         if (!isComplete) {
             message.warning(t('pleaseCompleteForm'));
@@ -77,9 +78,17 @@ const TestingContent = () => {
 
             wsService.sendMessage(data);
 
-            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+            const token = PubSub.subscribe("control-message-" + __type, (_, data) => {
                 PubSub.unsubscribe(token);
-
+                if (data.status === 'success') {
+                    message.success(t('transferSuccess'));
+                    setHasTransfered(true);
+                    setHasTransferedOnce(true);
+                    setHasChangeMethod(false);
+                }
+                else {
+                    message.error(t('transferFailed'));
+                }
             });
 
         } catch (error) {
@@ -221,7 +230,7 @@ const TestingContent = () => {
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
-                    disabled={isTesting || !hasTransfered}
+                    disabled={isTesting || !hasTransferedOnce}
                     style={{
                         padding: '10px 20px',
                         fontSize: '16px',
@@ -229,7 +238,7 @@ const TestingContent = () => {
                         border: 'none',
                         borderRadius: '4px'
                     }}
-                    onClick={StartTest}
+                    onClick={() => { StartTest(false); }}
                 >
                     {t('startTest')}
                 </Button>

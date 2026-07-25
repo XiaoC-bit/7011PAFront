@@ -141,7 +141,7 @@ const TestModeInfoPanel = ({ formData }) => {
                 <Descriptions.Item label={t("lab_humidity")}>
                     {labHumidity} %
                 </Descriptions.Item>
-                <Descriptions.Item label={t("remarks")}>{remarks}</Descriptions.Item>
+                <Descriptions.Item label={t("group")}>{remarks}</Descriptions.Item>
             </Descriptions>
 
             <Divider />

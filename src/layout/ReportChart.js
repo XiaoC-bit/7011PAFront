@@ -146,7 +146,7 @@ const MyLineChart = ({ width, height }) => {
             type: 'value',
             name: getLabel(xField),
             nameLocation: 'end',
-            nameGap: 25,
+            nameGap: 50,
             axisLabel: {
                 formatter: (value) => value.toFixed(1),
             },

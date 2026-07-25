@@ -16,6 +16,9 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
     ]);
     const [method, setMethod] = useState('');
 
+    const [groupOptions, setGroupOptions] = useState([]); // 用于存储分组选项
+    const [group, setGroup] = useState(''); // 用于存储分组信息
+
     const fetchMethod = async (page = 1, pageSize = 1000) => {
         try {
             const __channel = "config-method-message";
@@ -64,6 +67,12 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
             width: 50
         },
         {
+            title: t('group'),
+            dataIndex: 'remarks',
+            key: 'remarks',
+            width: 120
+        },
+        {
             title: t('specimen_name'),
             dataIndex: 'specimen_name',
             key: 'specimen_name',
@@ -105,17 +114,11 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
             key: 'lab_humidity',
             width: 120
         },
-        {
-            title: t('remarks'),
-            dataIndex: 'remarks',
-            key: 'remarks',
-            width: 120
-        },
     ]);
 
 
     // 请求数据
-    const fetchData = async (page, pageSize) => {
+    const fetchData = async (page, pageSize, methodValue = null, groupValue = null) => {
 
         const __channel = "report-message";
         const __type = "fetch-history-data";
@@ -124,7 +127,8 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
             __type,
             page,
             pageSize,
-            method
+            method: methodValue || method,
+            group: groupValue,
         };
 
         try {
@@ -142,11 +146,23 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                     pageSize,
                     total: response.total,
                 }));
+
+                //setGroupOptions(response.group);
+                if (groupValue === null) {
+                    setGroupOptions(response.group.map((item) => {
+                        return {
+                            label: item,
+                            value: item
+                        };
+                    }));
+                }
+
             });
         } catch (err) {
         }
     };
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [selectedRowKeysToShow, setSelectedRowKeysToShow] = useState([]);
 
     useEffect(() => {
         fetchMethod();
@@ -213,19 +229,22 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                         options={options}
                         value={method}
                         onChange={(value) => {
-                            const __channel = "report-message";
-                            const __type = "fetch-history-data";
-                            const data = {
-                                "__channel": __channel,
-                                "__type": __type,
-                                method: value,
-                                page: 1,
-                                pageSize: pagination.pageSize,
-                            };
-
-                            wsService.sendMessage(data);
-                            fetchData(1, pagination.pageSize);
+                            setGroupOptions([]); // 清空分组选项
+                            setGroup(''); // 清空分组信息
+                            fetchData(1, pagination.pageSize, value);
                             setMethod(value);
+                        }}
+                    >
+
+                    </Select>
+
+                    <span style={{ marginLeft: '16px', marginRight: '16px' }}>{t('group')}</span>
+                    <Select style={{ width: 100 }} placeholder="选择项"
+                        options={groupOptions}
+                        value={group}
+                        onChange={(value) => {
+                            setGroup(value);
+                            fetchData(1, pagination.pageSize, method, value);
                         }}
                     >
 
@@ -327,14 +346,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                             onRow={(record) => ({
                                 onClick: () => {
                                     const { key } = record;
-                                    setSelectedRowKeys((prevKeys) => {
-                                        const exists = prevKeys.includes(key);
-                                        if (exists) {
-                                            return prevKeys.filter((k) => k !== key); // 取消选中
-                                        } else {
-                                            return [...prevKeys, key]; // 添加选中
-                                        }
-                                    });
+                                    setSelectedRowKeysToShow([key]);
                                 },
                             })}
                             scroll={{ x: "max-content", y: '600px' }} // 💡 关键点
@@ -358,7 +370,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                             <HistoryChart width={"100%"} height={"100%"}
                                 key={refreshKey}
                                 method={method}
-                                req_queue_id={selectedRowKeys[0]}
+                                req_queue_id={selectedRowKeysToShow[0]}
                             />
                         </div>
 
@@ -366,7 +378,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                             <ResultInfoHistoryTable
                                 key={refreshKey}
                                 method={method}
-                                req_queue_id={selectedRowKeys[0]}
+                                req_queue_id={selectedRowKeysToShow[0]}
                             />
                         </div>
 

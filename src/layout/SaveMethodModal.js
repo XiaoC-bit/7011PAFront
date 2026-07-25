@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, message } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { formState, isFirstCreateMethodState, hasChangeMethodState } from '../data/Data';
+import { formState, isFirstCreateMethodState } from '../data/Data';
 import { useAtom } from 'jotai';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';

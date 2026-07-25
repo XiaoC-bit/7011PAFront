@@ -66,7 +66,7 @@ const TestModeConfig = () => {
                     </Form.Item>
                 </Col>
                 <Col span={12}>
-                    <Form.Item label={t("remarks")} name="remarks">
+                    <Form.Item label={t("group")} name="remarks">
                         <Input placeholder={t("input_remarks")} />
                     </Form.Item>
                 </Col>
@@ -175,17 +175,17 @@ const TestModeConfig = () => {
                                         <Col span={12}>
                                             <p>{t("torsion_speed")}</p>
                                         </Col>
-                                        <Col span={12}>
+                                        <Col span={8} offset={4}>
                                             <p>{t("cycle_count")}</p>
                                         </Col>
                                     </Row>
                                     <Row gutter={16}>
-                                        <Col span={6}>
+                                        <Col span={8}>
                                             <Form.Item name="torsionSpeed">
                                                 <InputNumber style={{ width: "100%" }} placeholder={t("torsion_speed")} />
                                             </Form.Item>
                                         </Col>
-                                        <Col span={6}>
+                                        <Col span={8}>
                                             <Form.Item shouldUpdate={(prevValues, currentValues) => prevValues.staticMode !== currentValues.staticMode}>
                                                 {({ getFieldValue, setFieldValue }) => {
                                                     const staticMode = getFieldValue('staticMode');
@@ -221,7 +221,7 @@ const TestModeConfig = () => {
                                             </Form.Item>
 
                                         </Col>
-                                        <Col span={12} >
+                                        <Col span={8} >
                                             <Form.Item name="cycleCount">
                                                 <InputNumber style={{ width: "100%" }} placeholder={t("input_cycle_count")} />
                                             </Form.Item>

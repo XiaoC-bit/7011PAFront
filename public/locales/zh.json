@@ -86,6 +86,7 @@
     "lab_temperature": "实验室温度",
     "lab_humidity": "实验室湿度",
     "remarks": "备注",
+    "group": "组别",
     "input_remarks": "请输入备注信息",
     "torsionalStiffness": "扭转刚度",
     "reportSetting": "报告设置",
@@ -297,5 +298,7 @@
     "AD CAP": "AD 容量",
     "return": "回位",
     "no-return": "不回位",
-    "specimenReturn": "回位设定"
+    "specimenReturn": "回位设定",
+    "transferSuccess": "下发成功",
+    "transferFailed": "下发失败"
 }

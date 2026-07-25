@@ -13,7 +13,7 @@ const TestBaseInfoTableHistory = ({ baseInfo }) => {
         { label: t('operator'), value: '', key: 'operator' },
         { label: t('labTemperature'), value: '', key: 'lab_temperature' },
         { label: t('labHumidity'), value: '', key: 'lab_humidity' },
-        { label: t('remarks'), value: '', key: 'remarks' },
+        { label: t('group'), value: '', key: 'remarks' },
     ]);
 
 
