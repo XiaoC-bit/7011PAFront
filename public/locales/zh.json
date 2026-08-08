@@ -301,5 +301,7 @@
   "no-return": "不回位",
   "specimenReturn": "回位设定",
   "transferSuccess": "下发成功",
-  "transferFailed": "下发失败"
+  "transferFailed": "下发失败",
+  "set": "设定",
+  "setAngle": "设定角度"
 }

@@ -1,9 +1,37 @@
-import React, { useEffect } from "react";
-import { Form, InputNumber, Divider, Button, Space, Row, Col, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, InputNumber, Divider, Button, Space, Row, Col, Select, message } from "antd";
 import { useTranslation } from "react-i18next";
+import PubSub from "pubsub-js";
+import wsService from "../services/WebSocketService";
 
 const ConfigForm = () => {
     const { t } = useTranslation();
+
+    const [targetAngle, setTargetAngle] = useState(0);
+    const [loadingSet, setLoadingSet] = useState(false);
+
+    const handleSetAngle = async () => {
+        try {
+            setLoadingSet(true);
+            const __channel = "control-message";
+            const __type = "prepare-test";
+            const data = {
+                "__channel": __channel,
+                "__type": __type,
+                "targetAngle": targetAngle,
+            };
+
+            wsService.sendMessage(data);
+
+            const token = PubSub.subscribe(`${__channel}-${__type}`, (_, data) => {
+                PubSub.unsubscribe(token);
+            });
+        } catch (error) {
+            message.error(error.message);
+        } finally {
+            setLoadingSet(false);
+        }
+    };
 
 
     return (
@@ -127,6 +155,26 @@ const ConfigForm = () => {
                             ]}
                         />
                     </Form.Item>
+                </Col>
+            </Row>
+
+            <Row gutter={16} align="middle">
+                <Col span={12}>
+                    <Form.Item label={t("setAngle")}>
+                        <InputNumber
+                            min={0}
+                            step={0.0001}
+                            precision={4}
+                            style={{ width: "100%" }}
+                            value={targetAngle}
+                            onChange={(value) => setTargetAngle(value)}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Button type="primary" onClick={handleSetAngle} loading={loadingSet}>
+                        {t("set")}
+                    </Button>
                 </Col>
             </Row>
         </>

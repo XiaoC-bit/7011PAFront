@@ -3,5 +3,7 @@
     "release": "Release",
     "move-up": "Move Up",
     "move-down": "Move Down",
-    "stop": "Stop"
+    "stop": "Stop",
+    "set": "Set",
+    "setAngle": "Target Angle"
 }
