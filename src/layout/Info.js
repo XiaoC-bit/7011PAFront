@@ -47,9 +47,9 @@ const Info = () => {
                     }
                 }
                 setStatusData({
-                    torque: Math.round(data.torque * 1000) / 1000,
-                    angle: Math.round(data.angle * 1000) / 1000,
-                    X_mm: Math.round(data.X_mm * 1000) / 1000,
+                    torque: Math.round(data.torque * 100000) / 100000,
+                    angle: Math.round(data.angle * 1000000) / 1000000,
+                    X_mm: Math.round(data.X_mm * 1000000) / 1000000,
                     axialDisplacement: Math.round(data.axialDisplacement * 1000) / 1000,
                     twistCount: twistCount,
                     testTime:
@@ -109,7 +109,7 @@ const Info = () => {
                 >
                     <span className="statistic-title">{t("torque")}</span>
                     <Statistic
-                        value={statusData.torque.toFixed(3) + " N"}
+                        value={statusData.axialDisplacement.toFixed(4) + " N"}
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
@@ -119,22 +119,22 @@ const Info = () => {
                 <div className="statistic-item">
                     <span className="statistic-title">{t("angle")}</span>
                     <Statistic
-                        value={statusData.angle.toFixed(3) + " deg"}
+                        value={statusData.X_mm.toFixed(4) + " mm"}
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
             </Col>
 
-            {/* <Col span={2}>
+             {/* <Col span={2}>
 
                 <div className="statistic-item">
                     <span className="statistic-title">{t("X_mm")}</span>
                     <Statistic
-                        value={statusData.X_mm.toFixed(3)}
+                        value={statusData.X_mm.toFixed(6)}
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
-            </Col> */}
+            </Col>  */}
 
             {/* <Col span={4}>
 

@@ -10,11 +10,13 @@ const App = () => {
     const { t } = useTranslation();
 
     const [loadingRelease, setLoadingRelease] = useState(false);
+    const [loadingMoveUp, setLoadingMoveUp] = useState(false);
     const [loadingMoveDown, setLoadingMoveDown] = useState(false);
 
     const clearLoading = () => {
         setLoadingRelease(false);
         setLoadingMoveDown(false);
+        setLoadingMoveUp(false);
     };
 
     // 页面加载完成后，自动发送 stop
@@ -63,16 +65,18 @@ const App = () => {
     };
 
     const handleMoveUp = () => {
-        const __channel = "control-message";
-        const __type = "move-up";
-        const data = { "__channel": __channel, "__type": __type };
+        // const __channel = "control-message";
+        // const __type = "move-up";
+        // const data = { "__channel": __channel, "__type": __type };
 
-        wsService.sendMessage(data);
-        clearLoading();
+        // wsService.sendMessage(data);
+        // clearLoading();
 
-        const token = PubSub.subscribe(`${__channel}-${__type}`, (_, data) => {
-            PubSub.unsubscribe(token);
-        });
+        // const token = PubSub.subscribe(`${__channel}-${__type}`, (_, data) => {
+        //     PubSub.unsubscribe(token);
+        // });
+        
+        sendControlMessage("move-up", setLoadingMoveUp);
     };
 
     const handleMoveDown = () => {
@@ -100,14 +104,18 @@ const App = () => {
 
             <Button
                 type='primary'
-                onMouseDown={handleRelease}
-                onMouseUp={handleStop}
-                loading={loadingRelease}
+                onClick={handleRelease}
+                // onMouseUp={handleStop}
+                // loading={loadingRelease}
             >
                 {t("release")}
             </Button>
 
-            <Button type='primary' onClick={handleMoveUp}>
+            <Button type='primary' 
+                onMouseDown={handleMoveUp}
+                onMouseUp={handleStop}
+                loading={loadingMoveUp}
+            >
                 {t("move-up")}
             </Button>
 
@@ -120,12 +128,12 @@ const App = () => {
                 {t("move-down")}
             </Button>
 
-            <Button
+            {/* <Button
                 type='primary'
                 onClick={handleStop}
             >
                 {t("stop")}
-            </Button>
+            </Button> */}
         </div>
     );
 };
