@@ -116,5 +116,7 @@
   "GoTech.": "GoTech",
   "select language": "選擇語言",
   "set": "設定",
-  "setAngle": "設定角度"
+  "setAngle": "設定角度",
+  "expand": "展開",
+  "collapse": "折疊"
 }

@@ -21,7 +21,6 @@ const TestModeConfig = () => {
     return (
         <>
             {/* 试件基本信息 */}
-            <h3>{t("specimen_basic_info")}</h3>
             <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item label={t("specimen_name")} name="specimenName">

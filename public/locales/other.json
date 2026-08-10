@@ -116,5 +116,7 @@
     "GoTech.": "GoTech",
     "select language": "Chọn ngôn ngữ",
     "set": "Đặt",
-    "setAngle": "Góc mục tiêu"
+    "setAngle": "Góc mục tiêu",
+    "expand": "Mở rộng",
+    "collapse": "Thu gọn"
 }

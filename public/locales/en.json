@@ -5,5 +5,7 @@
     "move-down": "Move Down",
     "stop": "Stop",
     "set": "Set",
-    "setAngle": "Target Angle"
+    "setAngle": "Target Angle",
+    "expand": "Expand",
+    "collapse": "Collapse"
 }

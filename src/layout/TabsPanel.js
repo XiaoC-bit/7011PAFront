@@ -71,9 +71,9 @@ const TabsPanel = () => {
         <TabPane tab={t("generalParams")} key="1">
           <ConfigForm />
         </TabPane>
-       <TabPane tab={t("testMode")} key="2" disabled={false}>
+        <TabPane tab={t("specimen_basic_info")} key="2" disabled={false}>
           <TestModeConfig />
-        </TabPane> 
+        </TabPane>
       </Tabs>
     </Form>
   );

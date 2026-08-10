@@ -303,5 +303,9 @@
   "transferSuccess": "下发成功",
   "transferFailed": "下发失败",
   "set": "设定",
-  "setAngle": "设定角度"
+  "setAngle": "设定角度",
+  "expand": "展开",
+  "collapse": "折叠",
+  "test_mode": "测试模式",
+  "mode": "模式"
 }

@@ -148,7 +148,7 @@ const TestModeInfoPanel = ({ formData }) => {
 
             {/* Test Mode */}
             <Descriptions column={1} bordered size="small">
-                <Descriptions.Item label={t("test_mode")}>
+                {/* <Descriptions.Item label={t("test_mode")}>
                     <Tag color="blue">
                         {mode === 'destructive'
                             ? t("destructive_test")
@@ -156,7 +156,7 @@ const TestModeInfoPanel = ({ formData }) => {
                                 ? t("static_test")
                                 : t("dynamic_test")}
                     </Tag>
-                </Descriptions.Item>
+                </Descriptions.Item> */}
                 {renderModeSpecificInfo()}
             </Descriptions>
 
