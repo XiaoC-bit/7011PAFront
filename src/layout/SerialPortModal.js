@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Select, Button, Space, message, Descriptions, Badge } from 'antd';
-import { ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
@@ -47,21 +47,12 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
             return;
         }
 
-        const baudRate = form.getFieldValue('baudRate') || 115200;
-        const dataBits = form.getFieldValue('dataBits') || 8;
-        const stopBits = form.getFieldValue('stopBits') || 1;
-        const parity = form.getFieldValue('parity') || 'none';
-
         const __channel = 'serial-port-message';
         const __type = 'connect-port';
         const data = {
             __channel,
             __type,
-            port,
-            baudRate,
-            dataBits,
-            stopBits,
-            parity
+            port
         };
 
         wsService.sendMessage(data);
@@ -128,12 +119,6 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    baudRate: 115200,
-                    dataBits: 8,
-                    stopBits: 1,
-                    parity: 'none'
-                }}
                 style={{ marginTop: 16 }}
             >
                 <Descriptions column={1} size="small" style={{ marginBottom: 16 }}>
@@ -162,58 +147,6 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
                                 {portName}
                             </Option>
                         ))}
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    name="baudRate"
-                    label={t('serialPort.baudRateLabel')}
-                    rules={[{ required: true, message: t('serialPort.baudRateRequired') }]}
-                >
-                    <Select placeholder={t('serialPort.baudRatePlaceholder')}>
-                        <Option value={9600}>9600</Option>
-                        <Option value={19200}>19200</Option>
-                        <Option value={38400}>38400</Option>
-                        <Option value={57600}>57600</Option>
-                        <Option value={115200}>115200</Option>
-                        <Option value={230400}>230400</Option>
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    name="dataBits"
-                    label={t('serialPort.dataBitsLabel')}
-                    rules={[{ required: true, message: t('serialPort.dataBitsRequired') }]}
-                >
-                    <Select>
-                        <Option value={5}>5</Option>
-                        <Option value={6}>6</Option>
-                        <Option value={7}>7</Option>
-                        <Option value={8}>8</Option>
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    name="stopBits"
-                    label={t('serialPort.stopBitsLabel')}
-                    rules={[{ required: true, message: t('serialPort.stopBitsRequired') }]}
-                >
-                    <Select>
-                        <Option value={1}>1</Option>
-                        <Option value={1.5}>1.5</Option>
-                        <Option value={2}>2</Option>
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    name="parity"
-                    label={t('serialPort.parityLabel')}
-                    rules={[{ required: true, message: t('serialPort.parityRequired') }]}
-                >
-                    <Select>
-                        <Option value="none">{t('serialPort.parityNone')}</Option>
-                        <Option value="odd">{t('serialPort.parityOdd')}</Option>
-                        <Option value="even">{t('serialPort.parityEven')}</Option>
                     </Select>
                 </Form.Item>
 
