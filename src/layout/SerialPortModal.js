@@ -1,18 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Form, Select, Button, Space, message, Descriptions, Badge } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import PubSub from 'pubsub-js';
 import wsService from '../services/WebSocketService';
+import { formState } from '../data/Data';
+import { useAtom } from 'jotai';
 
 const { Option } = Select;
 
-const SerialPortModal = ({ visible, onOk, onCancel }) => {
+const SerialPortModal = ({ visible, defaultPort, onOk, onCancel }) => {
     const { t } = useTranslation();
     const [form] = Form.useForm();
     const [ports, setPorts] = useState([]);
     const [connected, setConnected] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [, setFormData] = useAtom(formState);
+    const defaultPortRef = useRef(defaultPort);
+    defaultPortRef.current = defaultPort;
 
     const fetchPorts = () => {
         setLoading(true);
@@ -35,7 +40,11 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
                     description: descriptions[index] || ''
                 })));
                 if (msg.data.length > 0) {
-                    form.setFieldsValue({ port: msg.data[0] });
+                    const currentDefault = defaultPortRef.current;
+                    const initialPort = currentDefault && msg.data.includes(currentDefault)
+                        ? currentDefault
+                        : msg.data[0];
+                    form.setFieldsValue({ port: initialPort });
                 }
             } else {
                 setPorts([]);
@@ -95,8 +104,33 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
     };
 
     const handleOk = () => {
-        form.validateFields().then(() => {
-            onOk?.();
+        form.validateFields().then((values) => {
+            const __channel = 'config-method-message';
+            const __type = 'updateModbusSerialPort';
+            const data = {
+                __channel,
+                __type,
+                modbusSerialPort: values.port
+            };
+
+            wsService.sendMessage(data);
+
+            const token = PubSub.subscribe(__channel + '-' + __type, (_, msg) => {
+                PubSub.unsubscribe(token);
+                if (msg.status === 'success') {
+                    message.warning(t('serialPort.updateSuccess'));
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        configForm: {
+                            ...prevState.configForm,
+                            modbusSerialPort: values.port
+                        }
+                    }));
+                    onOk?.();
+                } else {
+                    message.error(t(msg.message));
+                }
+            });
         });
     };
 
@@ -125,7 +159,7 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
                 layout="vertical"
                 style={{ marginTop: 16 }}
             >
-                <Descriptions column={1} size="small" style={{ marginBottom: 16 }}>
+                {/* <Descriptions column={1} size="small" style={{ marginBottom: 16 }}>
                     <Descriptions.Item label={t('serialPort.status')}>
                         {connected ? (
                             <Badge status="success" text={t('serialPort.connected')} />
@@ -133,7 +167,7 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
                             <Badge status="default" text={t('serialPort.disconnected')} />
                         )}
                     </Descriptions.Item>
-                </Descriptions>
+                </Descriptions> */}
 
                 <Form.Item
                     name="port"
@@ -163,15 +197,6 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
                         >
                             {t('serialPort.refresh')}
                         </Button>
-                        {!connected ? (
-                            <Button type="primary" onClick={handleConnect}>
-                                {t('serialPort.connect')}
-                            </Button>
-                        ) : (
-                            <Button danger onClick={handleDisconnect}>
-                                {t('serialPort.disconnect')}
-                            </Button>
-                        )}
                     </Space>
                 </Form.Item>
             </Form>

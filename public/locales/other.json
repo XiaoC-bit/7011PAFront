@@ -138,6 +138,7 @@
         "disconnectSuccess": "Ngắt kết nối cổng nối tiếp thành công",
         "disconnectFailed": "Ngắt kết nối thất bại",
         "noPorts": "Không phát hiện cổng nối tiếp nào",
-        "selectFirst": "Vui lòng chọn cổng trước"
+        "selectFirst": "Vui lòng chọn cổng trước",
+        "updateSuccess": "Sửa đổi hoàn tất, cần khởi động lại phần mềm để có hiệu lực"
     }
 }

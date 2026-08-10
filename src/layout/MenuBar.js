@@ -329,6 +329,7 @@ const App = () => {
 
         <SerialPortModal
             visible={isSerialPortModalVisible}
+            defaultPort={formData.configForm?.modbusSerialPort}
             onOk={() => {
                 setIsSerialPortModalVisible(false);
             }}

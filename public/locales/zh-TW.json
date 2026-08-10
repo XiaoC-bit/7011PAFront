@@ -138,6 +138,7 @@
         "disconnectSuccess": "串口已斷開",
         "disconnectFailed": "斷開連接失敗",
         "noPorts": "未檢測到可用串口",
-        "selectFirst": "請先選擇串口"
+        "selectFirst": "請先選擇串口",
+        "updateSuccess": "修改完成，需要重新啟動軟件才能生效"
     }
 }

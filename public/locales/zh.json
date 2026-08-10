@@ -327,6 +327,7 @@
     "disconnectSuccess": "串口已断开",
     "disconnectFailed": "断开连接失败",
     "noPorts": "未检测到可用串口",
-    "selectFirst": "请先选择串口"
+    "selectFirst": "请先选择串口",
+    "updateSuccess": "修改完成，需要重新启动软件才能生效"
   }
 }

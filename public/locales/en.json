@@ -27,6 +27,7 @@
         "disconnectSuccess": "Serial port disconnected",
         "disconnectFailed": "Disconnect failed",
         "noPorts": "No serial ports detected",
-        "selectFirst": "Please select a port first"
+        "selectFirst": "Please select a port first",
+        "updateSuccess": "Modification completed. Please restart the software for it to take effect."
     }
 }
