@@ -230,7 +230,7 @@ const TestingContent = () => {
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
-                    disabled={isTesting || !hasTransferedOnce}
+                    // disabled={isTesting || !hasTransferedOnce}
                     style={{
                         padding: '10px 20px',
                         fontSize: '16px',

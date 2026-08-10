@@ -15,7 +15,7 @@ const ConfigForm = () => {
     const handleSetAngle = async () => {
         try {
             setLoadingSet(true);
-            const __channel = "control-message";
+            const __channel = "data-testing-message";
             const __type = "prepare-test";
             const data = {
                 "__channel": __channel,
