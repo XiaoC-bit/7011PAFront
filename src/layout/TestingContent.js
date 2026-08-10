@@ -22,6 +22,7 @@ const TestingContent = () => {
 
     const [remoteKey, setRemoteKey] = useState(0);
     const [readyToTest, setReadyToTest] = useState(false);
+    const [currentAngle, setCurrentAngle] = useState(0);
 
     useEffect(() => {
         const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
@@ -43,6 +44,7 @@ const TestingContent = () => {
                 }
 
                 setRemoteKey(data.REMOTE_KEY);
+                setCurrentAngle(Math.round(data.X_mm * 1000000) / 1000000);
             }
         });
     }, []);
@@ -185,6 +187,9 @@ const TestingContent = () => {
     };
 
 
+    const setAngle = formData.configForm?.setAngle;
+    const angleReady = setAngle != null && Math.abs(currentAngle - setAngle) < 1e-4;
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 190px)', alignItems: 'center', boxSizing: 'border-box', width: '100%', minWidth: 0 }}>
             <div className="printableArea" ref={printRef} style={{
@@ -230,7 +235,7 @@ const TestingContent = () => {
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
-                    // disabled={isTesting || !hasTransferedOnce}
+                    disabled={isTesting || !angleReady}
                     style={{
                         padding: '10px 20px',
                         fontSize: '16px',

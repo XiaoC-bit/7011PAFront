@@ -8,7 +8,7 @@ import wsService from "../services/WebSocketService";
 const ConfigForm = () => {
     const { t } = useTranslation();
 
-    const targetAngle = Form.useWatch("set_angle");
+    const targetAngle = Form.useWatch("setAngle");
     const [loadingSet, setLoadingSet] = useState(false);
     const [expanded, setExpanded] = useState(false);
 
