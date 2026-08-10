@@ -48,6 +48,7 @@ const ConfigForm = () => {
                                 step={0.0001}
                                 precision={4}
                                 style={{ width: "100%" }}
+                                addonAfter="mm"
                             />
                         </Form.Item>
                         <Button type="primary" onClick={handleSetAngle} loading={loadingSet}>
