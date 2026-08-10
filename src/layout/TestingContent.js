@@ -235,7 +235,7 @@ const TestingContent = () => {
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
-                    disabled={isTesting || !angleReady}
+                    // disabled={isTesting || !angleReady}
                     style={{
                         padding: '10px 20px',
                         fontSize: '16px',
