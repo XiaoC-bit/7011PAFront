@@ -29,7 +29,11 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
             PubSub.unsubscribe(token);
             setLoading(false);
             if (msg.status === 'success' && msg.data) {
-                setPorts(msg.data);
+                const descriptions = msg.description || [];
+                setPorts(msg.data.map((portName, index) => ({
+                    port: portName,
+                    description: descriptions[index] || ''
+                })));
                 if (msg.data.length > 0) {
                     form.setFieldsValue({ port: msg.data[0] });
                 }
@@ -142,9 +146,9 @@ const SerialPortModal = ({ visible, onOk, onCancel }) => {
                         showSearch
                         optionFilterProp="children"
                     >
-                        {ports.map((portName) => (
-                            <Option key={portName} value={portName}>
-                                {portName}
+                        {ports.map((item) => (
+                            <Option key={item.port} value={item.port}>
+                                {item.description ? `${item.port} - ${item.description}` : item.port}
                             </Option>
                         ))}
                     </Select>
