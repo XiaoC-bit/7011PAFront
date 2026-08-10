@@ -18,7 +18,7 @@ const ConfigForm = () => {
             const data = {
                 "__channel": __channel,
                 "__type": __type,
-                "targetAngle": targetAngle,
+                "targetAngle": targetAngle, 
             };
 
             wsService.sendMessage(data);
