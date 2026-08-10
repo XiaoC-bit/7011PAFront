@@ -8,6 +8,7 @@ import SaveMethodModal from './SaveMethodModal';
 import MethodNameModal from './MethodNameModal';
 import PIDModal from './PIDModal';
 import AdvancedSettingsModal from './AdvancedSettingsModal';
+import SerialPortModal from './SerialPortModal';
 import About from './About';
 import PasswordPromptModal from './PasswordPromptModal';
 import LanguageModal from './LanguageModal';
@@ -31,6 +32,7 @@ const App = () => {
     const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
     const [isAdjustModalVisible, setIsAdjustModalVisible] = useState(false);
     const [isAdvanceModalVisible, setIsAdvanceModalVisible] = useState(false);
+    const [isSerialPortModalVisible, setIsSerialPortModalVisible] = useState(false);
     const [isSaveAs, setIsSaveAs] = useState(false);
 
     const [disabledSave, setIsDisabledSave] = useState(false);
@@ -102,6 +104,9 @@ const App = () => {
         } else if (e.key === 'adjust') {
             setPasswordModalVisible(true);
             itemType.current = 2;
+        }
+        else if (e.key === 'serial port') {
+            setIsSerialPortModalVisible(true);
         }
         else if (e.key === 'print') {
             window.print();
@@ -179,6 +184,10 @@ const App = () => {
                 {
                     label: t("PID"),
                     key: 'PID',
+                },
+                {
+                    label: t("serial port"),
+                    key: 'serial port',
                 }
             ]
         },
@@ -315,6 +324,16 @@ const App = () => {
             }}
             onCancel={() => {
                 setIsAdjustModalVisible(false);
+            }}
+        />
+
+        <SerialPortModal
+            visible={isSerialPortModalVisible}
+            onOk={() => {
+                setIsSerialPortModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsSerialPortModalVisible(false);
             }}
         />
 
