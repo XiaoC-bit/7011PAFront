@@ -3,30 +3,19 @@ import ReactECharts from "echarts-for-react";
 import { useTranslation } from "react-i18next";
 import PubSub from "pubsub-js";
 import wsService from "../services/WebSocketService";
-import { message, Select, Space } from "antd";
-
-const { Option } = Select;
+import { message } from "antd";
 
 const MyLineChart = ({ width, height }) => {
     const { t } = useTranslation();
     const dataRef = useRef([]);
     const loading = useRef(false);
-    const lastId = useRef(null);
     const queueId = useRef(null);
     const [chartData, setChartData] = useState([]);
 
-    const MAX_LENGTH = 2000000;
-
-    const [xField, setXField] = useState("id"); // 默认时间
-    const [y1Field, setY1Field] = useState("AD2"); // 默认角度
-    const [y2Field, setY2Field] = useState("AD2");    // 默认扭矩
-
     const getLabel = (field) => {
         const keys = {
-            id: "chart.label.time",
-            AD2: "chart.label.torque",       // ✅ 扭矩
-            AD1: "chart.label.displacement",
-            YZ_mm: "chart.label.angle",      // ✅ 角度
+            time: "chart.label.time",
+            torque: "chart.label.torque",
         };
         return t(keys[field] || field);
     };
@@ -41,7 +30,7 @@ const MyLineChart = ({ width, height }) => {
         const sendData = {
             "__channel": __channel,
             "__type": __type,
-            "offset": lastId.current || 0,
+            "offset": 0,
             "limit": 5000,
         };
 
@@ -54,24 +43,29 @@ const MyLineChart = ({ width, height }) => {
 
                 if (recvData.queue_id !== queueId.current) {
                     queueId.current = recvData.queue_id;
-                    lastId.current = null;
                     dataRef.current = [];
                     setChartData([]);
                     return;
                 }
 
-                const newItems = recvData.data || [];
-                if (newItems.length === 0) return;
+                const rawItems = recvData.data || [];
+                if (rawItems.length === 0) return;
 
-                // ⚠️ 如果新数据和旧数据长度相同，最后一个点的 ID 相同，就认为没变化，直接 return
-                const newLastId = newItems[newItems.length - 1]?.id;
-                const oldLastId = dataRef.current[dataRef.current.length - 1]?.id;
+                // 后端返回 time 单位为微秒，这里转换为秒
+                const newItems = rawItems.map(d => ({
+                    time: d.time / 1000000,
+                    torque: d.torque,
+                }));
+
+                // 如果新数据和旧数据长度相同，最后一个点的时间相同，就认为没变化
+                const newLastTime = newItems[newItems.length - 1]?.time;
+                const oldLastTime = dataRef.current[dataRef.current.length - 1]?.time;
 
                 if (
                     dataRef.current.length === newItems.length &&
-                    newLastId === oldLastId
+                    newLastTime === oldLastTime
                 ) {
-                    return; // ✅ 避免重复 setChartData
+                    return;
                 }
 
                 dataRef.current = newItems;
@@ -91,41 +85,13 @@ const MyLineChart = ({ width, height }) => {
         return () => clearInterval(intervalId);
     }, []);
 
-    const getSeries = () => {
-        const series = [];
-
-        if (y1Field && chartData.length > 0) {
-            series.push({
-                name: getLabel(y1Field),
-                type: 'line',
-                yAxisIndex: 0,
-                showSymbol: false,
-                lineStyle: { width: 1 },
-                data: chartData.map(d => [d[xField], d[y1Field]]),
-            });
-        }
-
-        if (xField === "id" && y2Field && y2Field !== y1Field) {
-            series.push({
-                name: getLabel(y2Field),
-                type: 'line',
-                yAxisIndex: 1,
-                showSymbol: false,
-                lineStyle: { width: 1 },
-                data: chartData.map(d => [d[xField], d[y2Field]]),
-            });
-        }
-
-        return series;
-    };
-
     const option = {
         tooltip: {
             trigger: 'axis',
             show: true,
             formatter: (params) => {
                 const xVal = params[0]?.axisValue;
-                let content = `${getLabel(xField)}: ${parseFloat(xVal).toFixed(3)}<br/>`;
+                let content = `${getLabel("time")}: ${parseFloat(xVal).toFixed(3)}<br/>`;
                 params.forEach(p => {
                     content += `${p.seriesName}: ${parseFloat(p.data[1]).toFixed(3)}<br/>`;
                 });
@@ -134,7 +100,7 @@ const MyLineChart = ({ width, height }) => {
             axisPointer: { type: 'cross' },
         },
         legend: {
-            data: getSeries().map(s => s.name),
+            data: [getLabel("torque")],
         },
         grid: {
             left: '10%',
@@ -144,69 +110,31 @@ const MyLineChart = ({ width, height }) => {
         },
         xAxis: {
             type: 'value',
-            name: getLabel(xField),
+            name: getLabel("time"),
             nameLocation: 'end',
             nameGap: 50,
             axisLabel: {
-                formatter: (value) => value.toFixed(1),
+                formatter: (value) => value.toFixed(3),
             },
         },
-        yAxis: [
+        yAxis: {
+            type: 'value',
+            name: getLabel("torque"),
+            position: 'left',
+        },
+        series: [
             {
-                type: 'value',
-                name: getLabel(y1Field),
-                position: 'left',
-            }
+                name: getLabel("torque"),
+                type: 'line',
+                showSymbol: false,
+                lineStyle: { width: 1 },
+                data: chartData.map(d => [d.time, d.torque]),
+            },
         ],
-        series: getSeries(),
     };
-
-    const yFieldOptions = xField === "id"
-        ? ["YZ_mm", "AD1", "AD2"]
-        : ["AD2"];
 
     return (
         <div style={{ width: "100%", height: "100%" }}>
-            {/* <div style={{ padding: 8 }}>
-                <Space>
-                    <div>
-                        <span style={{ marginRight: 6 }}>{t("chart.xAxis")}:</span>
-                        <Select value={xField} onChange={(val) => {
-                            setXField(val);
-                            setY1Field("AD2");
-                            setY2Field(val === "id" ? "AD2" : null);
-                        }} style={{ width: 160 }}>
-                            <Option value="id">{getLabel("id")}</Option>
-                            <Option value="YZ_mm">{getLabel("YZ_mm")}</Option>
-                        </Select>
-                    </div>
-
-                    <div>
-                        <span style={{ marginRight: 6 }}>{t("chart.y1Axis")}:</span>
-                        <Select value={y1Field} onChange={setY1Field} style={{ width: 160 }}>
-                            {yFieldOptions.map(opt => (
-                                <Option key={opt} value={opt}>
-                                    {getLabel(opt)}
-                                </Option>
-                            ))}
-                        </Select>
-                    </div>
-
-                    {xField === "id" && (
-                        <div>
-                            <span style={{ marginRight: 6 }}>{t("chart.y2Axis")}:</span>
-                            <Select value={y2Field} onChange={setY2Field} style={{ width: 160 }}>
-                                {["YZ_mm", "AD2", "AD1"].map(opt => (
-                                    <Option key={opt} value={opt}>
-                                        {getLabel(opt)}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </div>
-                    )}
-                </Space>
-            </div> */}
-
             <ReactECharts
                 option={option}
                 style={{ width: width || "100%", height: height || "500px" }}
