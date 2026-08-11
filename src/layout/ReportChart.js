@@ -53,7 +53,7 @@ const MyLineChart = ({ width, height }) => {
 
                 // 后端返回 time 单位为微秒，这里转换为秒
                 const newItems = rawItems.map(d => ({
-                    time: d.time / 1000000,
+                    time: d.time / 1000,
                     torque: d.torque,
                 }));
 
@@ -129,6 +129,8 @@ const MyLineChart = ({ width, height }) => {
                 showSymbol: false,
                 lineStyle: { width: 1 },
                 data: chartData.map(d => [d.time, d.torque]),
+                // sampling: 'lttb',
+                // large: true,   
             },
         ],
     };
