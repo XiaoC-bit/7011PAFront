@@ -140,5 +140,9 @@
         "noPorts": "Không phát hiện cổng nối tiếp nào",
         "selectFirst": "Vui lòng chọn cổng trước",
         "updateSuccess": "Sửa đổi hoàn tất, cần khởi động lại phần mềm để có hiệu lực"
-    }
+    },
+    "testInProgress": "Đang kiểm tra",
+    "testProcessing": "Vui lòng chờ, quá trình kiểm tra đang được xử lý...",
+    "testStartSuccess": "Bắt đầu kiểm tra thành công",
+    "testStartFailed": "Bắt đầu kiểm tra thất bại"
 }

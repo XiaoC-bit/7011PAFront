@@ -8,6 +8,10 @@
     "setAngle": "Target Angle",
     "expand": "Expand",
     "collapse": "Collapse",
+    "testInProgress": "Test in Progress",
+    "testProcessing": "Please wait, the test is being processed...",
+    "testStartSuccess": "Test started successfully",
+    "testStartFailed": "Failed to start test",
     "serial port": "Serial Port",
     "serialPort": {
         "title": "Serial Port Configuration",

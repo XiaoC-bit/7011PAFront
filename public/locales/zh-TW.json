@@ -140,5 +140,9 @@
         "noPorts": "未檢測到可用串口",
         "selectFirst": "請先選擇串口",
         "updateSuccess": "修改完成，需要重新啟動軟件才能生效"
-    }
+    },
+    "testInProgress": "測試進行中",
+    "testProcessing": "請稍候，正在處理測試...",
+    "testStartSuccess": "開始測試成功",
+    "testStartFailed": "開始測試失敗"
 }

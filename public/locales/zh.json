@@ -329,5 +329,9 @@
     "noPorts": "未检测到可用串口",
     "selectFirst": "请先选择串口",
     "updateSuccess": "修改完成，需要重新启动软件才能生效"
-  }
+  },
+  "testInProgress": "测试进行中",
+  "testProcessing": "请稍候，正在处理测试...",
+  "testStartSuccess": "开始测试成功",
+  "testStartFailed": "开始测试失败"
 }

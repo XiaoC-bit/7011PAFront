@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Button, message } from 'antd';
+import { Button, message, Modal, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 import MyLineChart from './ReportChart';
 import { formState, hasChangeMethodState } from '../data/Data';
@@ -23,6 +23,9 @@ const TestingContent = () => {
     const [remoteKey, setRemoteKey] = useState(0);
     const [readyToTest, setReadyToTest] = useState(false);
     const [currentAngle, setCurrentAngle] = useState(0);
+    const [startTestLoading, setStartTestLoading] = useState(false);
+    const [progressValue, setProgressValue] = useState(0);
+    const progressTimerRef = useRef(null);
 
     useEffect(() => {
         const token = PubSub.subscribe("normal-message-real-data", (_, data) => {
@@ -100,6 +103,37 @@ const TestingContent = () => {
 
     };
 
+    useEffect(() => {
+        return () => {
+            if (progressTimerRef.current) {
+                clearInterval(progressTimerRef.current);
+            }
+        };
+    }, []);
+
+    const startProgressTimer = () => {
+        if (progressTimerRef.current) {
+            clearInterval(progressTimerRef.current);
+        }
+        setProgressValue(0);
+        progressTimerRef.current = setInterval(() => {
+            setProgressValue((prev) => {
+                if (prev >= 90) {
+                    return 90;
+                }
+                const increment = Math.random() * 3 + 1;
+                return Math.min(prev + increment, 90);
+            });
+        }, 200);
+    };
+
+    const stopProgressTimer = () => {
+        if (progressTimerRef.current) {
+            clearInterval(progressTimerRef.current);
+            progressTimerRef.current = null;
+        }
+    };
+
     const StartTest = (needDelete = false) => {
         setHasTransfered(false);
         const { configForm, testModeConfig } = formData;
@@ -114,16 +148,30 @@ const TestingContent = () => {
                 needDelete
             };
 
+            setStartTestLoading(true);
+            startProgressTimer();
             wsService.sendMessage(data);
 
-            const token = PubSub.subscribe(__channel + "-" + __type, (_, data) => {
+            const token = PubSub.subscribe(__channel + "-" + __type, (_, responseData) => {
                 PubSub.unsubscribe(token);
+                stopProgressTimer();
+                setProgressValue(100);
 
+                setTimeout(() => {
+                    setStartTestLoading(false);
+                    setProgressValue(0);
+                    if (responseData.status === 'success') {
+                        message.success(t('testStartSuccess'));
+                    } else {
+                        message.error(responseData.error || t('testStartFailed'));
+                    }
+                }, 300);
             });
 
         } catch (error) {
+            stopProgressTimer();
+            setStartTestLoading(false);
             message.error(error.message);
-        } finally {
         }
     };
 
@@ -235,11 +283,11 @@ const TestingContent = () => {
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
-                    // disabled={isTesting || !angleReady}
+                    disabled={startTestLoading}
                     style={{
                         padding: '10px 20px',
                         fontSize: '16px',
-                        backgroundColor: '#52c41a',
+                        backgroundColor: startTestLoading ? undefined : '#52c41a',
                         border: 'none',
                         borderRadius: '4px'
                     }}
@@ -280,6 +328,25 @@ const TestingContent = () => {
                     {t('exportData')}
                 </Button>
             </div>
+            <Modal
+                open={startTestLoading}
+                title={t('testInProgress')}
+                closable={false}
+                centered
+                maskClosable={false}
+                keyboard={false}
+                footer={null}
+                width={400}
+            >
+                <Progress
+                    percent={Math.round(progressValue)}
+                    status="active"
+                    strokeColor={{ from: '#1890ff', to: '#52c41a' }}
+                />
+                <div style={{ textAlign: 'center', marginTop: 16, color: '#666' }}>
+                    {t('testProcessing')}
+                </div>
+            </Modal>
         </div>
     );
 };
