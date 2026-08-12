@@ -67,6 +67,12 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
             width: 50
         },
         {
+            title: t('max_speed'),
+            dataIndex: 'max_speed',
+            key: 'max_speed',
+            width: 120
+        },
+        {
             title: t('group'),
             dataIndex: 'remarks',
             key: 'remarks',

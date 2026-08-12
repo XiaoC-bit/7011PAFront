@@ -6,6 +6,7 @@ const TestBaseInfoTableHistory = ({ baseInfo }) => {
     const { t } = useTranslation();
 
     const [data, setdata] = useState([
+        { label: t('max_speed'), value: '', key: 'max_speed' },
         { label: t('specimenName'), value: '', key: 'specimen_name' },
         { label: t('specimenNumber'), value: '', key: 'specimen_number' },
         { label: t('batchNumber'), value: '', key: 'batch_number' },
@@ -35,7 +36,7 @@ const TestBaseInfoTableHistory = ({ baseInfo }) => {
 
 
     // 设置列数
-    const colsPerRow = 4;
+    const colsPerRow = 3;
 
     return (
         <Row gutter={0}>
