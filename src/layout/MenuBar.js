@@ -119,20 +119,20 @@ const App = () => {
             label: t("file"),
             key: 'file',
             children: [
-                {
-                    label: t("new method"),
-                    key: 'new method',
-                    disabled: disableNew
-                },
-                {
-                    label: t("open method"),
-                    key: 'open method'
-                },
-                {
-                    label: t("save method"),
-                    key: 'save method',
-                    disabled: disabledSave
-                },
+                // {
+                //     label: t("new method"),
+                //     key: 'new method',
+                //     disabled: disableNew
+                // },
+                // {
+                //     label: t("open method"),
+                //     key: 'open method'
+                // },
+                // {
+                //     label: t("save method"),
+                //     key: 'save method',
+                //     disabled: disabledSave
+                // },
                 // {
                 //     label: t("save as"),
                 //     key: 'save as',
@@ -163,16 +163,16 @@ const App = () => {
                 // }
             ]
         },
-        {
-            label: t("edit"),
-            key: 'edit',
-            children: [
-                {
-                    label: t("report setting"),
-                    key: 'report setting',
-                }
-            ]
-        },
+        // {
+        //     label: t("edit"),
+        //     key: 'edit',
+        //     children: [
+        //         {
+        //             label: t("report setting"),
+        //             key: 'report setting',
+        //         }
+        //     ]
+        // },
         {
             label: t("advance"),
             key: 'advance',

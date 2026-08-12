@@ -125,7 +125,7 @@ const Info = () => {
                 </div>
             </Col>
 
-             {/* <Col span={2}>
+            {/* <Col span={2}>
 
                 <div className="statistic-item">
                     <span className="statistic-title">{t("X_mm")}</span>
@@ -155,7 +155,7 @@ const Info = () => {
                     />
                 </div>
             </Col> */}
-            <Col span={4}>
+            {/* <Col span={4}>
                 <div className="statistic-item">
                     <span className="statistic-title">{t("test time")}</span>
                     <Statistic
@@ -163,7 +163,7 @@ const Info = () => {
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
-            </Col>
+            </Col> */}
         </Row>
     );
 };
