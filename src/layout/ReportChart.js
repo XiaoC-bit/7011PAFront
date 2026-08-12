@@ -11,6 +11,8 @@ const MyLineChart = ({ width, height }) => {
     const loading = useRef(false);
     const queueId = useRef(null);
     const [chartData, setChartData] = useState([]);
+    const echartsRef = useRef(null);
+    const imgRef = useRef(null);
 
     const getLabel = (field) => {
         const keys = {
@@ -85,6 +87,22 @@ const MyLineChart = ({ width, height }) => {
         return () => clearInterval(intervalId);
     }, []);
 
+    useEffect(() => {
+        const handleBeforePrint = () => {
+            const instance = echartsRef.current?.getEchartsInstance();
+            if (instance && imgRef.current) {
+                const url = instance.getDataURL({
+                    type: 'png',
+                    pixelRatio: 2,
+                    backgroundColor: '#fff',
+                });
+                imgRef.current.src = url;
+            }
+        };
+        window.addEventListener('beforeprint', handleBeforePrint);
+        return () => window.removeEventListener('beforeprint', handleBeforePrint);
+    }, []);
+
     const option = {
         tooltip: {
             trigger: 'axis',
@@ -136,12 +154,19 @@ const MyLineChart = ({ width, height }) => {
     };
 
     return (
-        <div style={{ width: "100%", height: "100%" }}>
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
             <ReactECharts
+                ref={echartsRef}
                 option={option}
                 style={{ width: width || "100%", height: height || "500px" }}
                 notMerge={true}
                 lazyUpdate={true}
+            />
+            <img
+                ref={imgRef}
+                className="chart-print-img"
+                alt="chart"
+                style={{ display: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
             />
         </div>
     );

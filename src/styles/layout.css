@@ -146,22 +146,27 @@
     }
 
     .printableArea {
-        position: absolute;
+        position: fixed;
         left: 0;
         top: 0;
-        width: 100%;
-        height: 90vh;
-        /* 尝试使用视口高度 */
-        /*min-height: 297mm;
-        /* A4 高度（可选） */
+        width: 100vw;
+        height: 100vh;
         box-sizing: border-box;
-        /* 设置适合打印的内边距 */
+    }
+
+    .printableArea .echarts-for-react {
+        display: none;
+    }
+
+    .chart-print-img {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
     }
 
     @page {
         size: A4 portrait;
         margin: 0;
-        /* 或根据需要设置 10mm 等 */
     }
 }
 
