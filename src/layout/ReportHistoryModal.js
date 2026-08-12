@@ -274,7 +274,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                             wsService.sendMessage(data);
                         }}
                     >{t('export data')}</Button>
-                    <Button type="primary" style={{ marginLeft: '16px' }}
+                    {/* <Button type="primary" style={{ marginLeft: '16px' }}
                         disabled={selectedRowKeys.length === 0}
                         onClick={() => {
                             const __channel = "report-message";
@@ -297,7 +297,7 @@ const ReportHistoryModal = ({ visible, onOk, onCancel, width, height }) => {
                                 }
                             });
                         }}
-                    >{t('recalculate')}</Button>
+                    >{t('recalculate')}</Button> */}
 
                     <Button type="primary" style={{ marginLeft: '16px' }}
                         disabled={selectedRowKeys.length == 0}
