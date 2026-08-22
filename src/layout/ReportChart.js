@@ -26,7 +26,7 @@ const MyLineChart = ({ width, height }) => {
         return t(keys[field] || field);
     };
 
-    const fetchData = async () => {
+       const fetchData = async () => {
         if (loading.current) return;
         loading.current = true;
 
@@ -44,6 +44,7 @@ const MyLineChart = ({ width, height }) => {
                     queueId.current = recvData.queue_id;
                     dataRef.current = [];
                     setChartData([]);
+                    setLockedXRange(null); // ---- 新增 ----
                     return;
                 }
 
