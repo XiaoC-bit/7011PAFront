@@ -26,8 +26,8 @@ const AngleToleranceModal = ({ visible, onOk, onCancel }) => {
         const token = PubSub.subscribe(__channel + '-' + __type, (_, msg) => {
             PubSub.unsubscribe(token);
             setLoading(false);
-            if (msg.status === 'success' && msg.data !== undefined && msg.data !== null) {
-                form.setFieldsValue({ angleTolerance: msg.data });
+            if (msg.status === 'success' && msg.angleTolerance !== undefined && msg.angleTolerance !== null) {
+                form.setFieldsValue({ angleTolerance: msg.angleTolerance });
             } else {
                 form.setFieldsValue({ angleTolerance: undefined });
                 message.error(msg.message || t('angleTolerance.fetchFailed'));
@@ -99,7 +99,7 @@ const AngleToleranceModal = ({ visible, onOk, onCancel }) => {
                         loading={loading}
                         style={{ width: '100%' }}
                         step={0.1}
-                        precision={3}
+                        precision={9}
                         min={0}
                     />
                 </Form.Item>
