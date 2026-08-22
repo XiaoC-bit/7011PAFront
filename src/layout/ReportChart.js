@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import { useTranslation } from "react-i18next";
 import PubSub from "pubsub-js";
 import wsService from "../services/WebSocketService";
-import { message } from "antd";
+import { message, Button, Space } from "antd";
 
 const MyLineChart = ({ width, height }) => {
     const { t } = useTranslation();
@@ -13,6 +13,10 @@ const MyLineChart = ({ width, height }) => {
     const [chartData, setChartData] = useState([]);
     const echartsRef = useRef(null);
     const imgRef = useRef(null);
+
+    const [selectMode, setSelectMode] = useState(false);
+    const [selectedRange, setSelectedRange] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     const getLabel = (field) => {
         const keys = {
@@ -53,13 +57,11 @@ const MyLineChart = ({ width, height }) => {
                 const rawItems = recvData.data || [];
                 if (rawItems.length === 0) return;
 
-                // 后端返回 time 单位为微秒，这里转换为秒
                 const newItems = rawItems.map(d => ({
                     time: d.time / 1000,
                     torque: d.torque,
                 }));
 
-                // 如果新数据和旧数据长度相同，最后一个点的时间相同，就认为没变化
                 const newLastTime = newItems[newItems.length - 1]?.time;
                 const oldLastTime = dataRef.current[dataRef.current.length - 1]?.time;
 
@@ -82,10 +84,12 @@ const MyLineChart = ({ width, height }) => {
     useEffect(() => {
         fetchData();
         const intervalId = setInterval(() => {
-            fetchData();
+            if (!selectMode) {
+                fetchData();
+            }
         }, 2000);
         return () => clearInterval(intervalId);
-    }, []);
+    }, [selectMode]);
 
     useEffect(() => {
         const handleBeforePrint = () => {
@@ -103,7 +107,88 @@ const MyLineChart = ({ width, height }) => {
         return () => window.removeEventListener('beforeprint', handleBeforePrint);
     }, []);
 
-    const option = {
+    const handleToggleSelectMode = () => {
+        setSelectMode(prev => {
+            const next = !prev;
+            if (!next) {
+                setSelectedRange(null);
+            }
+            return next;
+        });
+    };
+
+    const handleCancelSelect = () => {
+        setSelectMode(false);
+        setSelectedRange(null);
+    };
+
+    // ---- 用 ref 存储范围，避免每次 dataZoom 事件都触发 setState -> re-render -> setOption ----
+    const selectedRangeRef = useRef(null);
+
+    const handleDataZoomEnd = () => {
+        const instance = echartsRef.current?.getEchartsInstance();
+        if (!instance) return;
+
+        const option = instance.getOption();
+        const dz = option.dataZoom && option.dataZoom[0];
+        if (!dz) return;
+
+        const startValue = dz.startValue;
+        const endValue = dz.endValue;
+
+        if (startValue != null && endValue != null) {
+            selectedRangeRef.current = { start: startValue, end: endValue };
+            // 只在这里才真正 setState，用来更新按钮可用状态和显示文案
+            // 这次 setState 之后不会再传回 option（见下面 option 的 useMemo），所以不会重建 dataZoom
+            setSelectedRange({ start: startValue, end: endValue });
+        }
+    };
+
+    const handleSubmitRange = async () => {
+        const range = selectedRangeRef.current;
+        if (!range) {
+            message.warning(t("chart.select.noRangeSelected", "请先拖动选择时间范围"));
+            return;
+        }
+
+        setSubmitting(true);
+
+        const __channel = "report-message";
+        const __type = "set-time-range"; // TODO: 与后端约定的实际 type
+
+        const sendData = {
+            "__channel": __channel,
+            "__type": __type,
+            "start_time": Math.round(range.start * 1000),
+            "end_time": Math.round(range.end * 1000),
+        };
+
+        try {
+            wsService.sendMessage(sendData);
+
+            const token = PubSub.subscribe(`${__channel}-${__type}`, (_, recvData) => {
+                PubSub.unsubscribe(token);
+                setSubmitting(false);
+
+                if (recvData?.success) {
+                    message.success(t("chart.select.submitSuccess", "时间范围提交成功"));
+                    setSelectMode(false);
+                    setSelectedRange(null);
+                    selectedRangeRef.current = null;
+                } else {
+                    message.error(recvData?.message || t("chart.select.submitFailed", "提交失败"));
+                }
+            });
+        } catch (err) {
+            setSubmitting(false);
+            message.error(err.message);
+        }
+    };
+
+    // ---- 关键改动：option 只依赖真正需要触发重绘的东西 (chartData, selectMode)，
+    // 不依赖 selectedRange，这样拖动过程中的 setSelectedRange 不会导致 option 对象变化、
+    // 不会触发 ReactECharts 重新 setOption，dataZoom 组件不会被打断 ----
+    const option = useMemo(() => ({
         tooltip: {
             trigger: 'axis',
             show: true,
@@ -123,7 +208,7 @@ const MyLineChart = ({ width, height }) => {
         grid: {
             left: '10%',
             right: '10%',
-            bottom: '15%',
+            bottom: selectMode ? '22%' : '15%',
             top: '10%',
         },
         xAxis: {
@@ -140,6 +225,18 @@ const MyLineChart = ({ width, height }) => {
             name: getLabel("torque"),
             position: 'left',
         },
+        dataZoom: selectMode ? [
+            {
+                id: 'timeRangeSelector',
+                type: 'slider',
+                xAxisIndex: 0,
+                filterMode: 'none',
+                height: 24,
+                bottom: 10,
+                realtime: true,
+                throttle: 100,
+            },
+        ] : [],
         series: [
             {
                 name: getLabel("torque"),
@@ -151,16 +248,52 @@ const MyLineChart = ({ width, height }) => {
                 // large: true,   
             },
         ],
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), [chartData, selectMode]);
+
+    const onEvents = useMemo(() => ({
+        dataZoomend: handleDataZoomEnd,
+        datazoom: handleDataZoomEnd,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), []);
 
     return (
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
+            <Space style={{ marginBottom: 8 }}>
+                <Button
+                    type={selectMode ? "primary" : "default"}
+                    onClick={handleToggleSelectMode}
+                >
+                    {t("chart.button.selectTime", "时间选择")}
+                </Button>
+                {selectMode && (
+                    <>
+                        <Button
+                            type="primary"
+                            disabled={!selectedRange}
+                            loading={submitting}
+                            onClick={handleSubmitRange}
+                        >
+                            {t("chart.button.submit", "提交")}
+                        </Button>
+                        <Button onClick={handleCancelSelect}>
+                            {t("chart.button.cancel", "取消")}
+                        </Button>
+                    </>
+                )}
+                {selectMode && selectedRange && (
+                    <span>
+                        {getLabel("time")}: {selectedRange.start.toFixed(3)} ~ {selectedRange.end.toFixed(3)}
+                    </span>
+                )}
+            </Space>
             <ReactECharts
                 ref={echartsRef}
                 option={option}
-                style={{ width: width || "100%", height: height || "500px" }}
-                notMerge={true}
+                onEvents={onEvents}
+                notMerge={false}
                 lazyUpdate={true}
+                style={{ width: width || "100%", height: height ? `calc(${height} - 40px)` : "460px" }}
             />
             <img
                 ref={imgRef}
