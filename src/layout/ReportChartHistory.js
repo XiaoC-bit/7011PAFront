@@ -7,7 +7,7 @@ import { message } from "antd";
 
 const X_FIELD = "time";
 const Y_FIELD = "torque";
-const US_TO_S = 1e-6;
+const MS_TO_S = 1e-3;
 
 const HistoryChart = ({ width, height, req_queue_id, method }) => {
     const { t } = useTranslation();
@@ -71,7 +71,7 @@ const HistoryChart = ({ width, height, req_queue_id, method }) => {
             type: 'line',
             showSymbol: false,
             lineStyle: { width: 1 },
-            data: chartData.map(d => [d[X_FIELD] * US_TO_S, d[Y_FIELD]]),
+            data: chartData.map(d => [d[X_FIELD] * MS_TO_S, d[Y_FIELD]]),
         }];
     };
 

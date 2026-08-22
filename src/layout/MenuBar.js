@@ -9,6 +9,7 @@ import MethodNameModal from './MethodNameModal';
 import PIDModal from './PIDModal';
 import AdvancedSettingsModal from './AdvancedSettingsModal';
 import SerialPortModal from './SerialPortModal';
+import AngleToleranceModal from './AngleToleranceModal';
 import About from './About';
 import PasswordPromptModal from './PasswordPromptModal';
 import LanguageModal from './LanguageModal';
@@ -33,6 +34,7 @@ const App = () => {
     const [isAdjustModalVisible, setIsAdjustModalVisible] = useState(false);
     const [isAdvanceModalVisible, setIsAdvanceModalVisible] = useState(false);
     const [isSerialPortModalVisible, setIsSerialPortModalVisible] = useState(false);
+    const [isAngleToleranceModalVisible, setIsAngleToleranceModalVisible] = useState(false);
     const [isSaveAs, setIsSaveAs] = useState(false);
 
     const [disabledSave, setIsDisabledSave] = useState(false);
@@ -107,6 +109,9 @@ const App = () => {
         }
         else if (e.key === 'serial port') {
             setIsSerialPortModalVisible(true);
+        }
+        else if (e.key === 'angle tolerance') {
+            setIsAngleToleranceModalVisible(true);
         }
         else if (e.key === 'print') {
             window.print();
@@ -188,6 +193,10 @@ const App = () => {
                 {
                     label: t("serial port"),
                     key: 'serial port',
+                },
+                {
+                    label: t("angle tolerance"),
+                    key: 'angle tolerance',
                 }
             ]
         },
@@ -335,6 +344,16 @@ const App = () => {
             }}
             onCancel={() => {
                 setIsSerialPortModalVisible(false);
+            }}
+        />
+
+        <AngleToleranceModal
+            visible={isAngleToleranceModalVisible}
+            onOk={() => {
+                setIsAngleToleranceModalVisible(false);
+            }}
+            onCancel={() => {
+                setIsAngleToleranceModalVisible(false);
             }}
         />
 

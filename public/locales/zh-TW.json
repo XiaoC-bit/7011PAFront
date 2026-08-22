@@ -141,6 +141,17 @@
         "selectFirst": "請先選擇串口",
         "updateSuccess": "修改完成，需要重新啟動軟件才能生效"
     },
+    "angle tolerance": "設定角度容差",
+    "angleTolerance": {
+        "title": "設定角度容差",
+        "okText": "確定",
+        "cancelText": "取消",
+        "label": "角度容差",
+        "placeholder": "請輸入角度容差",
+        "required": "請輸入角度容差",
+        "fetchFailed": "獲取角度容差失敗",
+        "updateSuccess": "角度容差修改成功"
+    },
     "testInProgress": "測試進行中",
     "testProcessing": "請稍候，正在處理測試...",
     "testStartSuccess": "開始測試成功",

@@ -33,5 +33,16 @@
         "noPorts": "No serial ports detected",
         "selectFirst": "Please select a port first",
         "updateSuccess": "Modification completed. Please restart the software for it to take effect."
+    },
+    "angle tolerance": "Angle Tolerance",
+    "angleTolerance": {
+        "title": "Set Angle Tolerance",
+        "okText": "OK",
+        "cancelText": "Cancel",
+        "label": "Angle Tolerance",
+        "placeholder": "Please enter the angle tolerance",
+        "required": "Please enter the angle tolerance",
+        "fetchFailed": "Failed to fetch angle tolerance",
+        "updateSuccess": "Angle tolerance updated successfully"
     }
 }

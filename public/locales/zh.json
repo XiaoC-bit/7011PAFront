@@ -304,6 +304,7 @@
   "transferFailed": "下发失败",
   "set": "设定",
   "setAngle": "设定角度",
+  "avg_torque": "平均力量",
   "max_speed": "最大速度",
   "expand": "展开",
   "collapse": "折叠",
@@ -330,6 +331,17 @@
     "noPorts": "未检测到可用串口",
     "selectFirst": "请先选择串口",
     "updateSuccess": "修改完成，需要重新启动软件才能生效"
+  },
+  "angle tolerance": "设定角度容差",
+  "angleTolerance": {
+    "title": "设定角度容差",
+    "okText": "确定",
+    "cancelText": "取消",
+    "label": "角度容差",
+    "placeholder": "请输入角度容差",
+    "required": "请输入角度容差",
+    "fetchFailed": "获取角度容差失败",
+    "updateSuccess": "角度容差修改成功"
   },
   "testInProgress": "测试进行中",
   "testProcessing": "请稍候，正在处理测试...",

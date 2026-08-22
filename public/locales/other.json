@@ -141,6 +141,17 @@
         "selectFirst": "Vui lòng chọn cổng trước",
         "updateSuccess": "Sửa đổi hoàn tất, cần khởi động lại phần mềm để có hiệu lực"
     },
+    "angle tolerance": "Dung sai góc",
+    "angleTolerance": {
+        "title": "Đặt dung sai góc",
+        "okText": "Xác nhận",
+        "cancelText": "Hủy bỏ",
+        "label": "Dung sai góc",
+        "placeholder": "Vui lòng nhập dung sai góc",
+        "required": "Vui lòng nhập dung sai góc",
+        "fetchFailed": "Không thể lấy dung sai góc",
+        "updateSuccess": "Cập nhật dung sai góc thành công"
+    },
     "testInProgress": "Đang kiểm tra",
     "testProcessing": "Vui lòng chờ, quá trình kiểm tra đang được xử lý...",
     "testStartSuccess": "Bắt đầu kiểm tra thành công",
