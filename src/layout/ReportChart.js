@@ -17,6 +17,8 @@ const MyLineChart = ({ width, height }) => {
     const [selectMode, setSelectMode] = useState(false);
     const [selectedRange, setSelectedRange] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+
+    // ---- 修改：lockedXRange 仍然记录选中的原始范围，用于展示文案和提交参数 ----
     const [lockedXRange, setLockedXRange] = useState(null);
 
     const getLabel = (field) => {
@@ -65,9 +67,11 @@ const MyLineChart = ({ width, height }) => {
         }
     };
 
-    useEffect(() => {
+       useEffect(() => {
         fetchData();
         const intervalId = setInterval(() => {
+            // ---- 修改：只在拖动选择过程中暂停轮询，避免正在选择时数据刷新打断拖动 ----
+            // 提交/取消后应该恢复正常轮询
             if (!selectMode) fetchData();
         }, 2000);
         return () => clearInterval(intervalId);
@@ -85,11 +89,12 @@ const MyLineChart = ({ width, height }) => {
         return () => window.removeEventListener('beforeprint', handleBeforePrint);
     }, []);
 
-    const handleToggleSelectMode = () => {
+        const handleToggleSelectMode = () => {
         setSelectMode(prev => {
             const next = !prev;
-            if (!next) setSelectedRange(null);
-            else setLockedXRange(null);
+            if (!next) {
+                setSelectedRange(null);
+            }
             return next;
         });
     };
@@ -156,6 +161,25 @@ const MyLineChart = ({ width, height }) => {
         }
     };
 
+    // ---- 关键修改：真正用于画图的数据源，如果有锁定范围，就在数据层面裁剪，
+    // 而不是只调 xAxis.min/max。这样 slider 缩略图、主图、X轴范围三者天然一致 ----
+    const displayData = useMemo(() => {
+        if (!lockedXRange) return chartData;
+        return chartData.filter(d => d.time >= lockedXRange.min && d.time <= lockedXRange.max);
+    }, [chartData, lockedXRange]);
+
+       // ---- 修改：xRange 现在始终基于 displayData 计算，不再只在 lockedXRange 存在时才生效 ----
+    const xRange = useMemo(() => {
+        if (displayData.length === 0) return { min: null, max: null };
+        const times = displayData.map(d => d.time);
+        return {
+            min: Math.min(...times),
+            max: Math.max(...times),
+        };
+    }, [displayData]);
+
+    
+
     const option = useMemo(() => ({
         tooltip: {
             trigger: 'axis',
@@ -177,14 +201,15 @@ const MyLineChart = ({ width, height }) => {
             bottom: selectMode ? '22%' : '15%',
             top: '10%',
         },
-        xAxis: {
+                xAxis: {
             type: 'value',
             name: getLabel("time"),
             nameLocation: 'end',
             nameGap: 50,
             axisLabel: { formatter: (value) => value.toFixed(3) },
-            min: lockedXRange ? lockedXRange.min : null,
-            max: lockedXRange ? lockedXRange.max : null,
+            // ---- 修改：始终使用真实数据边界，不再依赖 lockedXRange 判断 ----
+            min: xRange.min,
+            max: xRange.max,
         },
         yAxis: { type: 'value', name: getLabel("torque"), position: 'left' },
         dataZoom: selectMode ? [
@@ -207,30 +232,35 @@ const MyLineChart = ({ width, height }) => {
                 type: 'line',
                 showSymbol: false,
                 lineStyle: { width: 1 },
-                data: chartData.map(d => [d.time, d.torque]),
+                data: displayData.map(d => [d.time, d.torque]),
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), [chartData, selectMode, lockedXRange]);
+    }), [displayData, selectMode, lockedXRange, xRange]);
 
-    // ---- 关键修复：不再依赖 <ReactECharts notMerge={false}> 的自动合并逻辑，
-    // 改为拿到实例后手动 setOption，并显式用 replaceMerge 处理 dataZoom 的增删 ----
-    useEffect(() => {
-        const instance = echartsRef.current?.getEchartsInstance();
-        if (!instance) return;
-
-        instance.setOption(option, {
-            notMerge: false,
-            lazyUpdate: true,
-            replaceMerge: ['dataZoom'], // dataZoom 数组按"整体替换"处理，而不是按下标 merge
-        });
-    }, [option]);
 
     const onEvents = useMemo(() => ({
         dataZoomend: handleDataZoomEnd,
         datazoom: handleDataZoomEnd,
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }), []);
+
+      const prevSelectModeRef = useRef(selectMode);
+
+    useEffect(() => {
+        const wasSelecting = prevSelectModeRef.current;
+        prevSelectModeRef.current = selectMode;
+
+        if (wasSelecting && !selectMode) {
+            const instance = echartsRef.current?.getEchartsInstance();
+            if (instance) {
+                instance.setOption(option, { notMerge: true, lazyUpdate: true });
+            }
+        }
+    }, [selectMode, option]);
+
+
+    
 
     return (
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -258,16 +288,11 @@ const MyLineChart = ({ width, height }) => {
                         {getLabel("time")}: {selectedRange.start.toFixed(3)} ~ {selectedRange.end.toFixed(3)}
                     </span>
                 )}
-                {/* {!selectMode && lockedXRange && (
-                    <>
-                        <span>
-                            {getLabel("time")}: {lockedXRange.min.toFixed(3)} ~ {lockedXRange.max.toFixed(3)}
-                        </span>
-                        <Button size="small" onClick={() => setLockedXRange(null)}>
-                            {t("chart.button.resetView", "恢复全部")}
-                        </Button>
-                    </>
-                )} */}
+                {!selectMode && lockedXRange && (
+                    <span>
+                        {getLabel("time")}: {lockedXRange.min.toFixed(3)} ~ {lockedXRange.max.toFixed(3)}
+                    </span>
+                )}
             </Space>
             <ReactECharts
                 ref={echartsRef}
