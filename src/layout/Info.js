@@ -114,10 +114,20 @@ const Info = () => {
                     />
                 </div>
             </Col>
+            
             <Col span={4}>
 
                 <div className="statistic-item">
                     <span className="statistic-title">{t("angle")}</span>
+                    <Statistic
+                        value={statusData.angle.toFixed(3) + " deg"}
+                        valueStyle={{ color: '#3f8600' }}
+                    />
+                </div>
+            </Col>
+            <Col span={4}>
+                <div className="statistic-item">
+                    <span className="statistic-title">{t("X_mm")}</span>
                     <Statistic
                         value={statusData.X_mm.toFixed(4) + " mm"}
                         valueStyle={{ color: '#3f8600' }}
