@@ -346,5 +346,12 @@
   "testInProgress": "测试进行中",
   "testProcessing": "请稍候，正在处理测试...",
   "testStartSuccess": "开始测试成功",
-  "testStartFailed": "开始测试失败"
+  "testStartFailed": "开始测试失败",
+  "resetStop": "复位/停止",
+  "operationFailed": "操作失败",
+  "adjustmentInProgress": "正在调整角度，请稍候或点击复位停止",
+  "adjustAngleSuccess": "角度调整成功",
+  "adjustAngleCanceled": "角度调整已取消",
+  "adjustAngleFailed": "角度调整失败",
+  "noAdjustmentRunning": "当前没有进行中的角度调整"
 }

@@ -44,5 +44,12 @@
         "required": "Please enter the angle tolerance",
         "fetchFailed": "Failed to fetch angle tolerance",
         "updateSuccess": "Angle tolerance updated successfully"
-    }
+    },
+    "resetStop": "Reset / Stop",
+    "operationFailed": "Operation failed",
+    "adjustmentInProgress": "Adjusting angle. Please wait or press Reset to stop.",
+    "adjustAngleSuccess": "Angle adjusted successfully",
+    "adjustAngleCanceled": "Angle adjustment canceled",
+    "adjustAngleFailed": "Angle adjustment failed",
+    "noAdjustmentRunning": "No angle adjustment is in progress"
 }

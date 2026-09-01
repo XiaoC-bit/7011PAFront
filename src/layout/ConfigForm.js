@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import PubSub from "pubsub-js";
 import wsService from "../services/WebSocketService";
 
+// ============ 后端 WS 协议常量 ============
+// 前端永远发送/订阅 data-testing-message（TestingHandler 透明处理后再把响应通道还原）
 const CHANNEL = "data-testing-message";
 const TYPE_PREPARE = "prepare-test";
 const TYPE_CANCEL  = "cancel-prepare-test";
@@ -18,38 +20,47 @@ const ConfigForm = () => {
 
     const [loadingSet,    setLoadingSet]    = useState(false); // 设置角度按钮 loading
     const [loadingCancel, setLoadingCancel] = useState(false); // 复位按钮 loading
-    const [running,       setRunning]       = useState(false); // 角度调整是否进行中（控制复位按钮 disabled / 设置按钮禁用）
+    const [running,       setRunning]       = useState(false); // 是否有正在进行的角度调整
     const [expanded,      setExpanded]      = useState(false);
 
-    // 保存所有 PubSub token，组件卸载时统一清理，防止内存泄漏与回调幽灵触发
+    // ========== 订阅 token 管理：组件卸载时统一 unsubscribe ==========
     const tokensRef = useRef([]);
-    const addToken = (token) => {
-        if (token) tokensRef.current.push(token);
-    };
-    const clearTokens = () => {
+    const addToken = (token) => { if (token) tokensRef.current.push(token); };
+    const unsubscribeAll = () => {
         tokensRef.current.forEach((tok) => { try { PubSub.unsubscribe(tok); } catch (_) {} });
         tokensRef.current = [];
     };
+    const removeToken = (tok) => {
+        try { PubSub.unsubscribe(tok); } catch (_) {}
+        tokensRef.current = tokensRef.current.filter((t) => t !== tok);
+    };
 
-    // ==================== 工具：显示后端错误 ====================
+    // ========== 收尾门禁：同一轮任务只允许被收尾一次 ==========
+    // 解决：prepare 的「canceled 订阅」和 cancel 回调的「canceled 订阅」可能同时被一条 status=canceled 消息触发
+    //       两者都想关 loading、写 running —— 用 finishedRef 做 CAS，保证只有第一个生效
+    const finishedRef = useRef(true);
+    const markStart = () => { finishedRef.current = false; };
+    const tryMarkFinish = () => {
+        if (finishedRef.current) return false;
+        finishedRef.current = true;
+        return true;
+    };
+
+    // ========== 统一收尾：把所有状态恢复到非运行态 ==========
+    const finalizeAll = () => {
+        if (!tryMarkFinish()) return; // 已经被收尾过了，直接跳过
+        setLoadingSet(false);
+        setLoadingCancel(false);
+        setRunning(false);
+    };
+
+    // ========== 工具：显示后端错误 ==========
     const showBackendError = (data, fallback) => {
         const text = data?.error || fallback || t("operationFailed");
         message.error(text);
     };
 
     // ==================== ① 设置角度按钮回调 ====================
-    //
-    // 异步时序：
-    //   1) sendMessage(prepare-test)
-    //      → 后端 commFunc 立刻 emit 一条 ACK（和原请求字段一致，没有 status 字段）
-    //      → 本订阅忽略它（因为我们要等带 status 的完成消息）
-    //   2) 后端 timerFunc 异步推进状态机，最终 emit 一条带 status 的消息：
-    //        status = "success" / "error" / "canceled"
-    //      → 本订阅捕获它，关闭 loading，并根据 status 提示
-    //
-    // 注意：用户在调整中点击「复位」也会产生一条 status=canceled 的 prepare-test 消息，
-    //       所以这里也负责把它一并收尾（关闭 loadingSet + running）。
-    //
     const handleSetAngle = async () => {
         if (running || loadingSet) {
             message.warning(t("adjustmentInProgress"));
@@ -58,29 +69,25 @@ const ConfigForm = () => {
         try {
             setLoadingSet(true);
             setRunning(true);
+            markStart(); // 开启收尾门禁
 
-            const data = {
-                "__channel": CHANNEL,
-                "__type":    TYPE_PREPARE,
+            wsService.sendMessage({
+                "__channel":   CHANNEL,
+                "__type":      TYPE_PREPARE,
                 "targetAngle": targetAngle,
-            };
-            wsService.sendMessage(data);
+            });
 
-            // 订阅 prepare-test 对应的响应
+            // 订阅 prepare-test 结果：包含 success / error / canceled 三种完成情况
             const tok = PubSub.subscribe(TOKEN_PREPARE_RESULT, (_, msg) => {
-                // 只处理"带 status 的完成消息"，忽略后端刚受理时的无 status ACK
                 const status = msg?.status;
+                // 忽略后端"刚受理"时的无 status ACK
                 if (!status) return;
 
-                // 完成消息到达，收尾：取消订阅 + 清理状态
-                try { PubSub.unsubscribe(tok); } catch (_) {}
-                tokensRef.current = tokensRef.current.filter((t) => t !== tok);
-
-                setLoadingSet(false);
-                setRunning(false);
+                removeToken(tok);
 
                 switch (status) {
                     case "success":
+                        finalizeAll();
                         message.success(
                             t("adjustAngleSuccess") +
                             (msg.currentAngle !== undefined
@@ -89,86 +96,84 @@ const ConfigForm = () => {
                         );
                         break;
                     case "canceled":
+                        finalizeAll();
                         message.info(t("adjustAngleCanceled"));
                         break;
                     case "error":
                     default:
+                        finalizeAll();
                         showBackendError(msg, t("adjustAngleFailed"));
                         break;
                 }
             });
             addToken(tok);
         } catch (error) {
-            setLoadingSet(false);
-            setRunning(false);
+            finalizeAll();
             message.error(error?.message || t("operationFailed"));
         }
     };
 
     // ==================== ② 复位/停止 按钮回调 ====================
     //
-    // 异步时序：
-    //   1) sendMessage(cancel-prepare-test)
-    //      → 后端 commFunc 返回 accepted / idle，立刻 emit 一条带 status=accepted|idle 的响应
-    //      → 本订阅捕获它：
-    //          accepted → loadingCancel 保持 true，等待后续 prepare-test.status=canceled
-    //          idle     → 没有正在运行的调整，直接关 loadingCancel 并给出错误提示
-    //   2) 若 accepted，后端在下一轮 timerFunc 收尾时会再 emit prepare-test.status=canceled
-    //      → ① 中已经安装的 prepare-test 订阅会统一捕获它，清 running + loadingSet
-    //      → 这里同时也安装一条快捷路径，把 loadingCancel 关掉
+    // 时序：
+    //   sendMessage(cancel-prepare-test)
+    //     → TestingHandler 不做数据库，直接转发给设备线程 ControlTestCommHandler
+    //     → commFunc 立刻 emit ACK (data-testing-message/cancel-prepare-test status=accepted|idle)
+    //       若 accepted：保持 loadingCancel，等 prepare-test.status=canceled 到达（与上面的 prepare 完成回调竞争 finalizeAll）
+    //       若 idle    ：没有任务在运行，立刻 finalizeAll + message.info
     //
     const handleCancelPrepareTest = async () => {
-        if (!running || loadingCancel) {
-            // 理论上按钮已经 disabled，但防御性判断
-            return;
-        }
+        if (!running || loadingCancel) return;
         try {
             setLoadingCancel(true);
 
-            const data = {
+            wsService.sendMessage({
                 "__channel": CHANNEL,
                 "__type":    TYPE_CANCEL,
-            };
-            wsService.sendMessage(data);
+            });
 
-            // 受理 ACK（accepted / idle）
+            // ACK：accepted / idle
             const tokAck = PubSub.subscribe(TOKEN_CANCEL_ACK, (_, msg) => {
                 const status = msg?.status;
-                try { PubSub.unsubscribe(tokAck); } catch (_) {}
-                tokensRef.current = tokensRef.current.filter((t) => t !== tokAck);
+                removeToken(tokAck);
 
                 if (status === "accepted") {
-                    // 已受理，保持 loadingCancel = true，等 canceled 完成消息
-                    // 下面的 tokDone 订阅会负责收尾
-                } else if (status === "idle") {
-                    setLoadingCancel(false);
-                    message.info(t("noAdjustmentRunning"));
-                } else {
-                    // 非预期 status
-                    setLoadingCancel(false);
-                    showBackendError(msg, t("operationFailed"));
+                    // 已受理，保持 loadingCancel 显示
+                    // canceled 完成消息由 handleSetAngle 订阅 + 下方 tokDone 订阅竞争处理，
+                    // 最终通过 finalizeAll 的 CAS 门禁只收尾一次。
+                    return;
                 }
+                if (status === "idle") {
+                    // 后端认为当前没有进行中的调整，和前端 running=true 不一致。
+                    // 这里做纠正：把前端状态一次性恢复干净。
+                    finalizeAll();
+                    message.info(t("noAdjustmentRunning"));
+                    return;
+                }
+                // 非预期状态
+                finalizeAll();
+                showBackendError(msg, t("operationFailed"));
             });
             addToken(tokAck);
 
-            // prepare-test canceled 完成消息：和 handleSetAngle 的订阅可能同时触发，没问题
+            // canceled 完成消息「兜底订阅」：
+            // 当 handleSetAngle 的订阅因为"被取消了所以没装"（极端情况）或其它原因没启动时，
+            // 这里作为兜底，保证 canceled 一到就 finalizeAll。
+            // CAS 门禁 finalizeAll 会让"两个订阅同时触发"安全合并。
             const tokDone = PubSub.subscribe(TOKEN_PREPARE_RESULT, (_, msg) => {
                 if (msg?.status !== "canceled") return;
-                try { PubSub.unsubscribe(tokDone); } catch (_) {}
-                tokensRef.current = tokensRef.current.filter((t) => t !== tokDone);
-                setLoadingCancel(false);
+                removeToken(tokDone);
+                finalizeAll();
             });
             addToken(tokDone);
         } catch (error) {
-            setLoadingCancel(false);
+            finalizeAll();
             message.error(error?.message || t("operationFailed"));
         }
     };
 
-    // ==================== 卸载清理：所有订阅统一 unsubscribe ====================
-    useEffect(() => {
-        return () => clearTokens();
-    }, []);
+    // ==================== 组件卸载清理 ====================
+    useEffect(() => () => unsubscribeAll(), []);
 
     // ==================== 渲染 ====================
     return (
@@ -199,7 +204,7 @@ const ConfigForm = () => {
                             danger
                             onClick={handleCancelPrepareTest}
                             loading={loadingCancel}
-                            disabled={!running}   // 没有调整在运行时不允许点复位
+                            disabled={!running}
                         >
                             {t("resetStop")}
                         </Button>
@@ -212,14 +217,12 @@ const ConfigForm = () => {
                 onClick={() => setExpanded(!expanded)}
                 icon={expanded ? <UpOutlined /> : <DownOutlined />}
                 style={{ paddingLeft: 0 }}
-            >
-            </Button>
+            />
 
             {expanded && (
                 <>
                     <h3>{t("initialLoad")}</h3>
 
-                    {/* 初始载荷配置项 */}
                     <Row gutter={16}>
                         <Col span={6}>
                             <Form.Item name="initialMode">
