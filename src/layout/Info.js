@@ -129,7 +129,7 @@ const Info = () => {
                 <div className="statistic-item">
                     <span className="statistic-title">{t("X_mm")}</span>
                     <Statistic
-                        value={statusData.X_mm.toFixed(4) + " mm"}
+                        value={statusData.X_mm.toFixed(4) + " °"}
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
