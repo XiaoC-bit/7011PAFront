@@ -67,9 +67,16 @@ class WebSocketService {
     }
 
     notifyListeners(message) {
-        const event = message.__channel;
-        if (event) {
-            PubSub.publish(event, message);
+        const channel = message.__channel;
+        if (channel) {
+            PubSub.publish(channel, message);
+
+            // 同时发布更细粒度的 `${channel}-${type}` 事件
+            // 用于前端只订阅某一具体类型响应的场景（例如只关心 prepare-test 的完成回调）
+            const type = message.__type;
+            if (type) {
+                PubSub.publish(`${channel}-${type}`, message);
+            }
         }
     }
 }
