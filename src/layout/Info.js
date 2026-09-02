@@ -120,7 +120,7 @@ const Info = () => {
                 <div className="statistic-item">
                     <span className="statistic-title">{t("angle")}</span>
                     <Statistic
-                        value={statusData.angle.toFixed(3) + " deg"}
+                        value={statusData.angle.toFixed(3) + " °"}
                         valueStyle={{ color: '#3f8600' }}
                     />
                 </div>
