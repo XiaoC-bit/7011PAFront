@@ -263,7 +263,7 @@ const TestingContent = () => {
             <div style={{
                 textAlign: 'right', width: '100%', height: '50px',
             }}>
-                <Button
+                {/* <Button
                     type="primary"
                     onClick={TransferDFSet}
                     icon={<SwapOutlined />}
@@ -279,7 +279,7 @@ const TestingContent = () => {
                     }}
                 >
                     {t('transfer method')}
-                </Button>
+                </Button> */}
                 <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
@@ -295,7 +295,7 @@ const TestingContent = () => {
                 >
                     {t('startTest')}
                 </Button>
-                <Button
+                {/* <Button
 
                     type="primary"
                     icon={<PauseCircleOutlined />}
@@ -311,7 +311,7 @@ const TestingContent = () => {
                     onClick={EndTest}
                 >
                     {t('endTest')}
-                </Button>
+                </Button> */}
                 <Button type="primary"
                     icon={<ExportOutlined />}
                     style={{

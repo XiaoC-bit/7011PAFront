@@ -5,6 +5,7 @@
     "move-down": "Move Down",
     "stop": "Stop",
     "set": "Set",
+    "return": "Return",
     "setAngle": "Target Angle",
     "expand": "Expand",
     "collapse": "Collapse",
@@ -45,11 +46,12 @@
         "fetchFailed": "Failed to fetch angle tolerance",
         "updateSuccess": "Angle tolerance updated successfully"
     },
-    "resetStop": "Reset / Stop",
+    "resetStop": "Cancel",
     "operationFailed": "Operation failed",
     "adjustmentInProgress": "Adjusting angle. Please wait or press Reset to stop.",
     "adjustAngleSuccess": "Angle adjusted successfully",
     "adjustAngleCanceled": "Angle adjustment canceled",
     "adjustAngleFailed": "Angle adjustment failed",
-    "noAdjustmentRunning": "No angle adjustment is in progress"
+    "noAdjustmentRunning": "No angle adjustment is in progress",
+    "angleMustBeZero": "Current angle is {{angle}}°. It must be 0° before setting the angle. Please press Return first."
 }

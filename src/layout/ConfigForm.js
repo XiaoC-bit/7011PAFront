@@ -13,13 +13,17 @@ const TYPE_CANCEL  = "cancel-prepare-test";
 const TOKEN_PREPARE_RESULT = `${CHANNEL}-${TYPE_PREPARE}`;
 const TOKEN_CANCEL_ACK     = `${CHANNEL}-${TYPE_CANCEL}`;
 
+// 判定角度为 0 的容差：Info 面板角度显示 3 位小数，小于该值即视为 0
+const ANGLE_ZERO_EPSILON = 0.5;
+
 const ConfigForm = () => {
     const { t } = useTranslation();
 
     const targetAngle = Form.useWatch("setAngle");
 
     const [loadingSet,    setLoadingSet]    = useState(false); // 设置角度按钮 loading
-    const [loadingCancel, setLoadingCancel] = useState(false); // 复位按钮 loading
+    const [loadingCancel, setLoadingCancel] = useState(false); // 取消按钮 loading
+    const [setSource,     setSetSource]     = useState(null);  // 本次角度调整由哪个按钮发起："set" | "return"
     const [running,       setRunning]       = useState(false); // 是否有正在进行的角度调整
     const [expanded,      setExpanded]      = useState(false);
 
@@ -34,6 +38,9 @@ const ConfigForm = () => {
         try { PubSub.unsubscribe(tok); } catch (_) {}
         tokensRef.current = tokensRef.current.filter((t) => t !== tok);
     };
+
+    // ========== 设备实际上报角度：订阅 normal-message-real-data 实时更新（参考 Info.js） ==========
+    const currentAngleRef = useRef(0);
 
     // ========== 收尾门禁：同一轮任务只允许被收尾一次 ==========
     // 解决：prepare 的「canceled 订阅」和 cancel 回调的「canceled 订阅」可能同时被一条 status=canceled 消息触发
@@ -51,6 +58,7 @@ const ConfigForm = () => {
         if (!tryMarkFinish()) return; // 已经被收尾过了，直接跳过
         setLoadingSet(false);
         setLoadingCancel(false);
+        setSetSource(null);
         setRunning(false);
     };
 
@@ -61,20 +69,33 @@ const ConfigForm = () => {
     };
 
     // ==================== ① 设置角度按钮回调 ====================
-    const handleSetAngle = async () => {
+    // overrideAngle 不传：使用输入框中的 setAngle；传入（如回位传 0）：使用固定角度
+    const handleSetAngle = async (overrideAngle) => {
         if (running || loadingSet) {
             message.warning(t("adjustmentInProgress"));
             return;
         }
+        const isReturn = overrideAngle !== undefined;
+        const angle = isReturn ? overrideAngle : targetAngle;
+
+        // 「设定」前要求设备当前实际角度必须为 0（回位按钮不受此限制）
+        if (!isReturn && Math.abs(currentAngleRef.current) > ANGLE_ZERO_EPSILON) {
+            message.warning(
+                t("angleMustBeZero", { angle: currentAngleRef.current.toFixed(4) })
+            );
+            return;
+        }
+
         try {
             setLoadingSet(true);
+            setSetSource(isReturn ? "return" : "set");
             setRunning(true);
             markStart(); // 开启收尾门禁
 
             wsService.sendMessage({
                 "__channel":   CHANNEL,
                 "__type":      TYPE_PREPARE,
-                "targetAngle": targetAngle,
+                "targetAngle": angle,
             });
 
             // 订阅 prepare-test 结果：包含 success / error / canceled 三种完成情况
@@ -113,7 +134,7 @@ const ConfigForm = () => {
         }
     };
 
-    // ==================== ② 复位/停止 按钮回调 ====================
+    // ==================== ② 取消 按钮回调（停止正在进行的角度调整） ====================
     //
     // 时序：
     //   sendMessage(cancel-prepare-test)
@@ -172,6 +193,16 @@ const ConfigForm = () => {
         }
     };
 
+    // ==================== 订阅设备实时角度 ====================
+    useEffect(() => {
+        const tok = PubSub.subscribe("normal-message-real-data", (_, data) => {
+            if (data.connectErr === false && typeof data.angle === "number") {
+                currentAngleRef.current = data.angle;
+            }
+        });
+        addToken(tok);
+    }, []);
+
     // ==================== 组件卸载清理 ====================
     useEffect(() => () => unsubscribeAll(), []);
 
@@ -194,11 +225,18 @@ const ConfigForm = () => {
                         </Form.Item>
                         <Button
                             type="primary"
-                            onClick={handleSetAngle}
-                            loading={loadingSet}
-                            disabled={running && !loadingSet}
+                            onClick={() => handleSetAngle()}
+                            loading={loadingSet && setSource === "set"}
+                            disabled={running && setSource !== "set"}
                         >
                             {t("set")}
+                        </Button>
+                        <Button
+                            onClick={() => handleSetAngle(0)}
+                            loading={loadingSet && setSource === "return"}
+                            disabled={running && setSource !== "return"}
+                        >
+                            {t("return")}
                         </Button>
                         <Button
                             danger
